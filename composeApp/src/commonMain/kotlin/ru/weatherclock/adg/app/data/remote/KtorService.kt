@@ -18,7 +18,8 @@ class KtorService(
             .get(
                 baseUrl + Endpoints.WEATHER_FORECAST.getUrl(
                     forecastKey,
-                    apiKey
+                    apiKey,
+                    "ru-ru"
                 )
             )
             .body()

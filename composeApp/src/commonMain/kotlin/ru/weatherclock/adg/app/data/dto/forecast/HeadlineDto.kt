@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import ru.weatherclock.adg.app.domain.model.forecast.Headline
 import ru.weatherclock.adg.app.domain.model.forecast.Severity
+import ru.weatherclock.adg.app.domain.util.UNSPECIFIED_DATE
 
 /**
  * Наиболее значительное погодное событие в течение следующих 5 дней.
@@ -11,7 +12,7 @@ import ru.weatherclock.adg.app.domain.model.forecast.Severity
 @Serializable
 data class HeadlineDto(
     @SerialName("EffectiveEpochDate")
-    val startDate: Long,
+    val startDate: Long = UNSPECIFIED_DATE,
 
     /**
      * Серьезность заголовка, отображаемая как целое число.
@@ -27,15 +28,15 @@ data class HeadlineDto(
      * в течение следующих 5 дней. Отображается на языке, указанном кодом языка в URL-адресе.
      */
     @SerialName("Text")
-    val text: String,
+    val text: String = "",
 
     /**
      * Категория заголовка.
      */
     @SerialName("Category")
-    val category: String,
+    val category: String = "",
     @SerialName("EndEpochDate")
-    val endDate: Long,
+    val endDate: Long = UNSPECIFIED_DATE,
 )
 
 fun HeadlineDto.asDomainModel() = Headline(

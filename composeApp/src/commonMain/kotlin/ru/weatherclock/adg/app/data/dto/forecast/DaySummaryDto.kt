@@ -7,9 +7,9 @@ import ru.weatherclock.adg.app.domain.model.forecast.DaySummary
 @Serializable
 data class DaySummaryDto(
     @SerialName("Heating")
-    val heating: UnitDto,
+    val heating: UnitDto = UnitDto(),
     @SerialName("Cooling")
-    val cooling: UnitDto
+    val cooling: UnitDto = UnitDto()
 )
 
 fun DaySummaryDto.asDomainModel(): DaySummary = DaySummary(

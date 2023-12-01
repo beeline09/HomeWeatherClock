@@ -4,7 +4,7 @@ val regex = "\\{([^{}]*)\\}".toRegex()
 
 object Endpoints {
 
-    const val WEATHER_FORECAST = "/forecasts/v1/daily/5day/{forecastKey}?apikey={apiKey}"
+    const val WEATHER_FORECAST = "/forecasts/v1/daily/5day/{forecastKey}?apikey={apiKey}&language={language}&details=true&metric=true"
 }
 
 inline fun <reified T: Any> String.getUrl(vararg params: T): String {
