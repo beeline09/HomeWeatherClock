@@ -14,13 +14,13 @@ data class UnitDto(
      * Значение
      */
     @SerialName("Value")
-    val value: Double,
+    val value: Double = 0.0,
 
     /**
      * Единица измерения. Например для температуры: **C**
      */
     @SerialName("Unit")
-    val unit: String,
+    val unit: String = "",
 
     /**
      * Код единицы измерения

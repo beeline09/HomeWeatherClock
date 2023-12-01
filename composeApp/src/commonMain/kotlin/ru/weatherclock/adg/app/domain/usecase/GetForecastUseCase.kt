@@ -11,7 +11,7 @@ class GetForecastUseCase(private val repository: AbstractRepository) {
     private var hasMorePages = true
     operator fun invoke() = flow {
         if (hasMorePages) {
-            val response = repository.getWeatherForecast("").asDomainModel()
+            val response = repository.getWeatherForecast("291658").asDomainModel()
             forecast = response
             emit(response)
         }

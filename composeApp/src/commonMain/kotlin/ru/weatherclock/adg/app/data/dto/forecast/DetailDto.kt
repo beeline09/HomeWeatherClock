@@ -10,19 +10,19 @@ data class DetailDto(
      * Иконка погоды
      */
     @SerialName("Icon")
-    val icon: Int,
+    val icon: Int = -1,
 
     /**
      * Фразовое описание значка. Например, **Ливни**
      */
     @SerialName("IconPhrase")
-    val iconPhrase: String,
+    val iconPhrase: String = "",
 
     /**
      * Есть осадки
      */
     @SerialName("HasPrecipitation")
-    val hasPrecipitation: Boolean,
+    val hasPrecipitation: Boolean = false,
 
     /**
      * Указывает, являются ли осадки дождем, снегом, льдом или смешанными.
@@ -43,14 +43,14 @@ data class DetailDto(
      * но в зависимости от языка/погоды длина фразы может превышать 30 символов.
      */
     @SerialName("ShortPhrase")
-    val shortPhrase: String,
+    val shortPhrase: String = "",
 
     /**
      * Описание прогноза. AccuWeather старается, чтобы длина этой фразы не превышала 100 символов,
      * но в зависимости от языка или погодных явлений длина фразы может превышать 100 символов.
      */
     @SerialName("LongPhrase")
-    val longPhrase: String,
+    val longPhrase: String = "",
 
     /**
      * Процент, представляющий вероятность осадков. Может быть НУЛЬ.
@@ -86,79 +86,79 @@ data class DetailDto(
      * Ветер
      */
     @SerialName("Wind")
-    val wind: WindDto,
+    val wind: WindDto? = null,
 
     /**
      * Порывы ветра
      */
     @SerialName("WindGust")
-    val windGust: WindDto,
+    val windGust: WindDto? = null,
 
     /**
      * Всего осадков
      */
     @SerialName("TotalLiquid")
-    val totalLiquid: UnitDto,
+    val totalLiquid: UnitDto? = null,
 
     /**
      * Колчество осадков для дождя
      */
     @SerialName("Rain")
-    val rain: UnitDto,
+    val rain: UnitDto? = null,
 
     /**
      * Колчество осадков для снега
      */
     @SerialName("Snow")
-    val snow: UnitDto,
+    val snow: UnitDto? = null,
 
     /**
      * Колчество осадков для льда
      */
     @SerialName("Ice")
-    val ice: UnitDto,
+    val ice: UnitDto? = null,
 
     /**
      * Кол-во часов, в течение которых будут идти осадки
      */
     @SerialName("HoursOfPrecipitation")
-    val hoursOfPrecipitation: Double,
+    val hoursOfPrecipitation: Double = 0.0,
 
     /**
      * Кол-во часов, в течение которых будет дождь
      */
     @SerialName("HoursOfRain")
-    val hoursOfRain: Double,
+    val hoursOfRain: Double = 0.0,
 
     /**
      * Кол-во часов, в течение которых будет снег
      */
     @SerialName("HoursOfSnow")
-    val hoursOfSnow: Double,
+    val hoursOfSnow: Double = 0.0,
 
     /**
      * Кол-во часов, в течение которых будет лёд
      */
     @SerialName("HoursOfIce")
-    val hoursOfIce: Double,
+    val hoursOfIce: Double = 0.0,
 
     /**
      * Облачность
      */
     @SerialName("CloudCover")
-    val cloudCover: Int,
+    val cloudCover: Int = 0,
 
     /**
      * Хуйня какая-то непонятная
      */
     @SerialName("Evapotranspiration")
-    val evapotranspiration: UnitDto,
+    val evapotranspiration: UnitDto? = null,
 
     /**
      * Ну тут всё понятно - солнечная радиация
      */
     @SerialName("SolarIrradiance")
-    val solarIrradiance: UnitDto,
+    val solarIrradiance: UnitDto? = null,
 )
 
 fun DetailDto.asDomainModel() = Detail(
@@ -174,18 +174,18 @@ fun DetailDto.asDomainModel() = Detail(
     rainProbability = rainProbability,
     snowProbability = snowProbability,
     iceProbability = iceProbability,
-    wind = wind.asDomainModel(),
-    windGust = windGust.asDomainModel(),
-    totalLiquid = totalLiquid.asDomainModel(),
-    rain = rain.asDomainModel(),
-    snow = snow.asDomainModel(),
-    ice = ice.asDomainModel(),
+    wind = wind?.asDomainModel(),
+    windGust = windGust?.asDomainModel(),
+    totalLiquid = totalLiquid?.asDomainModel(),
+    rain = rain?.asDomainModel(),
+    snow = snow?.asDomainModel(),
+    ice = ice?.asDomainModel(),
     hoursOfPrecipitation = hoursOfPrecipitation,
     hoursOfRain = hoursOfRain,
     hoursOfSnow = hoursOfSnow,
     hoursOfIce = hoursOfIce,
     cloudCover = cloudCover,
-    evapotranspiration = evapotranspiration.asDomainModel(),
-    solarIrradiance = solarIrradiance.asDomainModel()
+    evapotranspiration = evapotranspiration?.asDomainModel(),
+    solarIrradiance = solarIrradiance?.asDomainModel()
 )
 

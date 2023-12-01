@@ -11,7 +11,7 @@ data class AirAndPollenDto(
      * Название пыльцы или загрязнителя воздуха.
      */
     @SerialName("Name")
-    val name: String,
+    val name: String = "",
 
     /**
      * Ценность загрязнителя. Значения, связанные с плесенью, травой, сорняками и деревом,
@@ -25,20 +25,20 @@ data class AirAndPollenDto(
      * Категория загрязнения. (низкий, высокий, хороший, средний, вредный, опасный)
      */
     @SerialName("Category")
-    val category: String,
+    val category: String = "",
 
     /**
      * Значение, связанное с категорией. Эти значения варьируются от 1 до 6,
      * где 1 означает хорошие условия, а 6 — опасные условия.
      */
     @SerialName("CategoryValue")
-    val categoryValue: Int,
+    val categoryValue: Int = -1,
 
     /**
      * Существует только для качества воздуха. Примеры включают загрязнение озоном и частицами.
      */
     @SerialName("Type")
-    val type: String
+    val type: String = ""
 )
 
 fun AirAndPollenDto.asDomainModel(): AirAndPollen = AirAndPollen(

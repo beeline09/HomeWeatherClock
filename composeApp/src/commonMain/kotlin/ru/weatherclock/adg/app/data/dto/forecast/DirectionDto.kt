@@ -11,19 +11,19 @@ data class DirectionDto(
      * Направление ветра в азимутальных градусах (например, 180° указывает на ветер, дующий с юга).
      */
     @SerialName("Degrees")
-    val degrees: Double,
+    val degrees: Double = 0.0,
 
     /**
      * Краткое локализованное название направления. Например, **ЮЮВ**
      */
     @SerialName("Localized")
-    val localized: String,
+    val localized: String = "",
 
     /**
      * Краткое название направления на английском. Например, **SSE**
      */
     @SerialName("English")
-    val english: String,
+    val english: String = "",
 )
 
 fun DirectionDto.asDomainModel() = Direction(

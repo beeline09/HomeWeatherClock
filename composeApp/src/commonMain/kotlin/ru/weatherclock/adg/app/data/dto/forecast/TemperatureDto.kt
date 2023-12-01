@@ -11,13 +11,13 @@ data class TemperatureDto(
      * Минимальная температура
      */
     @SerialName("Minimum")
-    val minimum: UnitDto,
+    val minimum: UnitDto = UnitDto(),
 
     /**
      * Максимальная температура
      */
     @SerialName("Maximum")
-    val maximum: UnitDto
+    val maximum: UnitDto = UnitDto()
 )
 
 fun TemperatureDto.asDomainModel(): Temperature = Temperature(

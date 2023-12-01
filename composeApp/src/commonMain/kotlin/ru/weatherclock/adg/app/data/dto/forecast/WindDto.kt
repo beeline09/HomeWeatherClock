@@ -10,13 +10,13 @@ data class WindDto(
      * Скорость ветра
      */
     @SerialName("Speed")
-    val speed: UnitDto,
+    val speed: UnitDto = UnitDto(),
 
     /**
      * Направлени ветра
      */
     @SerialName("Direction")
-    val direction: DirectionDto
+    val direction: DirectionDto = DirectionDto()
 )
 
 fun WindDto.asDomainModel() = Wind(

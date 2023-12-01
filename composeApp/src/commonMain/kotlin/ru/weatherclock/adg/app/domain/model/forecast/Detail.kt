@@ -68,32 +68,32 @@ data class Detail(
     /**
      * Ветер
      */
-    val wind: Wind,
+    val wind: Wind?,
 
     /**
      * Порывы ветра
      */
-    val windGust: Wind,
+    val windGust: Wind?,
 
     /**
      * Всего осадков
      */
-    val totalLiquid: UnitInfo,
+    val totalLiquid: UnitInfo?,
 
     /**
      * Колчество осадков для дождя
      */
-    val rain: UnitInfo,
+    val rain: UnitInfo?,
 
     /**
      * Колчество осадков для снега
      */
-    val snow: UnitInfo,
+    val snow: UnitInfo?,
 
     /**
      * Колчество осадков для льда
      */
-    val ice: UnitInfo,
+    val ice: UnitInfo?,
 
     /**
      * Кол-во часов, в течение которых будут идти осадки
@@ -123,11 +123,11 @@ data class Detail(
     /**
      * Хуйня какая-то непонятная
      */
-    val evapotranspiration: UnitInfo,
+    val evapotranspiration: UnitInfo?,
 
     /**
      * Ну тут всё понятно - солнечная радиация
      */
-    val solarIrradiance: UnitInfo,
+    val solarIrradiance: UnitInfo?,
 )
 

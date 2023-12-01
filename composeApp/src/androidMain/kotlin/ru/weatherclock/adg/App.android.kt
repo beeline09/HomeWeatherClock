@@ -6,19 +6,30 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import ru.weatherclock.adg.app.domain.di.initKoin
 
-class AndroidApp : Application() {
+class AndroidApp: Application() {
     companion object {
+
         lateinit var INSTANCE: AndroidApp
     }
 
     override fun onCreate() {
         super.onCreate()
         INSTANCE = this
+
+        initKoin(
+            baseUrl = "http://dataservice.accuweather.com",
+            enableNetworkLogs = true
+        ) {
+            //  androidLogger()
+            // androidContext(this@App)
+        }
     }
 }
 
-class AppActivity : ComponentActivity() {
+class AppActivity: ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

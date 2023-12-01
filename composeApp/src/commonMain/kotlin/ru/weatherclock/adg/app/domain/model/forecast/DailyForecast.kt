@@ -2,23 +2,23 @@ package ru.weatherclock.adg.app.domain.model.forecast
 
 data class DailyForecast(
     val date: Long,
-    val sun: Sun,
-    val moon: Moon,
+    val sun: Sun?,
+    val moon: Moon?,
 
     /**
      * Минимальная и максимальная температура
      */
-    val temperature: Temperature,
+    val temperature: Temperature?,
 
     /**
      * Ощущается как
      */
-    val realFeelTemperature: Temperature,
+    val realFeelTemperature: Temperature?,
 
     /**
      * Ощущется как. В тени
      */
-    val realFeelTemperatureShade: Temperature,
+    val realFeelTemperatureShade: Temperature?,
 
     /**
      * Количество солнечных часов.
@@ -35,15 +35,15 @@ data class DailyForecast(
     /**
      * Загрязнение и пыльца
      */
-    val airAndPollen: AirAndPollen,
+    val airAndPollen: List<AirAndPollen>?,
 
     /**
      * Дневная информация
      */
-    val day: Detail,
+    val day: Detail?,
 
     /**
      * Ночная информация
      */
-    val night: Detail,
+    val night: Detail?,
 )
