@@ -17,6 +17,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +36,7 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import ru.weatherclock.adg.app.presentation.tabs.HomeTab
+import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
 import ru.weatherclock.adg.theme.AppTheme
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -68,9 +70,18 @@ class Application: Screen {
     @Composable
     override fun Content() {
 
+        var isToolbarShowed by remember { mutableStateOf(false) }
+
         Scaffold(
             modifier = Modifier,
             scaffoldState = rememberScaffoldState(),
+            topBar = {
+                if (isToolbarShowed) {
+                    TopAppBar {
+                        Text("Settingss")
+                    }
+                }
+            },
             bottomBar = {
                 Card(
                     shape = RoundedCornerShape(50.dp),
@@ -82,8 +93,12 @@ class Application: Screen {
                         contentColor = Color.Green,
                         elevation = 4.dp,
                     ) {
-                        TabNavigationItem(tab = HomeTab)
-
+                        TabNavigationItem(tab = HomeTab){
+                            isToolbarShowed = false
+                        }
+                        TabNavigationItem(tab = SettingsTab){
+                            isToolbarShowed = true
+                        }
                     }
                 }
 
@@ -95,13 +110,16 @@ class Application: Screen {
 }
 
 @Composable
-private fun RowScope.TabNavigationItem(tab: Tab) {
+private fun RowScope.TabNavigationItem(
+    tab: Tab,
+    onClick: ( tab: Tab) -> Unit
+) {
     val tabNavigator = LocalTabNavigator.current
     val title = tab.options.title
     BottomNavigationItem(
         modifier = Modifier,
-        unselectedContentColor = Color.DarkGray,
-        selectedContentColor = Color.LightGray,
+        unselectedContentColor = Color.LightGray,
+        selectedContentColor = Color.White,
         alwaysShowLabel = true,
         label = {
             Text(
@@ -109,7 +127,10 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
             )
         },
         selected = tabNavigator.current.key == tab.key,
-        onClick = { tabNavigator.current = tab },
+        onClick = {
+            tabNavigator.current = tab
+            onClick.invoke(tab)
+        },
         icon = {
             Icon(
                 painter = tab.options.icon!!,

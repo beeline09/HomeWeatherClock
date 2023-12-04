@@ -2,7 +2,7 @@
 
 coreKtx = "1.12.0"
 kotlin = "1.9.21"
-agp = "8.1.4"
+agp = "8.2.0"
 compose = "1.5.11"
 androidx-appcompat = "1.6.1"
 androidx-activityCompose = "1.8.1"
@@ -43,23 +43,39 @@ kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 ktor-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
-ktor-android = {module = "io.ktor:ktor-client-android", version.ref = "ktor"}
-ktor-java = {module = "io.ktor:ktor-client-java", version.ref = "ktor"}
-ktor-json = {module = "io.ktor:ktor-client-json", version.ref = "ktor"}
-ktor-serialization-json = {module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor"}
-ktor-contentnegotiation = {module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor"}
-ktor-client-logging = {module = "io.ktor:ktor-client-logging", version.ref = "ktor"}
+ktor-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
+ktor-java = { module = "io.ktor:ktor-client-java", version.ref = "ktor" }
+ktor-json = { module = "io.ktor:ktor-client-json", version.ref = "ktor" }
+ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-contentnegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 composeIcons-featherIcons = { module = "br.com.devsrsouza.compose.icons:feather", version.ref = "composeIcons" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-compose-mp = { module = "io.insert-koin:koin-compose", version.ref = "koin-compose-jb" }
-koin-compose = {module = "io.insert-koin:koin-androidx-compose", version.ref = "koin-compose-version"}
+koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin-compose-version" }
 sqlDelight-driver-sqlite = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
 sqlDelight-driver-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
 sqlDelight-driver-native = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
 sqlDelight-driver-js = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+
+[bundles]
+ktor-common = [
+    "ktor-core",
+    "ktor-contentnegotiation",
+    "ktor-serialization-json",
+    "ktor-client-logging"
+]
+
+voyager-common = [
+    "voyager-navigator",
+    "voyager-transitions",
+    "voyager-bottomSheetNavigator",
+    "voyager-tabNavigator",
+    "voyager-koin"
+]
 
 [plugins]
 
