@@ -8,12 +8,9 @@ import ru.weatherclock.adg.app.domain.model.Forecast
 class GetForecastUseCase(private val repository: AbstractRepository) {
 
     private var forecast: Forecast? = null
-    private var hasMorePages = true
     operator fun invoke() = flow {
-        if (hasMorePages) {
-            val response = repository.getWeatherForecast("291658").asDomainModel()
-            forecast = response
-            emit(response)
-        }
+        val response = repository.getWeatherForecast("291658").asDomainModel()
+        forecast = response
+        emit(response)
     }
 }
