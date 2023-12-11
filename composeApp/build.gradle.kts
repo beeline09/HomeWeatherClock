@@ -129,6 +129,10 @@ compose.desktop {
 
 libres {
     // https://github.com/Skeptick/libres#setup
+//    generatedClassName = "MainRes" // "Res" by default
+    generateNamedArguments = true // false by default
+//    baseLocaleLanguageCode = "ru" // "en" by default
+    camelCaseNamesForAppleFramework = false // false by default
 }
 tasks.getByPath("jvmProcessResources").dependsOn("libresGenerateResources")
 tasks.getByPath("jvmSourcesJar").dependsOn("libresGenerateResources")

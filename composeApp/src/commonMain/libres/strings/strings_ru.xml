@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="january">Январь</string>
+    <string name="february">Февраль</string>
+    <string name="march">Март</string>
+    <string name="april">Апрель</string>
+    <string name="may">Май</string>
+    <string name="june">Июнь</string>
+    <string name="jule">Июль</string>
+    <string name="august">Август</string>
+    <string name="september">Сентябрь</string>
+    <string name="october">Октябрь</string>
+    <string name="november">Ноябрь</string>
+    <string name="december">Декабрь</string>
+
+    <string name="january_f">Января</string>
+    <string name="february_f">Февраля</string>
+    <string name="march_f">Марта</string>
+    <string name="april_f">Апреля</string>
+    <string name="may_f">Мая</string>
+    <string name="june_f">Июня</string>
+    <string name="jule_f">Июля</string>
+    <string name="august_f">Августа</string>
+    <string name="september_f">Сентября</string>
+    <string name="october_f">Октября</string>
+    <string name="november_f">Ноября</string>
+    <string name="december_f">Декабря</string>
+</resources>
