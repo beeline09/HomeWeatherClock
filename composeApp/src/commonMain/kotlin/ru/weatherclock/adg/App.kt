@@ -3,6 +3,7 @@ package ru.weatherclock.adg
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,9 +43,6 @@ import ru.weatherclock.adg.theme.AppTheme
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 internal fun App() = AppTheme {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisibility by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier.background(Color.Black).fillMaxSize()
@@ -67,6 +65,8 @@ internal fun App() = AppTheme {
 
 class Application: Screen {
 
+    private val bottomNavigationHeight = 56.dp + 12.dp
+
     @Composable
     override fun Content() {
 
@@ -86,7 +86,7 @@ class Application: Screen {
                 Card(
                     shape = RoundedCornerShape(50.dp),
                     elevation = 4.dp,
-                    modifier = Modifier.padding(12.dp)
+                    modifier = Modifier.padding(12.dp),
                 ) {
                     BottomNavigation(
                         modifier = Modifier,
@@ -104,7 +104,9 @@ class Application: Screen {
 
             },
         ) {
-            CurrentTab()
+            Row(Modifier.fillMaxSize().padding(bottom = bottomNavigationHeight)){
+                CurrentTab()
+            }
         }
     }
 }
