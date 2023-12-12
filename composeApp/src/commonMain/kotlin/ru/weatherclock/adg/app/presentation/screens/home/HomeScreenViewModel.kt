@@ -23,10 +23,14 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import ru.weatherclock.adg.app.data.Result
 import ru.weatherclock.adg.app.data.asResult
 import ru.weatherclock.adg.app.domain.model.Forecast
-import ru.weatherclock.adg.app.domain.usecase.GetForecastUseCase
+import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
+import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.presentation.components.tickerFlow
 
-class HomeScreenViewModel(private val forecastUseCase: GetForecastUseCase): ScreenModel {
+class HomeScreenViewModel(
+    private val forecastUseCase: ForecastUseCase,
+    private val calendarUseCase: CalendarUseCase
+): ScreenModel {
 
     private val job = SupervisorJob()
     private val coroutineContextX: CoroutineContext = job + Dispatchers.IO
@@ -42,7 +46,13 @@ class HomeScreenViewModel(private val forecastUseCase: GetForecastUseCase): Scre
     private val _time: MutableStateFlow<Pair<String, String>> = MutableStateFlow("00" to "00")
     val time = _time.asStateFlow()
 
-    private val _date = MutableStateFlow(Triple(0, 0, 0))
+    private val _date = MutableStateFlow(
+        Triple(
+            0,
+            0,
+            0
+        )
+    )
     val date = _date.asStateFlow()
 
     init {
@@ -75,20 +85,30 @@ class HomeScreenViewModel(private val forecastUseCase: GetForecastUseCase): Scre
                     2,
                     '0'
                 )
-                _date.value = Triple(dayOfMonth, month, year)
+                _date.value = Triple(
+                    dayOfMonth,
+                    month,
+                    year
+                )
             }
             .launchIn(timersScope)
     }
 
     fun onLaunch() {
 //        getForecast()
-
-
+        getProdCalendar()
     }
 
     override fun onDispose() {
         super.onDispose()
         timersScope.cancel()
+    }
+
+    private fun getProdCalendar() {
+        val year = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
+        calendarUseCase.invoke(period = "$year").onEach {
+            println("Day count: ${it.size}")
+        }.launchIn(viewModelScope)
     }
 
     private fun getForecast() {

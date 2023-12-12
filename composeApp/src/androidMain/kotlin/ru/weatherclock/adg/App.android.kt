@@ -18,10 +18,7 @@ class AndroidApp: Application() {
         super.onCreate()
         INSTANCE = this
 
-        initKoin(
-            baseUrl = "http://dataservice.accuweather.com",
-            enableNetworkLogs = true
-        ) {
+        initKoin(enableNetworkLogs = true) {
             //  androidLogger()
             // androidContext(this@App)
         }
