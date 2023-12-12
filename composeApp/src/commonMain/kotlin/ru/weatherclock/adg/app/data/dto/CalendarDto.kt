@@ -4,8 +4,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import ru.weatherclock.adg.app.data.serialization.RussianDateSerializer
-import ru.weatherclock.adg.app.domain.model.calendar.DayType
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
+import ru.weatherclock.adg.app.domain.model.calendar.toDayType
 
 @Serializable
 data class CalendarDto(
@@ -27,16 +27,10 @@ data class CalendarDto(
 fun CalendarDto.asDomainModel(): ProdCalendarDay {
     return ProdCalendarDay(
         date = date,
-        type = when (typeId) {
-            2 -> DayType.Weekend
-            3 -> DayType.NationalHoliday(note)
-            4 -> DayType.RegionalHoliday(note)
-            5 -> DayType.PreHoliday(note)
-            6 -> DayType.AdditionalDayOff(note)
-            else -> DayType.WorkingDay
-        },
+        type = typeId.toDayType(typeText),
         weekDay = weekDay,
-        workingHours = workingHours
+        workingHours = workingHours,
+        note = note
     )
 }
 

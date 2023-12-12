@@ -52,6 +52,8 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.koin.core)
             implementation(libs.koin.compose.mp)
+            implementation(libs.sqlDelight.coroutines.extensions)
+//            implementation(libs.composeCalendar)
         }
 
         commonTest.dependencies {
@@ -72,7 +74,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.common)
             implementation(compose.desktop.currentOs)
-            implementation(libs.ktor.client.okhttp)
+            implementation(libs.ktor.client.apache)
             implementation(libs.ktor.java)
             implementation(libs.koin.compose)
             implementation(libs.sqlDelight.driver.sqlite)
@@ -113,16 +115,48 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.4"
     }
+    packaging {
+        resources {
+            excludes += "META-INF/versions/**"
+        }
+    }
 }
 
 compose.desktop {
     application {
         mainClass = "MainKt"
+        jvmArgs += "-XX:+PrintCompilation"
+        jvmArgs += "-XX:CompileThreshold=1"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "ru.weatherclock.adg.desktopApp"
+            val iconsRoot = project.file("src/main/resources/drawables")
+            targetFormats(
+                TargetFormat.Dmg,
+                TargetFormat.Msi,
+                TargetFormat.Exe,
+                TargetFormat.Deb
+            )
+            appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
+            packageName = "HomeWeatherClock"
             packageVersion = "1.0.0"
+//            modules += listOf(/*"java.compiler", "java.instrument", "jdk.unsupported",*/ "java.naming", "java.sql")
+
+            linux {
+                iconFile.set(iconsRoot.resolve("launcher_icons/linux.png"))
+            }
+
+            windows {
+                iconFile.set(iconsRoot.resolve("launcher_icons/windows.ico"))
+                shortcut = true
+                menu = true
+            }
+
+            macOS {
+                packageName = "HomeWeatherClock"
+                bundleID = "ru.homeweatherclock.adg"
+                iconFile.set(iconsRoot.resolve("launcher_icons/macos.icns"))
+//                runtimeEntitlementsFile.set(project.file("runtime-entitlements.plist"))
+            }
         }
     }
 }
@@ -147,7 +181,7 @@ buildConfig {
 
 sqldelight {
     databases {
-        create("MyDatabase") {
+        create("Database") {
             // Database configuration here.
             // https://cashapp.github.io/sqldelight
             packageName.set("ru.weatherclock.adg.db")
