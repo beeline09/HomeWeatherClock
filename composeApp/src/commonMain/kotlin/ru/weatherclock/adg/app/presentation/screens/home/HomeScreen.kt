@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.koinInject
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
-import ru.weatherclock.adg.app.presentation.components.text.toMonthName
 import ru.weatherclock.adg.app.presentation.screens.home.components.calendar
 
 @Composable
@@ -71,12 +70,32 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
             )
             Column(modifier = Modifier.weight(0.2f)) {
                 calendar(
-                    modifier = Modifier.weight(0.7f),
+                    modifier = Modifier.weight(0.5f),
                     dayOfMonth = date.first,
-                    month = date.second.toMonthName(),
-                    year = date.third
+                    month = date.second,
+                    year = date.third,
+                    dayName = "Воскресенье"
                 )
-                Row(modifier = Modifier.fillMaxSize().weight(0.35f).background(Color.White)) { }
+                Row(modifier = Modifier.fillMaxSize().weight(0.5f).background(Color.White)) {
+//                    BasisEpicCalendar(
+//                        modifier = Modifier.fillMaxSize().background(Color.Gray),
+//                        state = rememberBasisEpicCalendarState(
+//                            currentMonth = EpicMonth.now(TimeZone.currentSystemDefault()),
+//                            config = rememberBasisEpicCalendarConfig(
+//                                rowsSpacerHeight = 1.dp,
+//                                dayOfWeekViewHeight = 20.dp,
+//                                dayOfMonthViewHeight = 20.dp,
+//                                columnWidth = 20.dp,
+//                                dayOfWeekViewShape = RoundedCornerShape(6.dp),
+//                                dayOfMonthViewShape = RoundedCornerShape(6.dp),
+//                                contentPadding = PaddingValues(0.dp),
+//                                contentColor = Color.Unspecified,
+//                                displayDaysOfAdjacentMonths = false,
+//                                displayDaysOfWeek = false
+//                            )
+//                        )
+//                    )
+                }
             }
         }
         val colors = listOf(

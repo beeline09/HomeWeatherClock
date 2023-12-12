@@ -22,12 +22,17 @@ import ru.weatherclock.adg.app.data.remote.WeatherKtorService
 import ru.weatherclock.adg.app.data.remote.implementation.CalendarKtorServiceImpl
 import ru.weatherclock.adg.app.data.remote.implementation.WeatherKtorServiceImpl
 import ru.weatherclock.adg.app.data.repository.CalendarRepository
+import ru.weatherclock.adg.app.data.repository.DatabaseRepository
 import ru.weatherclock.adg.app.data.repository.WeatherRepository
 import ru.weatherclock.adg.app.data.repository.implementation.CalendarRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.implementation.DatabaseRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.implementation.WeatherRepositoryImpl
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
+import ru.weatherclock.adg.app.domain.usecase.DatabaseUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.presentation.screens.home.HomeScreenViewModel
+import ru.weatherclock.adg.db.Database
+import ru.weatherclock.adg.platformSpecific.createDatabase
 import ru.weatherclock.adg.platformSpecific.platformModule
 
 fun initKoin(
@@ -44,7 +49,7 @@ fun initKoin(
 
 // called by iOS etc
 fun initKoin() = initKoin(
-    enableNetworkLogs = true
+    enableNetworkLogs = false
 ) {}
 
 fun commonModule(
@@ -58,6 +63,7 @@ fun commonModule(
 fun getScreenModelModule() = module {
     single {
         HomeScreenViewModel(
+            get(),
             get(),
             get()
         )
@@ -93,11 +99,16 @@ fun getDataModule(
             enableNetworkLogs = enableNetworkLogs
         )
     }
+
+    single<DatabaseRepository> { DatabaseRepositoryImpl(get()) }
+
+    single<Database> { createDatabase() }
 }
 
 fun getUseCaseModule() = module {
     single { ForecastUseCase(get()) }
     single { CalendarUseCase(get()) }
+    single { DatabaseUseCase(get()) }
 }
 
 fun createHttpClient(
@@ -106,7 +117,6 @@ fun createHttpClient(
     enableNetworkLogs: Boolean
 ) =
     HttpClient(httpClientEngine) {
-//        defaultRequest { header("X-Yandex-API-Key", "28c78432-9cb7-4b4e-8a08-c7679a11022c") }
 
         // exception handling
         install(HttpTimeout) {

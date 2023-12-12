@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -23,13 +24,16 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import ru.weatherclock.adg.app.data.Result
 import ru.weatherclock.adg.app.data.asResult
 import ru.weatherclock.adg.app.domain.model.Forecast
+import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
+import ru.weatherclock.adg.app.domain.usecase.DatabaseUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.presentation.components.tickerFlow
 
 class HomeScreenViewModel(
     private val forecastUseCase: ForecastUseCase,
-    private val calendarUseCase: CalendarUseCase
+    private val calendarUseCase: CalendarUseCase,
+    private val databaseUseCase: DatabaseUseCase
 ): ScreenModel {
 
     private val job = SupervisorJob()
@@ -92,11 +96,33 @@ class HomeScreenViewModel(
                 )
             }
             .launchIn(timersScope)
+
+        databaseUseCase.getProdCalendarFlow().map {
+            if (it.isEmpty()) {
+                println("DatabaseProdCalendar is empty. Request from network...")
+                val year = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
+                calendarUseCase.getForPeriod("$year").also {
+                    println("NetworkProdCalendar downloaded. Days count: ${it.size}. Saving into DB...")
+                    databaseUseCase.insert(it)
+                }
+            } else {
+                println("DatabaseProdCalendar size is ${it.size}")
+                it.map { it.asDomainModel() }
+            }
+        }.mapNotNull {
+            it.firstOrNull {
+                it.date == Clock.System
+                    .now()
+                    .toLocalDateTime(TimeZone.currentSystemDefault()).date
+            }
+        }.onEach {
+            println("Current production day: $it")
+        }.launchIn(viewModelScope)
     }
 
     fun onLaunch() {
 //        getForecast()
-        getProdCalendar()
+//        getProdCalendar()
     }
 
     override fun onDispose() {
@@ -109,6 +135,7 @@ class HomeScreenViewModel(
         calendarUseCase.invoke(period = "$year").onEach {
             println("Day count: ${it.size}")
         }.launchIn(viewModelScope)
+
     }
 
     private fun getForecast() {

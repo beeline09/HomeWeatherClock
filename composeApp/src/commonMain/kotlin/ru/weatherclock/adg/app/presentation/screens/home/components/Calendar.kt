@@ -11,38 +11,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
-import ru.weatherclock.adg.app.presentation.components.text.toMonthName
 
 @Composable
 fun calendar(
     modifier: Modifier = Modifier,
     dayOfMonth: Int,
-    month: String,
-    year: Int
+    month: Int,
+    year: Int,
+    dayName: String
 ) {
+    val dateStr = "$dayOfMonth".padStart(
+        2,
+        '0'
+    ) + "." + "$month".padStart(
+        2,
+        '0'
+    )
     Column(modifier = modifier.fillMaxSize()) {
         AutoSizeText(
-            text = "$dayOfMonth".padStart(
-                2,
-                '0'
-            ),
+            text = dateStr,
             maxLines = 1,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.4f)
+                .weight(0.3f)
                 .wrapContentHeight(align = Alignment.CenterVertically)
                 .background(Color.Cyan),
-            alignment = Alignment.Center,
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        AutoSizeText(
-            text = month,
-            maxLines = 1,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.15f)
-                .wrapContentHeight(align = Alignment.CenterVertically)
-                .background(Color.Gray),
             alignment = Alignment.Center,
             style = MaterialTheme.typography.bodyLarge,
         )
@@ -53,7 +46,18 @@ fun calendar(
                 .fillMaxWidth()
                 .weight(0.25f)
                 .wrapContentHeight(align = Alignment.CenterVertically)
-                .background(Color.Cyan),
+                .background(Color.Yellow),
+            alignment = Alignment.Center,
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        AutoSizeText(
+            text = dayName,
+            maxLines = 1,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.15f)
+                .wrapContentHeight(align = Alignment.CenterVertically)
+                .background(Color.Gray),
             alignment = Alignment.Center,
             style = MaterialTheme.typography.bodyLarge,
         )

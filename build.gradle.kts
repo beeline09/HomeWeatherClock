@@ -6,5 +6,5 @@ plugins {
     alias(libs.plugins.buildConfig).apply(false)
     alias(libs.plugins.kotlinx.serialization).apply(false)
     alias(libs.plugins.sqlDelight).apply(false)
-    id("org.jetbrains.kotlin.android") version "1.9.21" apply false
+//    id("org.jetbrains.kotlin.android") version "1.9.21" apply false
 }
