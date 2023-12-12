@@ -17,60 +17,70 @@ import io.ktor.serialization.kotlinx.json.json
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
-import ru.weatherclock.adg.app.data.remote.AbstractKtorService
-import ru.weatherclock.adg.app.data.remote.KtorService
-import ru.weatherclock.adg.app.data.repository.AbstractRepository
-import ru.weatherclock.adg.app.data.repository.Repository
-import ru.weatherclock.adg.app.domain.usecase.GetForecastUseCase
+import ru.weatherclock.adg.app.data.remote.CalendarKtorService
+import ru.weatherclock.adg.app.data.remote.WeatherKtorService
+import ru.weatherclock.adg.app.data.remote.implementation.CalendarKtorServiceImpl
+import ru.weatherclock.adg.app.data.remote.implementation.WeatherKtorServiceImpl
+import ru.weatherclock.adg.app.data.repository.CalendarRepository
+import ru.weatherclock.adg.app.data.repository.WeatherRepository
+import ru.weatherclock.adg.app.data.repository.implementation.CalendarRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.implementation.WeatherRepositoryImpl
+import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
+import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.presentation.screens.home.HomeScreenViewModel
 import ru.weatherclock.adg.platformSpecific.platformModule
 
 fun initKoin(
     enableNetworkLogs: Boolean = false,
-    baseUrl: String,
     appDeclaration: KoinAppDeclaration = {},
 ) = startKoin {
     appDeclaration()
     modules(
         commonModule(
-            enableNetworkLogs = enableNetworkLogs,
-            baseUrl
+            enableNetworkLogs = enableNetworkLogs
         )
     )
 }
 
 // called by iOS etc
-fun initKoin(baseUrl: String) = initKoin(
-    enableNetworkLogs = true,
-    baseUrl = baseUrl
+fun initKoin() = initKoin(
+    enableNetworkLogs = true
 ) {}
 
 fun commonModule(
     enableNetworkLogs: Boolean,
-    baseUrl: String,
 ) =
     platformModule() +
-            getDataModule(
-                enableNetworkLogs,
-                baseUrl
-            ) +
+            getDataModule(enableNetworkLogs) +
             getUseCaseModule() +
             getScreenModelModule()
 
 fun getScreenModelModule() = module {
-    single { HomeScreenViewModel(get()) }
+    single {
+        HomeScreenViewModel(
+            get(),
+            get()
+        )
+    }
 }
 
 fun getDataModule(
-    enableNetworkLogs: Boolean,
-    baseUrl: String,
+    enableNetworkLogs: Boolean
 ) = module {
-    single<AbstractRepository> { Repository(get()) }
+    single<WeatherRepository> { WeatherRepositoryImpl(get()) }
+    single<CalendarRepository> { CalendarRepositoryImpl(get()) }
 
-    single<AbstractKtorService> {
-        KtorService(
+    single<WeatherKtorService> {
+        WeatherKtorServiceImpl(
             get(),
-            baseUrl = baseUrl
+            baseUrl = "http://dataservice.accuweather.com"
+        )
+    }
+
+    single<CalendarKtorService> {
+        CalendarKtorServiceImpl(
+            get(),
+            baseUrl = "https://production-calendar.ru/get/ru"
         )
     }
 
@@ -86,8 +96,8 @@ fun getDataModule(
 }
 
 fun getUseCaseModule() = module {
-    single { GetForecastUseCase(get()) }
-
+    single { ForecastUseCase(get()) }
+    single { CalendarUseCase(get()) }
 }
 
 fun createHttpClient(
