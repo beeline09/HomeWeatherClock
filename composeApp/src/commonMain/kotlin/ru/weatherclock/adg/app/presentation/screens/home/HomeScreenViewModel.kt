@@ -101,10 +101,15 @@ class HomeScreenViewModel(
             if (it.isEmpty()) {
                 println("DatabaseProdCalendar is empty. Request from network...")
                 val year = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
-                calendarUseCase.getForPeriod("$year").also {
-                    println("NetworkProdCalendar downloaded. Days count: ${it.size}. Saving into DB...")
-                    databaseUseCase.insert(it)
-                }
+                calendarUseCase
+                    .getForPeriod(
+                        "$year",
+                        1
+                    )
+                    .also {
+                        println("NetworkProdCalendar downloaded. Days count: ${it.size}. Saving into DB...")
+                        databaseUseCase.insert(it)
+                    }
             } else {
                 println("DatabaseProdCalendar size is ${it.size}")
                 it.map { it.asDomainModel() }

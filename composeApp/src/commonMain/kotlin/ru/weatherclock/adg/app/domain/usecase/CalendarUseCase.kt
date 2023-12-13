@@ -13,6 +13,12 @@ class CalendarUseCase(private val repository: CalendarRepository) {
         emit(response)
     }
 
-    suspend fun getForPeriod(period: String): List<ProdCalendarDay> =
-        repository.getProductionCalendar(period).days.asDomainModel()
+    suspend fun getForPeriod(
+        period: String,
+        region: Int = 0
+    ): List<ProdCalendarDay> =
+        repository.getProductionCalendar(
+            period,
+            region
+        ).days.asDomainModel()
 }

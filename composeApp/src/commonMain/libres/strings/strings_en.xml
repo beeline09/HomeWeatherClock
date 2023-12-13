@@ -25,4 +25,28 @@
     <string name="october_f">october</string>
     <string name="november_f">november</string>
     <string name="december_f">december</string>
+
+    <string name="day_name_full_monday">Monday</string>
+    <string name="day_name_full_tuesday">Tuesday</string>
+    <string name="day_name_full_wednesday">Wednesday</string>
+    <string name="day_name_full_thursday">Thursday</string>
+    <string name="day_name_full_friday">Friday</string>
+    <string name="day_name_full_saturday">Saturday</string>
+    <string name="day_name_full_sunday">Sunday</string>
+
+    <string name="day_name_half_monday">MON</string>
+    <string name="day_name_half_tuesday">TUE</string>
+    <string name="day_name_half_wednesday">WED</string>
+    <string name="day_name_half_thursday">THU</string>
+    <string name="day_name_half_friday">FRI</string>
+    <string name="day_name_half_saturday">SAT</string>
+    <string name="day_name_half_sunday">SUN</string>
+
+    <string name="day_name_short_monday">MO</string>
+    <string name="day_name_short_tuesday">TU</string>
+    <string name="day_name_short_wednesday">WE</string>
+    <string name="day_name_short_thursday">TH</string>
+    <string name="day_name_short_friday">FR</string>
+    <string name="day_name_short_saturday">SA</string>
+    <string name="day_name_short_sunday">SU</string>
 </resources>
