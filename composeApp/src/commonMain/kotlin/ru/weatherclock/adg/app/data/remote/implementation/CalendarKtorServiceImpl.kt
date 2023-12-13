@@ -13,10 +13,16 @@ class CalendarKtorServiceImpl(
     private val baseUrl: String
 ): CalendarKtorService() {
 
-    override suspend fun getProductionCalendar(period: String): ProductionCalendarDto =
+    override suspend fun getProductionCalendar(
+        period: String,
+        region: Int
+    ): ProductionCalendarDto =
         httpClient
             .get(
-                baseUrl + Endpoints.PROD_CALENDAR.getUrl(period)
+                baseUrl + Endpoints.PROD_CALENDAR.getUrl(
+                    period,
+                    region
+                )
             )
             .body()
 }

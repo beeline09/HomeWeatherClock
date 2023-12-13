@@ -1,10 +1,12 @@
 package ru.weatherclock.adg.app.presentation.screens.home
 
+import kotlinx.datetime.LocalDateTime
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -25,14 +28,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.koinInject
+import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
+import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateInput
+import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
+import ru.weatherclock.adg.app.presentation.components.calendar.styles.DateInputDefaults
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
-import ru.weatherclock.adg.app.presentation.screens.home.components.calendar
+import ru.weatherclock.adg.app.presentation.screens.home.components.TextCalendar
 
 @Composable
 fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
@@ -59,43 +67,45 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                 text = "${time.first}${dot}${time.second}",
                 maxLines = 1,
                 modifier = Modifier
-                    .weight(0.8f)
+                    .weight(1f)
                     .fillMaxWidth()
                     .wrapContentHeight(align = Alignment.CenterVertically)
                     .background(Color.Red),
-                minTextSize = 100.sp,
+                minTextSize = 5.sp,
                 maxTextSize = 500.sp,
                 alignment = Alignment.Center,
                 style = MaterialTheme.typography.bodyLarge,
             )
-            Column(modifier = Modifier.weight(0.2f)) {
-                calendar(
-                    modifier = Modifier.weight(0.5f),
+            Column(modifier = Modifier.aspectRatio(0.5f).align(Alignment.CenterVertically)) {
+                TextCalendar(
+                    modifier = Modifier.weight(0.5f).wrapContentWidth().fillMaxHeight(),
                     dayOfMonth = date.first,
                     month = date.second,
                     year = date.third,
                     dayName = "Воскресенье"
                 )
-                Row(modifier = Modifier.fillMaxSize().weight(0.5f).background(Color.White)) {
-//                    BasisEpicCalendar(
-//                        modifier = Modifier.fillMaxSize().background(Color.Gray),
-//                        state = rememberBasisEpicCalendarState(
-//                            currentMonth = EpicMonth.now(TimeZone.currentSystemDefault()),
-//                            config = rememberBasisEpicCalendarConfig(
-//                                rowsSpacerHeight = 1.dp,
-//                                dayOfWeekViewHeight = 20.dp,
-//                                dayOfMonthViewHeight = 20.dp,
-//                                columnWidth = 20.dp,
-//                                dayOfWeekViewShape = RoundedCornerShape(6.dp),
-//                                dayOfMonthViewShape = RoundedCornerShape(6.dp),
-//                                contentPadding = PaddingValues(0.dp),
-//                                contentColor = Color.Unspecified,
-//                                displayDaysOfAdjacentMonths = false,
-//                                displayDaysOfWeek = false
-//                            )
-//                        )
-//                    )
+                Spacer(modifier = Modifier.height(5.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .wrapContentWidth()
+                        .weight(0.5f)
+                        .background(Color.Black)
+                        .align(Alignment.CenterHorizontally)
+                        .background(Color.Magenta)
+                ) {
+                    val dateTime = mutableStateOf(LocalDateTime.now())
+                    val holder = mutableStateOf<DateInput>(DateInput.SingleDate())
+                    Calendar(
+                        dateTime = dateTime,
+                        dateHolder = holder,
+                        background = Color.White,
+                        errorMessage = mutableStateOf(""),
+                        locale = DateInputDefaults.DateInputLocale.RU,
+                        onDateSelected = {},
+                    )
                 }
+                Spacer(Modifier.height(5.dp))
             }
         }
         val colors = listOf(

@@ -11,9 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
+import ru.weatherclock.adg.app.presentation.components.text.toMonthName
 
 @Composable
-fun calendar(
+fun TextCalendar(
     modifier: Modifier = Modifier,
     dayOfMonth: Int,
     month: Int,
@@ -23,21 +24,32 @@ fun calendar(
     val dateStr = "$dayOfMonth".padStart(
         2,
         '0'
-    ) + "." + "$month".padStart(
+    )/* + "." + "$month".padStart(
         2,
         '0'
-    )
+    )*/
     Column(modifier = modifier.fillMaxSize()) {
         AutoSizeText(
             text = dateStr,
             maxLines = 1,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.3f)
+                .weight(0.25f)
                 .wrapContentHeight(align = Alignment.CenterVertically)
                 .background(Color.Cyan),
             alignment = Alignment.Center,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        AutoSizeText(
+            text = month.toMonthName(),
+            maxLines = 1,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.15f)
+                .wrapContentHeight(align = Alignment.CenterVertically)
+                .background(Color.Gray),
+            alignment = Alignment.Center,
+            style = MaterialTheme.typography.bodySmall,
         )
         AutoSizeText(
             text = "$year",
@@ -48,18 +60,18 @@ fun calendar(
                 .wrapContentHeight(align = Alignment.CenterVertically)
                 .background(Color.Yellow),
             alignment = Alignment.Center,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodySmall,
         )
-        AutoSizeText(
-            text = dayName,
-            maxLines = 1,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.15f)
-                .wrapContentHeight(align = Alignment.CenterVertically)
-                .background(Color.Gray),
-            alignment = Alignment.Center,
-            style = MaterialTheme.typography.bodyLarge,
-        )
+        /*      AutoSizeText(
+                  text = dayName,
+                  maxLines = 1,
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .weight(0.15f)
+                      .wrapContentHeight(align = Alignment.CenterVertically)
+                      .background(Color.Gray),
+                  alignment = Alignment.Center,
+                  style = MaterialTheme.typography.bodySmall,
+              )*/
     }
 }
