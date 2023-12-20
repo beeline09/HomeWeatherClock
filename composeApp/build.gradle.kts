@@ -8,6 +8,8 @@ plugins {
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.sqlDelight)
+//    alias(libs.plugins.mokoResources)
+//    kotlin("native.cocoapods")
 }
 
 kotlin {
@@ -32,6 +34,21 @@ kotlin {
         }
     }
 
+//    cocoapods {
+//        version = "1.0.0"
+//        summary = "Some description for the Shared Module"
+//        homepage = "Link to the Shared Module homepage"
+//        ios.deploymentTarget = "14.1"
+//        podfile = project.file("../iosApp/Podfile")
+//        framework {
+//            baseName = "shared"
+//            isStatic = false
+//        }
+//        extraSpecAttributes["resources"] =
+//            "['src/commonMain/resources/**', 'src/iosMain/resources/**']"
+//        extraSpecAttributes["exclude_files"] = "['src/commonMain/resources/MR/**']"
+//    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -53,6 +70,7 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose.mp)
             implementation(libs.sqlDelight.coroutines.extensions)
+//            implementation(libs.moko.resources.compose)
 //            implementation(libs.composeCalendar)
         }
 
@@ -87,6 +105,10 @@ kotlin {
 
     }
 }
+
+//multiplatformResources {
+//    multiplatformResourcesPackage = "ru.weatherclock.adg"
+//}
 
 android {
     namespace = "ru.weatherclock.adg"
@@ -139,7 +161,13 @@ compose.desktop {
             appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
             packageName = "HomeWeatherClock"
             packageVersion = "1.0.0"
-//            modules += listOf(/*"java.compiler", "java.instrument", "jdk.unsupported",*/ "java.naming", "java.sql")
+            modules += listOf(
+                "java.compiler",
+                "java.instrument",
+                "jdk.unsupported",
+                "java.naming",
+                "java.sql"
+            )
 
             linux {
                 iconFile.set(iconsRoot.resolve("launcher_icons/linux.png"))
