@@ -5,7 +5,7 @@ kotlin = "1.9.21"
 agp = "8.2.0"
 compose = "1.5.11"
 androidx-appcompat = "1.6.1"
-androidx-activityCompose = "1.8.1"
+androidx-activityCompose = "1.8.2"
 compose-uitooling = "1.5.4"
 libres = "1.2.1"
 voyager = "1.0.0-rc10"
@@ -22,7 +22,7 @@ koin-compose-jb = "1.0.4"
 koin-compose-version = "3.4.2"
 sqlDelight = "2.0.0"
 kermit = "2.0.0-RC4"
-composeCalendar = "1.1.1"
+moko = "0.23.0"
 
 [libraries]
 
@@ -62,7 +62,7 @@ sqlDelight-driver-native = { module = "app.cash.sqldelight:native-driver", versi
 sqlDelight-driver-js = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
 sqlDelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
-composeCalendar = { module = "io.github.boguszpawlowski.composecalendar:kotlinx-datetime", version.ref = "composeCalendar" }
+moko-resources-compose = { module = "dev.icerock.moko:resources-compose", version.ref = "moko" }
 
 [bundles]
 ktor-common = [
@@ -89,3 +89,5 @@ libres = { id = "io.github.skeptick.libres", version.ref = "libres" }
 buildConfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildConfig" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
+mokoResources = { id = "dev.icerock.mobile.multiplatform-resources", version.ref = "moko" }
+
