@@ -1,5 +1,6 @@
 [versions]
 
+atomicfu = "0.23.1"
 coreKtx = "1.12.0"
 kotlin = "1.9.21"
 agp = "8.2.0"
@@ -7,7 +8,7 @@ compose = "1.5.11"
 androidx-appcompat = "1.6.1"
 androidx-activityCompose = "1.8.2"
 compose-uitooling = "1.5.4"
-libres = "1.2.1"
+#libres = "1.2.1"
 voyager = "1.0.0-rc10"
 composeImageLoader = "1.7.1"
 napier = "2.6.1"
@@ -15,8 +16,8 @@ buildConfig = "4.1.1"
 kotlinx-coroutines = "1.7.3"
 ktor = "2.3.6"
 composeIcons = "1.1.0"
-kotlinx-serialization = "1.6.1"
-kotlinx-datetime = "0.4.1"
+kotlinx-serialization = "1.6.2"
+kotlinx-datetime = "0.5.0"
 koin = "3.5.0"
 koin-compose-jb = "1.0.4"
 koin-compose-version = "3.4.2"
@@ -29,8 +30,9 @@ moko = "0.23.0"
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
 compose-uitooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose-uitooling" }
-libres = { module = "io.github.skeptick.libres:libres-compose", version.ref = "libres" }
+#libres = { module = "io.github.skeptick.libres:libres-compose", version.ref = "libres" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 voyager-bottomSheetNavigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyager" }
 voyager-tabNavigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyager" }
@@ -63,6 +65,8 @@ sqlDelight-driver-js = { module = "app.cash.sqldelight:web-worker-driver", versi
 sqlDelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 moko-resources-compose = { module = "dev.icerock.moko:resources-compose", version.ref = "moko" }
+moko-resources = { module = "dev.icerock.moko:resources", version.ref = "moko" }
+moko-resources-generator = { module = "dev.icerock.moko:resources-generator", version.ref = "moko" }
 
 [bundles]
 ktor-common = [
@@ -85,7 +89,7 @@ voyager-common = [
 multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
 android-application = { id = "com.android.application", version.ref = "agp" }
-libres = { id = "io.github.skeptick.libres", version.ref = "libres" }
+#libres = { id = "io.github.skeptick.libres", version.ref = "libres" }
 buildConfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildConfig" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }

@@ -1,6 +1,5 @@
 package ru.weatherclock.adg
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -30,12 +29,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
-import cafe.adriel.voyager.navigator.tab.TabNavigator
-import cafe.adriel.voyager.transitions.SlideTransition
+import co.touchlab.kermit.Logger
 import ru.weatherclock.adg.app.presentation.tabs.HomeTab
 import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
 import ru.weatherclock.adg.theme.AppTheme
@@ -48,18 +45,25 @@ internal fun App() = AppTheme {
         modifier = Modifier.background(Color.Black).fillMaxSize()
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
-        TabNavigator(HomeTab) {
-            BottomSheetNavigator(
-                modifier = Modifier.animateContentSize(),
-                sheetShape = RoundedCornerShape(
-                    topStart = 32.dp,
-                    topEnd = 32.dp
-                ),
-                skipHalfExpanded = true
-            ) {
-                Navigator(Application()) { navigator -> SlideTransition(navigator) }
+        Navigator(
+            screen = HomeTab,
+            onBackPressed = {
+                Logger.d("Pop screen #${(it as Tab).key}")
+                true
             }
-        }
+        )
+        /*        TabNavigator(HomeTab) {
+                    BottomSheetNavigator(
+                        modifier = Modifier.animateContentSize(),
+                        sheetShape = RoundedCornerShape(
+                            topStart = 32.dp,
+                            topEnd = 32.dp
+                        ),
+                        skipHalfExpanded = true
+                    ) {
+                        Navigator(Application()) { navigator -> SlideTransition(navigator) }
+                    }
+                }*/
     }
 }
 
@@ -104,7 +108,7 @@ class Application: Screen {
 
             },
         ) {
-            Row(Modifier.fillMaxSize().padding(bottom = bottomNavigationHeight)){
+            Row(Modifier.fillMaxSize()/*.padding(bottom = bottomNavigationHeight)*/) {
                 CurrentTab()
             }
         }
