@@ -3,57 +3,21 @@ package ru.weatherclock.adg.platformSpecific
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-
-@Composable
-expect fun font(
-    name: String,
-    res: String,
-    weight: FontWeight,
-    style: FontStyle
-): Font
+import dev.icerock.moko.resources.compose.fontFamilyResource
+import ru.homeweatherclock.adg.MR
 
 @Composable
 fun getTypography(): Typography {
 
-    val dsDigiRegular = FontFamily(
-        font(
-            "DsDigi",
-            "ds_digi_regular",
-            FontWeight.Normal,
-            FontStyle.Normal
-        )
-    )
+    val dsDigiRegular = fontFamilyResource(MR.fonts.ds_digi_regular.ds_digi_regular)
 
-    val dsDigiItalic = FontFamily(
-        font(
-            "DsDigi",
-            "ds_digi_italic",
-            FontWeight.Normal,
-            FontStyle.Italic
-        )
-    )
+    val dsDigiItalic = fontFamilyResource(MR.fonts.ds_digi_italic.ds_digi_italic)
 
-    val dsDigiItalicBold = FontFamily(
-        font(
-            "DsDigi",
-            "ds_digi_italic_bold",
-            FontWeight.Bold,
-            FontStyle.Italic
-        )
-    )
-    val dsDigiBold = FontFamily(
-        font(
-            "DsDigi",
-            "ds_digi_bold",
-            FontWeight.Bold,
-            FontStyle.Normal
-        )
-    )
+    val dsDigiItalicBold = fontFamilyResource(MR.fonts.ds_digi_italic_bold.ds_digi_italic_bold)
+    val dsDigiBold = fontFamilyResource(MR.fonts.ds_digi_bold.ds_digi_bold)
     return Typography(
         displayLarge = TextStyle(
             fontFamily = dsDigiItalicBold,

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="january">january</string>
-    <string name="february">february</string>
-    <string name="march">march</string>
-    <string name="april">april</string>
-    <string name="may">may</string>
-    <string name="june">june</string>
-    <string name="jule">jule</string>
-    <string name="august">august</string>
-    <string name="september">september</string>
-    <string name="october">october</string>
-    <string name="november">november</string>
-    <string name="december">december</string>
+    <!--    <string name="january">january</string>-->
+    <!--    <string name="february">february</string>-->
+    <!--    <string name="march">march</string>-->
+    <!--    <string name="april">april</string>-->
+    <!--    <string name="may">may</string>-->
+    <!--    <string name="june">june</string>-->
+    <!--    <string name="jule">jule</string>-->
+    <!--    <string name="august">august</string>-->
+    <!--    <string name="september">september</string>-->
+    <!--    <string name="october">october</string>-->
+    <!--    <string name="november">november</string>-->
+    <!--    <string name="december">december</string>-->
 
     <string name="january_f">january</string>
     <string name="february_f">february</string>

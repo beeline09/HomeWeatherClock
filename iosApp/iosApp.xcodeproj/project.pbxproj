@@ -10,13 +10,38 @@
 		A93A953B29CC810C00F8E227 /* iosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93A953A29CC810C00F8E227 /* iosApp.swift */; };
 		A93A953F29CC810D00F8E227 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A93A953E29CC810D00F8E227 /* Assets.xcassets */; };
 		A93A954229CC810D00F8E227 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A93A954129CC810D00F8E227 /* Preview Assets.xcassets */; };
+		ED89D23A2B3A212A009A0B92 /* ds_digi_regular.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = ED89D2362B3A212A009A0B92 /* ds_digi_regular.ttf */; };
+		ED89D23B2B3A212A009A0B92 /* ds_digi_italic.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = ED89D2372B3A212A009A0B92 /* ds_digi_italic.ttf */; };
+		ED89D23C2B3A212A009A0B92 /* ds_digi_bold.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = ED89D2382B3A212A009A0B92 /* ds_digi_bold.ttf */; };
+		ED89D23D2B3A212A009A0B92 /* ds_digi_italic_bold.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = ED89D2392B3A212A009A0B92 /* ds_digi_italic_bold.ttf */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		ED6C12462B34654B0057E4FA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Fonts;
+			dstSubfolderSpec = 7;
+			files = (
+				ED89D23A2B3A212A009A0B92 /* ds_digi_regular.ttf in CopyFiles */,
+				ED89D23B2B3A212A009A0B92 /* ds_digi_italic.ttf in CopyFiles */,
+				ED89D23C2B3A212A009A0B92 /* ds_digi_bold.ttf in CopyFiles */,
+				ED89D23D2B3A212A009A0B92 /* ds_digi_italic_bold.ttf in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		A93A953729CC810C00F8E227 /* HomeWeatherClock.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HomeWeatherClock.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A93A953A29CC810C00F8E227 /* iosApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iosApp.swift; sourceTree = "<group>"; };
 		A93A953E29CC810D00F8E227 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A93A954129CC810D00F8E227 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		ED6C12472B3465730057E4FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		ED89D2362B3A212A009A0B92 /* ds_digi_regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ds_digi_regular.ttf; path = ../composeApp/src/commonMain/resources/MR/fonts/ds_digi_regular.ttf; sourceTree = "<group>"; };
+		ED89D2372B3A212A009A0B92 /* ds_digi_italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ds_digi_italic.ttf; path = ../composeApp/src/commonMain/resources/MR/fonts/ds_digi_italic.ttf; sourceTree = "<group>"; };
+		ED89D2382B3A212A009A0B92 /* ds_digi_bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ds_digi_bold.ttf; path = ../composeApp/src/commonMain/resources/MR/fonts/ds_digi_bold.ttf; sourceTree = "<group>"; };
+		ED89D2392B3A212A009A0B92 /* ds_digi_italic_bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ds_digi_italic_bold.ttf; path = ../composeApp/src/commonMain/resources/MR/fonts/ds_digi_italic_bold.ttf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -30,11 +55,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2E0AA4B7B1CF078A4B13B97C /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		A93A952E29CC810C00F8E227 = {
 			isa = PBXGroup;
 			children = (
+				ED89D2382B3A212A009A0B92 /* ds_digi_bold.ttf */,
+				ED89D2392B3A212A009A0B92 /* ds_digi_italic_bold.ttf */,
+				ED89D2372B3A212A009A0B92 /* ds_digi_italic.ttf */,
+				ED89D2362B3A212A009A0B92 /* ds_digi_regular.ttf */,
 				A93A953929CC810C00F8E227 /* iosApp */,
 				A93A953829CC810C00F8E227 /* Products */,
+				2E0AA4B7B1CF078A4B13B97C /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -49,6 +86,7 @@
 		A93A953929CC810C00F8E227 /* iosApp */ = {
 			isa = PBXGroup;
 			children = (
+				ED6C12472B3465730057E4FA /* Info.plist */,
 				A93A953A29CC810C00F8E227 /* iosApp.swift */,
 				A93A953E29CC810D00F8E227 /* Assets.xcassets */,
 				A93A954029CC810D00F8E227 /* Preview Content */,
@@ -75,6 +113,8 @@
 				A93A953329CC810C00F8E227 /* Sources */,
 				A93A953429CC810C00F8E227 /* Frameworks */,
 				A93A953529CC810C00F8E227 /* Resources */,
+				ED6C12462B34654B0057E4FA /* CopyFiles */,
+				ED89D23E2B3A33B3009A0B92 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -146,6 +186,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "cd \"$SRCROOT/..\"\n./gradlew :composeApp:embedAndSignAppleFrameworkForXcode\n";
+		};
+		ED89D23E2B3A33B3009A0B92 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"$SRCROOT/../gradlew\" -p \"$SRCROOT/../\" :composeApp:copyFrameworkResourcesToApp \\\n    -Pmoko.resources.PLATFORM_NAME=\"$PLATFORM_NAME\" \\\n    -Pmoko.resources.CONFIGURATION=\"$CONFIGURATION\" \\\n    -Pmoko.resources.ARCHS=\"$ARCHS\" \\\n    -Pmoko.resources.BUILT_PRODUCTS_DIR=\"$BUILT_PRODUCTS_DIR\" \\\n    -Pmoko.resources.CONTENTS_FOLDER_PATH=\"$CONTENTS_FOLDER_PATH\" \n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -289,6 +346,8 @@
 					"$(SRCROOT)/../composeApp/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -330,6 +389,8 @@
 					"$(SRCROOT)/../composeApp/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

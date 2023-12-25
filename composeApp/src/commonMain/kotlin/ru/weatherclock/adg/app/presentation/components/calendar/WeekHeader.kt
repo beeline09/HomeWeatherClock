@@ -18,7 +18,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.weatherclock.adg.Res
+import dev.icerock.moko.resources.compose.stringResource
+import ru.homeweatherclock.adg.MR
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 
 @Composable
@@ -57,13 +58,14 @@ fun weekHeader() {
     }
 }
 
+@Composable
 fun Int.toWeekName(): String = when (this) {
-    0 -> Res.string.day_name_short_monday
-    1 -> Res.string.day_name_short_tuesday
-    2 -> Res.string.day_name_short_wednesday
-    3 -> Res.string.day_name_short_thursday
-    4 -> Res.string.day_name_short_friday
-    5 -> Res.string.day_name_short_saturday
-    6 -> Res.string.day_name_short_sunday
+    0 -> stringResource(MR.strings.day_name_short_monday)
+    1 -> stringResource(MR.strings.day_name_short_tuesday)
+    2 -> stringResource(MR.strings.day_name_short_wednesday)
+    3 -> stringResource(MR.strings.day_name_short_thursday)
+    4 -> stringResource(MR.strings.day_name_short_friday)
+    5 -> stringResource(MR.strings.day_name_short_saturday)
+    6 -> stringResource(MR.strings.day_name_short_sunday)
     else -> ""
 }

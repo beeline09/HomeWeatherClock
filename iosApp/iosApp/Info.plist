@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ATSApplicationFontsPath</key>
+	<string>Fonts</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>ds_digi_bold.ttf</string>
+		<string>ds_digi_italic.ttf</string>
+		<string>ds_digi_italic_bold.ttf</string>
+		<string>ds_digi_regular.ttf</string>
+	</array>
+	<key>CADisableMinimumFrameDurationOnPhone</key><true/>
+</dict>
+</plist>
