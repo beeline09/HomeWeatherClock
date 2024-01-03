@@ -10,10 +10,6 @@
 		A93A953B29CC810C00F8E227 /* iosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93A953A29CC810C00F8E227 /* iosApp.swift */; };
 		A93A953F29CC810D00F8E227 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A93A953E29CC810D00F8E227 /* Assets.xcassets */; };
 		A93A954229CC810D00F8E227 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A93A954129CC810D00F8E227 /* Preview Assets.xcassets */; };
-		ED89D23A2B3A212A009A0B92 /* ds_digi_regular.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = ED89D2362B3A212A009A0B92 /* ds_digi_regular.ttf */; };
-		ED89D23B2B3A212A009A0B92 /* ds_digi_italic.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = ED89D2372B3A212A009A0B92 /* ds_digi_italic.ttf */; };
-		ED89D23C2B3A212A009A0B92 /* ds_digi_bold.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = ED89D2382B3A212A009A0B92 /* ds_digi_bold.ttf */; };
-		ED89D23D2B3A212A009A0B92 /* ds_digi_italic_bold.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = ED89D2392B3A212A009A0B92 /* ds_digi_italic_bold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,10 +19,6 @@
 			dstPath = Fonts;
 			dstSubfolderSpec = 7;
 			files = (
-				ED89D23A2B3A212A009A0B92 /* ds_digi_regular.ttf in CopyFiles */,
-				ED89D23B2B3A212A009A0B92 /* ds_digi_italic.ttf in CopyFiles */,
-				ED89D23C2B3A212A009A0B92 /* ds_digi_bold.ttf in CopyFiles */,
-				ED89D23D2B3A212A009A0B92 /* ds_digi_italic_bold.ttf in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -38,10 +30,6 @@
 		A93A953E29CC810D00F8E227 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A93A954129CC810D00F8E227 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		ED6C12472B3465730057E4FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		ED89D2362B3A212A009A0B92 /* ds_digi_regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ds_digi_regular.ttf; path = ../composeApp/src/commonMain/resources/MR/fonts/ds_digi_regular.ttf; sourceTree = "<group>"; };
-		ED89D2372B3A212A009A0B92 /* ds_digi_italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ds_digi_italic.ttf; path = ../composeApp/src/commonMain/resources/MR/fonts/ds_digi_italic.ttf; sourceTree = "<group>"; };
-		ED89D2382B3A212A009A0B92 /* ds_digi_bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ds_digi_bold.ttf; path = ../composeApp/src/commonMain/resources/MR/fonts/ds_digi_bold.ttf; sourceTree = "<group>"; };
-		ED89D2392B3A212A009A0B92 /* ds_digi_italic_bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ds_digi_italic_bold.ttf; path = ../composeApp/src/commonMain/resources/MR/fonts/ds_digi_italic_bold.ttf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,10 +53,6 @@
 		A93A952E29CC810C00F8E227 = {
 			isa = PBXGroup;
 			children = (
-				ED89D2382B3A212A009A0B92 /* ds_digi_bold.ttf */,
-				ED89D2392B3A212A009A0B92 /* ds_digi_italic_bold.ttf */,
-				ED89D2372B3A212A009A0B92 /* ds_digi_italic.ttf */,
-				ED89D2362B3A212A009A0B92 /* ds_digi_regular.ttf */,
 				A93A953929CC810C00F8E227 /* iosApp */,
 				A93A953829CC810C00F8E227 /* Products */,
 				2E0AA4B7B1CF078A4B13B97C /* Pods */,

@@ -25,6 +25,7 @@ import ru.weatherclock.adg.app.data.Result
 import ru.weatherclock.adg.app.data.asResult
 import ru.weatherclock.adg.app.domain.model.Forecast
 import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel
+import ru.weatherclock.adg.app.domain.usecase.ByteArrayUseCase
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
 import ru.weatherclock.adg.app.domain.usecase.DatabaseUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
@@ -33,7 +34,8 @@ import ru.weatherclock.adg.app.presentation.components.tickerFlow
 class HomeScreenViewModel(
     private val forecastUseCase: ForecastUseCase,
     private val calendarUseCase: CalendarUseCase,
-    private val databaseUseCase: DatabaseUseCase
+    private val databaseUseCase: DatabaseUseCase,
+    private val byteArrayUseCase: ByteArrayUseCase,
 ): ScreenModel {
 
     private val job = SupervisorJob()
@@ -128,6 +130,16 @@ class HomeScreenViewModel(
     fun onLaunch() {
 //        getForecast()
 //        getProdCalendar()
+    }
+
+    fun readUrlAsInputStream(
+        url: String,
+        onSuccess: (ByteArray) -> Unit
+    ) {
+        byteArrayUseCase.readUrlAsInputStream(
+            url,
+            onSuccess
+        )
     }
 
     override fun onDispose() {

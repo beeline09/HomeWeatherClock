@@ -1,3 +1,4 @@
+
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -97,6 +98,7 @@ kotlin {
                 implementation(libs.ktor.android)
                 implementation(libs.koin.compose)
                 implementation(libs.sqlDelight.driver.android)
+                implementation(libs.androidx.media3.exoplayer)
             }
         }
 
@@ -109,6 +111,8 @@ kotlin {
                 implementation(libs.ktor.java)
                 implementation(libs.koin.compose)
                 implementation(libs.sqlDelight.driver.sqlite)
+                implementation(libs.vlcj)
+                implementation(libs.jlayer)
             }
         }
 
@@ -169,6 +173,7 @@ android {
     packaging {
         resources {
             excludes += "META-INF/versions/**"
+            excludes += "META-INF/*"
         }
     }
 }
@@ -176,8 +181,9 @@ android {
 compose.desktop {
     application {
         mainClass = "MainKt"
-        jvmArgs += "-XX:+PrintCompilation"
+//        jvmArgs += "-XX:+PrintCompilation"
         jvmArgs += "-XX:CompileThreshold=1"
+        jvmArgs += "-Dhttps.protocols=TLSv1.1,TLSv1.2"
 
         nativeDistributions {
             val iconsRoot = project.file("src/commonMain/resources/drawables")
