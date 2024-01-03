@@ -83,31 +83,29 @@ sealed class DateInput {
 
     fun checkIfSelected(
         date: Int,
-        dateTime: MutableState<LocalDateTime>
+        dateTime: LocalDateTime
     ): Boolean {
         when (this) {
             is DateRange -> {
                 val (actualDateStart, actualDateEnd) = getResult()
                 if (actualDateStart == null) return false
-                if (date > dateTime.value.getLastDayOfMonth()) return false
+                if (date > dateTime.getLastDayOfMonth()) return false
                 if (actualDateEnd == null) {
-                    val dt = dateTime.value
                     val current = LocalDateTime(
-                        dt.year,
-                        dt.monthNumber,
+                        dateTime.year,
+                        dateTime.monthNumber,
                         date,
                         0,
                         0
                     )
                     return actualDateStart == current
                 }
-                val dt = dateTime.value
                 val current = LocalDateTime(
-                    dt.year,
-                    dt.monthNumber,
+                    dateTime.year,
+                    dateTime.monthNumber,
                     date,
-                    dt.hour,
-                    dt.minute
+                    dateTime.hour,
+                    dateTime.minute
                 )
 //                return current.toInstant(TimeZone.currentSystemDefault()).epochSeconds in (startDate.value?.toInstant(TimeZone.currentSystemDefault())?.epochSeconds
 //                    ?: 0)..(endDate.value?.toInstant(TimeZone.currentSystemDefault())?.epochSeconds
@@ -118,16 +116,16 @@ sealed class DateInput {
             is SingleDate -> {
                 val (actualDate) = getResult()
                 if (actualDate == null) return false
-                if (date > dateTime.value.getLastDayOfMonth()) return false
-                val current = dateTime.value.withDayOfMonth(date).withHour(0).withMinute(0)
+                if (date > dateTime.getLastDayOfMonth()) return false
+                val current = dateTime.withDayOfMonth(date).withHour(0).withMinute(0)
                 return actualDate == current
             }
 
             is SingleDateTime -> {
                 val (actualDateTime) = getResult()
                 if (actualDateTime == null) return false
-                if (date > dateTime.value.getLastDayOfMonth()) return false
-                val current = dateTime.value.withDayOfMonth(date)
+                if (date > dateTime.getLastDayOfMonth()) return false
+                val current = dateTime.withDayOfMonth(date)
                 return actualDateTime == current
             }
         }
@@ -135,17 +133,17 @@ sealed class DateInput {
 
     fun select(
         dateInt: Int,
-        dateTimeTemp: MutableState<LocalDateTime>,
+        dateTimeTemp: LocalDateTime,
         windowState: MutableState<CalendarWindowState>
     ) {
         when (this) {
             is DateRange -> {
                 if (startDate.value == null) {
                     startDate.value =
-                        dateTimeTemp.value.withDayOfMonth(dateInt).withHour(0).withMinute(0)
+                        dateTimeTemp.withDayOfMonth(dateInt).withHour(0).withMinute(0)
                 } else {
                     endDate.value =
-                        dateTimeTemp.value.withDayOfMonth(dateInt).withHour(0).withMinute(0)
+                        dateTimeTemp.withDayOfMonth(dateInt).withHour(0).withMinute(0)
                     val actualDateStart = startDate.value
                     val actualDateEnd = endDate.value
                     if (actualDateStart != null && actualDateEnd != null) {
@@ -164,11 +162,11 @@ sealed class DateInput {
             }
 
             is SingleDate -> {
-                date.value = dateTimeTemp.value.withDayOfMonth(dateInt).withHour(0).withMinute(0)
+                date.value = dateTimeTemp.withDayOfMonth(dateInt).withHour(0).withMinute(0)
             }
 
             is SingleDateTime -> {
-                dateTime.value = dateTimeTemp.value.withDayOfMonth(dateInt)
+                dateTime.value = dateTimeTemp.withDayOfMonth(dateInt)
                 windowState.value = CalendarWindowState.TIME
             }
         }

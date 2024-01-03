@@ -5,7 +5,7 @@
 
     <application
         android:name=".AndroidApp"
-        android:icon="@android:drawable/ic_menu_compass"
+        android:icon="@mipmap/ic_launcher"
         android:label="HomeWeatherClock"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
         <activity

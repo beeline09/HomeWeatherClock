@@ -7,7 +7,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import dev.icerock.moko.resources.compose.fontFamilyResource
-import ru.homeweatherclock.adg.MR
+import ru.weatherclock.adg.MR
 
 @Composable
 fun getTypography(): Typography {

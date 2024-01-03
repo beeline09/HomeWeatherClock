@@ -7,7 +7,7 @@ buildscript {
         )
         set(
             "appPackageName",
-            "ru.homeweatherclock.adg"
+            "ru.weatherclock.adg"
         )
         set(
             "appVersionName",

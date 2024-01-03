@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateInput
 import ru.weatherclock.adg.app.presentation.components.calendar.styles.getPointerCursor
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
@@ -35,9 +35,10 @@ import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MonthGrid(
-    dateTime: MutableState<LocalDateTime>,
-    dateHolder: MutableState<DateInput>,
+    dateTime: LocalDateTime,
+    dateHolder: DateInput,
     dates: List<List<Int?>>,
+    prodCalendarDays: List<ProdCalendarDay>,
     onDateSelected: (Long) -> Unit
 ) {
     val colorPalette = LocalCustomColorsPalette.current
@@ -47,20 +48,25 @@ fun MonthGrid(
                 var hovered by remember { mutableStateOf(false) }
                 val selected by derivedStateOf {
                     date?.let {
-                        dateHolder.value.checkIfSelected(
+                        dateHolder.checkIfSelected(
                             date,
                             dateTime
                         )
                     } ?: false
                 }
-                val textColor = when {
+                val defColor = when {
                     selected -> colorPalette.calendarDaySelectedText
                     dayPosInWeek in 5..6 -> colorPalette.calendarWeekdayWeekendText
                     else -> colorPalette.calendarDayDefaultText
                 }
+                val textColor =
+                    if (date in prodCalendarDays.map { it.date.dayOfMonth } && !selected) {
+                        val prodDay = prodCalendarDays.firstOrNull { it.date.dayOfMonth == date }
+                        prodDay?.color() ?: defColor
+                    } else defColor
                 val borderColor = when {
                     hovered -> colorPalette.calendarDayHover
-                    date.isCurrentDay(dateTime.value) -> colorPalette.calendarWeekdayBorder
+                    date.isCurrentDay(dateTime) -> colorPalette.calendarWeekdayBorder
                     else -> Color.Transparent
                 }
                 AutoSizeText(
@@ -101,12 +107,12 @@ fun MonthGrid(
                         .clickable(
                             enabled = date != null
                         ) {
-                            dateHolder.value.select(
+                            dateHolder.select(
                                 date!!,
                                 dateTime,
                                 mutableStateOf(CalendarWindowState.CALENDAR)
                             )
-                            (dateHolder.value as? DateInput.SingleDate)?.date?.value
+                            (dateHolder as? DateInput.SingleDate)?.date?.value
                                 ?.toInstant(TimeZone.currentSystemDefault())
                                 ?.toEpochMilliseconds()
                                 ?.let {

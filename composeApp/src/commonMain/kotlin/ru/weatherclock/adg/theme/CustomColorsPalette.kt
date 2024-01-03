@@ -21,6 +21,10 @@ data class CustomColorsPalette(
     val calendarDayWeekendBackground: Color = Color.Unspecified,
     val calendarDayHolidayBackground: Color = Color.Unspecified,
     val calendarDayHover: Color = Color.Unspecified,
+    val calendarDayAdditionalDayOff: Color = Color(0xff00ffc6),
+    val calendarDayNationalHoliday: Color = Color(0xffffeb08),
+    val calendarDayPreHoliday: Color = Color(0xff03fd3d),
+    val calendarDayRegionalHoliday: Color = Color(0xfff86f10),
 )
 
 val LightCustomColorsPalette = CustomColorsPalette(
@@ -39,6 +43,10 @@ val LightCustomColorsPalette = CustomColorsPalette(
     calendarDayWeekendBackground = light_calendarDayWeekendBackground,
     calendarDayHolidayBackground = light_calendarDayHolidayBackground,
     calendarDayHover = light_calendarDayHover,
+    calendarDayAdditionalDayOff = light_calendarDayAdditionalDayOff,
+    calendarDayNationalHoliday = light_calendarDayNationalHoliday,
+    calendarDayPreHoliday = light_calendarDayPreHoliday,
+    calendarDayRegionalHoliday = light_calendarDayRegionalHoliday,
 )
 
 val DarkCustomColorsPalette = CustomColorsPalette(
@@ -57,6 +65,10 @@ val DarkCustomColorsPalette = CustomColorsPalette(
     calendarDayWeekendBackground = dark_calendarDayWeekendBackground,
     calendarDayHolidayBackground = dark_calendarDayHolidayBackground,
     calendarDayHover = dark_calendarDayHover,
+    calendarDayAdditionalDayOff = dark_calendarDayAdditionalDayOff,
+    calendarDayNationalHoliday = dark_calendarDayNationalHoliday,
+    calendarDayPreHoliday = dark_calendarDayPreHoliday,
+    calendarDayRegionalHoliday = dark_calendarDayRegionalHoliday,
 )
 
 val LocalCustomColorsPalette = staticCompositionLocalOf { CustomColorsPalette() }
