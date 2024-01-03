@@ -1,10 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 apply(from = "${rootProject.projectDir}/composeApp/constants.gradle.kts")
-private val appName = extra["appName"].toString()
-rootProject.name = appName
-
-//rootProject.name = "HomeWeatherClock"
+rootProject.name = extra["appName"].toString()
 include(":composeApp")
 
 pluginManagement {
