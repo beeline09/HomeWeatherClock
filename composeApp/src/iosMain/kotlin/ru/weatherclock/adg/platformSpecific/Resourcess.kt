@@ -12,7 +12,7 @@ import platform.Foundation.NSFileManager
     ExperimentalResourceApi::class,
     ExperimentalForeignApi::class
 )
-actual suspend fun String.byteArrayFromResources(): ByteArray {
+actual fun String.byteArrayFromResources(onSuccess: (ByteArray) -> Unit) {
 
     NSBundle.allBundles().forEach {
         (it as NSBundle).also { nsBundle ->
@@ -22,9 +22,12 @@ actual suspend fun String.byteArrayFromResources(): ByteArray {
                 inDirectory = "files"
             )
             if (!file.isNullOrBlank()) {
-                return NSFileManager.defaultManager.contentsAtPath(file)?.let { data ->
-                    data.bytes?.readBytes(data.length.toInt())
-                } ?: resource(file).readBytes()
+                runBlocking {
+                    val result = NSFileManager.defaultManager.contentsAtPath(file)?.let { data ->
+                        data.bytes?.readBytes(data.length.toInt())
+                    } ?: resource(file).readBytes()
+                    onSuccess(result)
+                }
             }
         }
     }
