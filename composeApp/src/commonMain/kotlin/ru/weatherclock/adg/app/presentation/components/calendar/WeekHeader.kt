@@ -18,7 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.icerock.moko.resources.compose.stringResource
-import ru.homeweatherclock.adg.MR
+import ru.weatherclock.adg.MR
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 

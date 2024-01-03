@@ -1,6 +1,6 @@
 package ru.weatherclock.adg.app.presentation.screens.home
 
-import kotlinx.datetime.LocalDateTime
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -37,7 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -48,10 +47,9 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.koinInject
-import ru.homeweatherclock.adg.MR
+import ru.weatherclock.adg.MR
 import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateInput
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.player.AudioPlayer
 import ru.weatherclock.adg.app.presentation.components.player.rememberPlayerState
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
@@ -60,18 +58,22 @@ import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
 import ru.weatherclock.adg.platformSpecific.byteArrayFromResources
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
-@OptIn(ExperimentalResourceApi::class)
+@OptIn(
+    ExperimentalResourceApi::class,
+    ExperimentalCoroutinesApi::class
+)
 @Composable
 fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val forecast by screenModel.forecast.collectAsState()
+    //Текущая дата для календаря
+    val dateTime by screenModel.calendarDay.collectAsState()
+    val prodCalendarDays by screenModel.prodCalendarDays.collectAsState(emptyList())
+    val currentProdCalendarDay by screenModel.currentProdDay.collectAsState(null)
+
     val playerState = rememberPlayerState()
     LaunchedEffect(Unit) {
         val player = AudioPlayer(playerState)
-        MR.files.casiohour.byteArrayFromResources {
-            player.play(it)
-        }
-    }
-    LaunchedEffect(Unit) {
+        MR.files.casiohour.byteArrayFromResources(player::play)
         screenModel.onLaunch()
     }
     val dot by screenModel.dot.collectAsState()
@@ -81,6 +83,10 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val navigator = LocalNavigator.currentOrThrow
 
     val colorPalette = LocalCustomColorsPalette.current
+
+    if (currentProdCalendarDay.isNullOrBlank()) {
+
+    }
 
     Column(
         modifier = Modifier
@@ -154,12 +160,11 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         .weight(0.5f)
                         .align(Alignment.CenterHorizontally)
                 ) {
-                    val dateTime = mutableStateOf(LocalDateTime.now())
-                    val holder = mutableStateOf<DateInput>(DateInput.SingleDate())
                     Calendar(
                         dateTime = dateTime,
-                        dateHolder = holder,
+                        dateHolder = DateInput.SingleDate(),
                         onDateSelected = {},
+                        prodCalendarDays = prodCalendarDays
                     )
                 }
                 Spacer(Modifier.height(5.dp))
@@ -172,12 +177,13 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
             Color.Magenta,
             Color.Cyan
         )
-        Row(modifier = Modifier.fillMaxSize().weight(0.3f).background(Color.Blue)) {
+        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(colorPalette.divider))
+        Row(modifier = Modifier.fillMaxSize().weight(0.3f)) {
             colors.forEachIndexed { index, color ->
                 Box(
-                    modifier = Modifier.fillMaxSize().background(color).weight(1f)
+                    modifier = Modifier.fillMaxSize().weight(1f)
                 ) {
-                    Row(Modifier.fillMaxSize().background(color)) {
+                    Row(Modifier.fillMaxSize()) {
 
                         Column(
                             Modifier.weight(1f).fillMaxSize(),
@@ -188,24 +194,21 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                                 modifier = Modifier.wrapContentHeight().fillMaxWidth()
                             )
                             Text(text = "Color:  $color")
-                            Divider(
-                                color = Color.Black,
-                                modifier = Modifier.fillMaxWidth().height(1.dp)
-                            ) //Horizontal divider
                         }
 
                         //Vertical divider avoiding the last cell in each row
                         if ((index + 1) % 5 != 0) {
                             Divider(
-                                color = Color.Red,
+                                color = colorPalette.divider,
                                 modifier = Modifier
                                     .fillMaxHeight()
-                                    .width(10.dp)
+                                    .width(1.dp)
                             )
                         }
                     }
                 }
             }
         }
+        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(colorPalette.divider))
     }
 }

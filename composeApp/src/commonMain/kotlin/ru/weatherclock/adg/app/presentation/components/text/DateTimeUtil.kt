@@ -2,8 +2,7 @@ package ru.weatherclock.adg.app.presentation.components.text
 
 import androidx.compose.runtime.Composable
 import dev.icerock.moko.resources.compose.stringResource
-import ru.homeweatherclock.adg.MR
-
+import ru.weatherclock.adg.MR
 
 @Composable
 fun Int.toMonthName(): String = when (this) {

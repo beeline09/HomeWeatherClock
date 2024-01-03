@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -21,17 +20,18 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateInput
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @Suppress("FunctionName")
 fun Calendar(
-    dateTime: MutableState<LocalDateTime>,
-    dateHolder: MutableState<DateInput>,
+    dateTime: LocalDateTime,
+    dateHolder: DateInput,
+    prodCalendarDays: List<ProdCalendarDay>,
     onDateSelected: (Long) -> Unit,
 ) {
-    val dates = dateTime.value.getMonthGrid()
+    val dates = dateTime.getMonthGrid()
     Column(
         Modifier
             .wrapContentHeight(align = Alignment.CenterVertically)
@@ -44,6 +44,7 @@ fun Calendar(
             dateTime,
             dateHolder,
             dates,
+            prodCalendarDays,
             onDateSelected
         )
     }
