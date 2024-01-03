@@ -17,16 +17,21 @@ import io.ktor.serialization.kotlinx.json.json
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
+import ru.weatherclock.adg.app.data.remote.ByteArrayKtorService
 import ru.weatherclock.adg.app.data.remote.CalendarKtorService
 import ru.weatherclock.adg.app.data.remote.WeatherKtorService
+import ru.weatherclock.adg.app.data.remote.implementation.ByteArrayKtorServiceImpl
 import ru.weatherclock.adg.app.data.remote.implementation.CalendarKtorServiceImpl
 import ru.weatherclock.adg.app.data.remote.implementation.WeatherKtorServiceImpl
+import ru.weatherclock.adg.app.data.repository.ByteArrayKtorRepository
 import ru.weatherclock.adg.app.data.repository.CalendarRepository
 import ru.weatherclock.adg.app.data.repository.DatabaseRepository
 import ru.weatherclock.adg.app.data.repository.WeatherRepository
+import ru.weatherclock.adg.app.data.repository.implementation.ByteArrayKtorRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.implementation.CalendarRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.implementation.DatabaseRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.implementation.WeatherRepositoryImpl
+import ru.weatherclock.adg.app.domain.usecase.ByteArrayUseCase
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
 import ru.weatherclock.adg.app.domain.usecase.DatabaseUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
@@ -65,6 +70,7 @@ fun getScreenModelModule() = module {
         HomeScreenViewModel(
             get(),
             get(),
+            get(),
             get()
         )
     }
@@ -75,6 +81,7 @@ fun getDataModule(
 ) = module {
     single<WeatherRepository> { WeatherRepositoryImpl(get()) }
     single<CalendarRepository> { CalendarRepositoryImpl(get()) }
+    single<ByteArrayKtorRepository> { ByteArrayKtorRepositoryImpl(get()) }
 
     single<WeatherKtorService> {
         WeatherKtorServiceImpl(
@@ -88,6 +95,9 @@ fun getDataModule(
             get(),
             baseUrl = "https://production-calendar.ru/get/ru"
         )
+    }
+    single<ByteArrayKtorService> {
+        ByteArrayKtorServiceImpl(get())
     }
 
     single { createJson() }
@@ -109,6 +119,7 @@ fun getUseCaseModule() = module {
     single { ForecastUseCase(get()) }
     single { CalendarUseCase(get()) }
     single { DatabaseUseCase(get()) }
+    single { ByteArrayUseCase(get()) }
 }
 
 fun createHttpClient(

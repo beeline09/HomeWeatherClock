@@ -1,5 +1,6 @@
 package ru.weatherclock.adg.app.presentation.screens.home
 
+import kotlinx.datetime.LocalDateTime
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -37,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -45,19 +47,46 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.datetime.LocalDateTime
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.koinInject
+import ru.homeweatherclock.adg.MR
 import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateInput
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.calendar.styles.DateInputDefaults
+import ru.weatherclock.adg.app.presentation.components.player.AudioPlayer
+import ru.weatherclock.adg.app.presentation.components.player.rememberPlayerState
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.app.presentation.screens.home.components.TextCalendar
+import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
+import ru.weatherclock.adg.platformSpecific.byteArrayFromResources
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val forecast by screenModel.forecast.collectAsState()
-    LaunchedEffect(Unit) { screenModel.onLaunch() }
+
+    val audioList =
+        remember { listOf("https://freetestdata.com/wp-content/uploads/2021/09/Free_Test_Data_2MB_MP3.mp3") }
+    val playerState = rememberPlayerState()
+
+    val hour = MR.files.casiohour
+
+
+    LaunchedEffect(Unit) {
+//        player.addSongsUrls(audioList)
+//        player.play()
+
+        val player = AudioPlayer(playerState)
+        val bbb = "casiohour.mp3".byteArrayFromResources()
+        player.play(bbb)
+//        screenModel.readUrlAsInputStream("https://freetestdata.com/wp-content/uploads/2021/09/Free_Test_Data_2MB_MP3.mp3" ){
+//            player.play(it)
+//        }
+    }
+    LaunchedEffect(Unit) {
+        screenModel.onLaunch()
+    }
     val dot by screenModel.dot.collectAsState()
     val time by screenModel.time.collectAsState()
     val date by screenModel.date.collectAsState()
@@ -107,7 +136,9 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                 ) {
                     Box(modifier = Modifier.fillMaxSize().alpha(0.5f).background(Color.Black)) {
                         IconButton(
-                            onClick = { /* do something */ },
+                            onClick = {
+                                navigator.push(SettingsTab)
+                            },
                             modifier = Modifier.align(Alignment.Center)
                         ) {
                             Icon(
@@ -195,5 +226,4 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
             }
         }
     }
-
 }
