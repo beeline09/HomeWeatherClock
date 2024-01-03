@@ -2,6 +2,7 @@
 
 atomicfu = "0.23.1"
 coreKtx = "1.12.0"
+geoCompose = "0.6.0"
 jlayer = "1.0.2"
 kotlin = "1.9.21"
 agp = "8.2.0"
@@ -11,6 +12,7 @@ androidx-activityCompose = "1.8.2"
 compose-uitooling = "1.5.4"
 #libres = "1.2.1"
 media3Exoplayer = "1.2.0"
+multiplatformSettings = "1.1.1"
 vlcj = "4.7.3"
 voyager = "1.0.0-rc10"
 composeImageLoader = "1.7.1"
@@ -27,17 +29,25 @@ koin-compose-version = "3.4.2"
 sqlDelight = "2.0.0"
 kermit = "2.0.0-RC4"
 moko = "0.23.0"
+androidx-preferences = "1.2.1"
+dataStoreVersion = "1.1.0-alpha07"
+kstore = "0.6.0"
+java-appdirs = "1.2.2"
 
 [libraries]
-
+androidx-datastore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "dataStoreVersion" }
+androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "dataStoreVersion" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3Exoplayer" }
+androidx-preferences = { module = "androidx.preference:preference", version.ref = "androidx-preferences" }
 atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
 compose-uitooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose-uitooling" }
 #libres = { module = "io.github.skeptick.libres:libres-compose", version.ref = "libres" }
 jlayer = { module = "com.github.umjammer:jlayer", version.ref = "jlayer" }
+multiplatform-settings = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettings" }
+multiplatform-settings-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "multiplatformSettings" }
 vlcj = { module = "uk.co.caprica:vlcj", version.ref = "vlcj" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 voyager-bottomSheetNavigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyager" }
@@ -73,6 +83,10 @@ kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 moko-resources-compose = { module = "dev.icerock.moko:resources-compose", version.ref = "moko" }
 moko-resources = { module = "dev.icerock.moko:resources", version.ref = "moko" }
 moko-resources-generator = { module = "dev.icerock.moko:resources-generator", version.ref = "moko" }
+moko-geo = { module = "dev.icerock.moko:geo-compose", version.ref = "moko" }
+kstore = { module = "io.github.xxfast:kstore", version.ref = "kstore" }
+kstore-file = { module = "io.github.xxfast:kstore-file", version.ref = "kstore" }
+java-appdirs = { module = "net.harawata:appdirs", version.ref = "java-appdirs" }
 
 [bundles]
 ktor-common = [

@@ -15,31 +15,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.icerock.moko.resources.compose.stringResource
 import ru.homeweatherclock.adg.MR
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
+import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @Composable
 fun weekHeader() {
+    val colorPalette = LocalCustomColorsPalette.current
     Row(
         Modifier
             .fillMaxWidth().wrapContentHeight()
     ) {
         (0..6).toList().forEach { weekNumber ->
             if (weekNumber == 0) {
-                Spacer(Modifier.width(3.dp))
+                Spacer(Modifier.width(4.dp))
             }
             AutoSizeText(
+                color = if (weekNumber < 5) colorPalette.calendarWeekdayWorkText else colorPalette.calendarWeekdayWeekendText,
                 text = weekNumber.toWeekName(),
                 minTextSize = 1.sp,
                 maxTextSize = 50.sp,
                 stepGranularityTextSize = 1.sp,
                 maxLines = 1,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.White,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
@@ -48,12 +49,12 @@ fun weekHeader() {
 //                    .getPointerCursor()
                     .border(
                         1.dp,
-                        Color.White,
+                        colorPalette.calendarWeekdayBorder,
                         RoundedCornerShape(percent = 5)
                     ).padding(3.dp).clickable(false) {},
                 alignment = Alignment.Center
             )
-            Spacer(Modifier.width(3.dp))
+            Spacer(Modifier.width(4.dp))
         }
     }
 }

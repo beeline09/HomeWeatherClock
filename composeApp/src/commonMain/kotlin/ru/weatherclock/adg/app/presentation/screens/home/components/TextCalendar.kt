@@ -1,6 +1,5 @@
 package ru.weatherclock.adg.app.presentation.screens.home.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,9 +8,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.app.presentation.components.text.toMonthName
+import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @Composable
 fun TextCalendar(
@@ -19,8 +18,8 @@ fun TextCalendar(
     dayOfMonth: Int,
     month: Int,
     year: Int,
-    dayName: String
 ) {
+    val colorPalette = LocalCustomColorsPalette.current
     val dateStr = "$dayOfMonth".padStart(
         2,
         '0'
@@ -31,47 +30,36 @@ fun TextCalendar(
     Column(modifier = modifier.fillMaxSize()) {
         AutoSizeText(
             text = dateStr,
+            color = colorPalette.dateDay,
             maxLines = 1,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.25f)
-                .wrapContentHeight(align = Alignment.CenterVertically)
-                .background(Color.Cyan),
+                .wrapContentHeight(align = Alignment.CenterVertically),
             alignment = Alignment.Center,
             style = MaterialTheme.typography.bodySmall,
         )
         AutoSizeText(
-            text = month.toMonthName(),
+            text = month.toMonthName().replaceFirstChar { it.uppercaseChar() },
+            color = colorPalette.dateMonth,
             maxLines = 1,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.15f)
-                .wrapContentHeight(align = Alignment.CenterVertically)
-                .background(Color.Gray),
+                .wrapContentHeight(align = Alignment.CenterVertically),
             alignment = Alignment.Center,
             style = MaterialTheme.typography.bodySmall,
         )
         AutoSizeText(
             text = "$year",
+            color = colorPalette.dateYear,
             maxLines = 1,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.25f)
-                .wrapContentHeight(align = Alignment.CenterVertically)
-                .background(Color.Yellow),
+                .wrapContentHeight(align = Alignment.CenterVertically),
             alignment = Alignment.Center,
             style = MaterialTheme.typography.bodySmall,
         )
-        /*      AutoSizeText(
-                  text = dayName,
-                  maxLines = 1,
-                  modifier = Modifier
-                      .fillMaxWidth()
-                      .weight(0.15f)
-                      .wrapContentHeight(align = Alignment.CenterVertically)
-                      .background(Color.Gray),
-                  alignment = Alignment.Center,
-                  style = MaterialTheme.typography.bodySmall,
-              )*/
     }
 }

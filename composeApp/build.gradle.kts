@@ -1,4 +1,3 @@
-
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -12,6 +11,13 @@ plugins {
     alias(libs.plugins.mokoResources)
 //    kotlin("native.cocoapods")
 }
+
+apply(from = "${rootProject.projectDir}/composeApp/constants.gradle.kts")
+
+private val appName = extra["appName"].toString()
+private val appPackageName = extra["appPackageName"].toString()
+private val appVersionName = extra["appVersionName"].toString()
+private val appVersionCode = extra["appVersionCode"] as Int
 
 kotlin {
     androidTarget {
@@ -39,6 +45,8 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
             export(libs.moko.resources)
+            // Make AppleSettings visible from Swift
+            export(libs.multiplatform.settings)
 //            export(libs.moko.graphics)
         }
     }
@@ -82,8 +90,14 @@ kotlin {
                 implementation(libs.sqlDelight.coroutines.extensions)
                 api(libs.moko.resources.compose)
                 api(libs.moko.resources)
+//                api(libs.moko.geo)
                 implementation(libs.atomicfu)
 //            implementation(libs.composeCalendar)
+//                api(libs.multiplatform.settings)
+//                implementation(libs.multiplatform.settings.coroutines)
+//                api(libs.androidx.datastore.preferences.core)
+//                api(libs.androidx.datastore.core.okio)
+                implementation(libs.kstore)
             }
         }
 
@@ -99,6 +113,8 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.sqlDelight.driver.android)
                 implementation(libs.androidx.media3.exoplayer)
+                implementation(libs.kstore.file)
+//                implementation(libs.androidx.preferences)
             }
         }
 
@@ -113,6 +129,8 @@ kotlin {
                 implementation(libs.sqlDelight.driver.sqlite)
                 implementation(libs.vlcj)
                 implementation(libs.jlayer)
+                implementation(libs.kstore.file)
+                implementation(libs.java.appdirs)
             }
         }
 
@@ -127,6 +145,7 @@ kotlin {
             dependencies {
                 implementation(libs.ktor.client.darwin)
                 implementation(libs.sqlDelight.driver.native)
+                implementation(libs.kstore.file)
             }
         }
 
@@ -135,7 +154,7 @@ kotlin {
 
 multiplatformResources {
     disableStaticFrameworkWarning = true
-    multiplatformResourcesPackage = "ru.homeweatherclock.adg" // required
+    multiplatformResourcesPackage = appPackageName // required
 //    multiplatformResourcesClassName = "Res" // optional, default MR
 //    multiplatformResourcesVisibility = MRVisibility.Internal // optional, default Public
 //    iosBaseLocalizationRegion = "ru" // optional, default "en"
@@ -143,21 +162,24 @@ multiplatformResources {
 }
 
 android {
-    namespace = "ru.weatherclock.adg"
+    namespace = appPackageName
     compileSdk = 34
 
     defaultConfig {
         minSdk = 21
         targetSdk = 34
 
-        applicationId = "ru.weatherclock.adg.androidApp"
-        versionCode = 1
-        versionName = "1.0.0"
+        applicationId = appPackageName
+        versionCode = appVersionCode
+        versionName = appVersionName
     }
     sourceSets["main"].apply {
         manifest.srcFile("src/androidMain/AndroidManifest.xml")
         res.srcDirs("src/androidMain/resources")
-        res.srcDirs("src/androidMain/res", "src/commonMain/resources")
+        res.srcDirs(
+            "src/androidMain/res",
+            "src/commonMain/resources"
+        )
         resources.exclude("src/commonMain/resources/MR")
     }
     compileOptions {
@@ -194,8 +216,14 @@ compose.desktop {
                 TargetFormat.Deb
             )
             appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
-            packageName = "HomeWeatherClock"
-            packageVersion = "1.0.0"
+
+            packageName = appName
+            packageVersion = appVersionName
+
+            version = appVersionCode
+
+//            packageName = "HomeWeatherClock"
+//            packageVersion = "1.0.0"
             modules += listOf(
                 "java.compiler",
                 "java.instrument",
@@ -203,6 +231,7 @@ compose.desktop {
                 "java.naming",
                 "java.sql"
             )
+            copyright = "© 2023 Rasul Ismailov. All rights reserved."
 
             linux {
                 iconFile.set(iconsRoot.resolve("launcher_icons/linux.png"))
@@ -215,8 +244,12 @@ compose.desktop {
             }
 
             macOS {
-                packageName = "HomeWeatherClock"
-                bundleID = "ru.homeweatherclock.adg"
+
+                this.packageName = appName
+                this.bundleID = appPackageName
+
+//                packageName = "HomeWeatherClock"
+//                bundleID = "ru.homeweatherclock.adg"
                 iconFile.set(iconsRoot.resolve("launcher_icons/macos.icns"))
 //                runtimeEntitlementsFile.set(project.file("runtime-entitlements.plist"))
             }
@@ -224,22 +257,35 @@ compose.desktop {
     }
 }
 
-/*libres {
-    // https://github.com/Skeptick/libres#setup
-//    generatedClassName = "MainRes" // "Res" by default
-    generateNamedArguments = true // false by default
-    baseLocaleLanguageCode = "ru" // "en" by default
-    camelCaseNamesForAppleFramework = false // false by default
-}*/
-//tasks.getByPath("jvmProcessResources").dependsOn("libresGenerateResources")
-//tasks.getByPath("jvmSourcesJar").dependsOn("libresGenerateResources")
 dependencies {
     implementation(libs.androidx.core.ktx)
 }
 
 buildConfig {
-    // BuildConfig configuration here.
-    // https://github.com/gmazzo/gradle-buildconfig-plugin#usage-in-kts
+    buildConfigField(
+        "String",
+        "APP_NAME",
+        "\"${appName}\""
+    )
+    buildConfigField(
+        "String",
+        "APP_PACKAGE_NAME",
+        "\"${appPackageName}\""
+    )
+    buildConfigField(
+        "String",
+        "APP_VERSION",
+        provider { "\"${appVersionName}\"" })
+    buildConfigField(
+        "String",
+        "APP_AUTHOR",
+        "\"beeline09\""
+    )
+    buildConfigField(
+        "long",
+        "BUILD_TIME",
+        "${System.currentTimeMillis()}L"
+    )
 }
 
 sqldelight {
@@ -251,23 +297,3 @@ sqldelight {
         }
     }
 }
-
-/*// workaround https://github.com/icerockdev/moko-resources/issues/421
-tasks.matching { it.name == "desktopProcessResources" }.configureEach {
-    dependsOn(tasks.matching { it.name == "generateMRdesktopMain" })
-}
-tasks.matching { it.name == "iosSimulatorArm64ProcessResources" }.configureEach {
-    dependsOn(tasks.matching { it.name == "generateMRiosSimulatorArm64Main" })
-}
-tasks.matching { it.name == "metadataIosMainProcessResources" }.configureEach {
-    dependsOn(tasks.matching { it.name == "generateMRcommonMain" })
-}
-tasks.matching { it.name == "metadataCommonMainProcessResources" }.configureEach {
-    dependsOn(tasks.matching { it.name == "generateMRcommonMain" })
-}
-tasks.matching { it.name == "iosX64ProcessResources" }.configureEach {
-    dependsOn(tasks.matching { it.name == "generateMRiosX64Main" })
-}
-tasks.matching { it.name == "iosArm64ProcessResources" }.configureEach {
-    dependsOn(tasks.matching { it.name == "generateMRiosArm64Main" })
-}*/

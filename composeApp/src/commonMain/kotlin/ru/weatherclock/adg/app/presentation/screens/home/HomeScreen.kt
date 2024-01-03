@@ -38,7 +38,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -53,36 +52,24 @@ import ru.homeweatherclock.adg.MR
 import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateInput
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
-import ru.weatherclock.adg.app.presentation.components.calendar.styles.DateInputDefaults
 import ru.weatherclock.adg.app.presentation.components.player.AudioPlayer
 import ru.weatherclock.adg.app.presentation.components.player.rememberPlayerState
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.app.presentation.screens.home.components.TextCalendar
 import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
 import ru.weatherclock.adg.platformSpecific.byteArrayFromResources
+import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val forecast by screenModel.forecast.collectAsState()
-
-    val audioList =
-        remember { listOf("https://freetestdata.com/wp-content/uploads/2021/09/Free_Test_Data_2MB_MP3.mp3") }
     val playerState = rememberPlayerState()
-
-    val hour = MR.files.casiohour
-
-
     LaunchedEffect(Unit) {
-//        player.addSongsUrls(audioList)
-//        player.play()
-
         val player = AudioPlayer(playerState)
-        val bbb = "casiohour.mp3".byteArrayFromResources()
-        player.play(bbb)
-//        screenModel.readUrlAsInputStream("https://freetestdata.com/wp-content/uploads/2021/09/Free_Test_Data_2MB_MP3.mp3" ){
-//            player.play(it)
-//        }
+        MR.files.casiohour.byteArrayFromResources {
+            player.play(it)
+        }
     }
     LaunchedEffect(Unit) {
         screenModel.onLaunch()
@@ -93,38 +80,39 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
 
     val navigator = LocalNavigator.currentOrThrow
 
+    val colorPalette = LocalCustomColorsPalette.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .background(Color.LightGray),
+            .background(colorPalette.background),
         verticalArrangement = Arrangement.Center
     ) {
 
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.background(Color.Green).fillMaxSize().weight(1f)
+            modifier = Modifier.fillMaxSize().weight(1f)
         ) {
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxSize()
-                    .background(Color.Red)
             ) {
                 AutoSizeText(
+                    color = colorPalette.clockText,
                     text = "${time.first}${dot}${time.second}",
                     maxLines = 1,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight()
-                        .background(Color.Red),
+                        .fillMaxHeight(),
                     minTextSize = 5.sp,
                     maxTextSize = 800.sp,
                     alignment = Alignment.Center,
                     style = MaterialTheme.typography.bodyLarge,
                 )
-                val vis = true
+                val vis = false
                 this@Row.AnimatedVisibility(
                     visible = vis,
                     enter = slideInHorizontally()
@@ -157,7 +145,6 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                     dayOfMonth = date.first,
                     month = date.second,
                     year = date.third,
-                    dayName = "Воскресенье"
                 )
                 Spacer(modifier = Modifier.height(5.dp))
                 Column(
@@ -165,18 +152,13 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         .fillMaxHeight()
                         .wrapContentWidth()
                         .weight(0.5f)
-                        .background(Color.Black)
                         .align(Alignment.CenterHorizontally)
-                        .background(Color.Magenta)
                 ) {
                     val dateTime = mutableStateOf(LocalDateTime.now())
                     val holder = mutableStateOf<DateInput>(DateInput.SingleDate())
                     Calendar(
                         dateTime = dateTime,
                         dateHolder = holder,
-                        background = Color.White,
-                        errorMessage = mutableStateOf(""),
-                        locale = DateInputDefaults.DateInputLocale.RU,
                         onDateSelected = {},
                     )
                 }

@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -24,12 +25,14 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import ru.weatherclock.adg.app.data.Result
 import ru.weatherclock.adg.app.data.asResult
 import ru.weatherclock.adg.app.domain.model.Forecast
+import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel
 import ru.weatherclock.adg.app.domain.usecase.ByteArrayUseCase
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
 import ru.weatherclock.adg.app.domain.usecase.DatabaseUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.presentation.components.tickerFlow
+import ru.weatherclock.adg.db.ProdCalendar
 
 class HomeScreenViewModel(
     private val forecastUseCase: ForecastUseCase,
@@ -60,6 +63,26 @@ class HomeScreenViewModel(
         )
     )
     val date = _date.asStateFlow()
+
+    private val currentYearProdCalendar: Flow<List<ProdCalendarDay>> =
+        databaseUseCase.getProdCalendarFlow().map {
+            if (it.isEmpty()) {
+                println("DatabaseProdCalendar is empty. Request from network...")
+                val year = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
+                calendarUseCase
+                    .getForPeriod(
+                        "$year",
+                        1
+                    )
+                    .also {
+                        println("NetworkProdCalendar downloaded. Days count: ${it.size}. Saving into DB...")
+                        databaseUseCase.insert(it)
+                    }
+            } else {
+                println("DatabaseProdCalendar size is ${it.size}")
+                it.map(ProdCalendar::asDomainModel)
+            }
+        }
 
     init {
         tickerFlow(period = 1.seconds)
@@ -114,7 +137,7 @@ class HomeScreenViewModel(
                     }
             } else {
                 println("DatabaseProdCalendar size is ${it.size}")
-                it.map { it.asDomainModel() }
+                it.map(ProdCalendar::asDomainModel)
             }
         }.mapNotNull {
             it.firstOrNull {

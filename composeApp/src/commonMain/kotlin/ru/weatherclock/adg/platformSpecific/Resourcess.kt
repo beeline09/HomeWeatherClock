@@ -1,3 +1,7 @@
 package ru.weatherclock.adg.platformSpecific
 
-expect suspend fun String.byteArrayFromResources(): ByteArray
+import dev.icerock.moko.resources.FileResource
+
+expect fun String.byteArrayFromResources(onSuccess: (ByteArray) -> Unit)
+
+expect fun FileResource.fileName(): String

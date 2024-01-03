@@ -12,6 +12,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import ru.weatherclock.adg.app.domain.di.initKoin
+import ru.weatherclock.adg.platformSpecific.appStorage
 
 class AndroidApp: Application() {
     companion object {
@@ -22,6 +23,7 @@ class AndroidApp: Application() {
     override fun onCreate() {
         super.onCreate()
         INSTANCE = this
+        appStorage = filesDir.path
 
         initKoin(enableNetworkLogs = true) {
             //  androidLogger()

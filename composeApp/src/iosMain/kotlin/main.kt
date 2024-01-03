@@ -9,15 +9,18 @@ import com.seiko.imageloader.component.setupDefaultComponents
 import okio.Path.Companion.toPath
 import platform.Foundation.NSCachesDirectory
 import platform.Foundation.NSFileManager
+import platform.Foundation.NSHomeDirectory
 import platform.Foundation.NSUserDomainMask
 import platform.UIKit.UIViewController
 import ru.weatherclock.adg.App
 import ru.weatherclock.adg.app.domain.util.commonConfig
+import ru.weatherclock.adg.platformSpecific.appStorage
 
 fun MainViewController(): UIViewController = ComposeUIViewController {
     CompositionLocalProvider(
         LocalImageLoader provides remember { generateImageLoader() },
     ) {
+        appStorage = NSHomeDirectory()
         App()
     }
 }
