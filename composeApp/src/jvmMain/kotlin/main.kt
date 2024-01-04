@@ -3,28 +3,30 @@ import java.awt.Dimension
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import HomeWeatherClock.composeApp.BuildConfig
+import dev.icerock.moko.resources.compose.stringResource
 import net.harawata.appdirs.AppDirsFactory
 import ru.weatherclock.adg.App
+import ru.weatherclock.adg.MR
 import ru.weatherclock.adg.app.domain.di.initKoin
 import ru.weatherclock.adg.platformSpecific.appStorage
 
 fun main() = application {
     Window(
-        title = "HomeWeatherClock",
+        title = stringResource(MR.strings.app_window_name),
         state = rememberWindowState(
-            width = 800.dp,
-            height = 600.dp,
+            width = 900.dp,
+            height = 700.dp,
             position = WindowPosition(
                 Alignment.Center
             ),
-            placement = WindowPlacement.Maximized
+//            placement = WindowPlacement.Maximized
         ),
         onCloseRequest = ::exitApplication,
+        undecorated = false,
     ) {
         appStorage = AppDirsFactory.getInstance()
             .getUserDataDir(
@@ -33,20 +35,6 @@ fun main() = application {
                 BuildConfig.APP_AUTHOR
             )
         initKoin()
-        /*        MenuBar {
-                    Menu("MyMenu") {
-                        Item(
-                            "Preferences...",
-                            shortcut = KeyShortcut(
-                                Key.Comma,
-                                meta = true
-                            ),
-                            onClick = {
-                                println("Preferences menu action")
-        //                    showPreferences = true
-                            })
-                    }
-                }*/
         window.minimumSize = Dimension(
             350,
             600

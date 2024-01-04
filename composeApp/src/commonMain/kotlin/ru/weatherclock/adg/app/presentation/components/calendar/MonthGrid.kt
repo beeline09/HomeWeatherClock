@@ -1,20 +1,25 @@
 package ru.weatherclock.adg.app.presentation.components.calendar
 
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,8 +44,9 @@ fun MonthGrid(
     dateHolder: DateInput,
     dates: List<List<Int?>>,
     prodCalendarDays: List<ProdCalendarDay>,
-    onDateSelected: (Long) -> Unit
+    onDateSelected: CalendarCallback,
 ) {
+
     val colorPalette = LocalCustomColorsPalette.current
     dates.filter { it.isNotEmpty() }.forEach { week ->
         Row(Modifier.fillMaxWidth()) {
@@ -59,16 +65,37 @@ fun MonthGrid(
                     dayPosInWeek in 5..6 -> colorPalette.calendarWeekdayWeekendText
                     else -> colorPalette.calendarDayDefaultText
                 }
-                val textColor =
-                    if (date in prodCalendarDays.map { it.date.dayOfMonth } && !selected) {
-                        val prodDay = prodCalendarDays.firstOrNull { it.date.dayOfMonth == date }
-                        prodDay?.color() ?: defColor
-                    } else defColor
+                val currentProdDay = prodCalendarDays.firstOrNull { it.date.dayOfMonth == date }
                 val borderColor = when {
                     hovered -> colorPalette.calendarDayHover
                     date.isCurrentDay(dateTime) -> colorPalette.calendarWeekdayBorder
                     else -> Color.Transparent
                 }
+
+                val interactionSource1 = remember { MutableInteractionSource() }
+                val interactions = remember { mutableStateListOf<Interaction>() }
+
+                LaunchedEffect(interactionSource1) {
+                    interactionSource1.interactions.collect { interaction ->
+                        when (interaction) {
+                            is PressInteraction.Press -> {
+                                interactions.add(interaction)
+                            }
+                        }
+                    }
+                }
+
+                val rippleColor = Color.White
+                val indication1 = CustomIndication(
+                    pressColor = colorPalette.calendarDaySelectedBackground,
+                    alpha = .5f,
+                )
+                val textColor =
+                    if (date in prodCalendarDays.map { it.date.dayOfMonth } && !selected) {
+                        val prodDay = prodCalendarDays.firstOrNull { it.date.dayOfMonth == date }
+                        prodDay?.color() ?: defColor
+                    } else defColor
+
                 AutoSizeText(
                     text = (date?.toString() ?: ""),
                     minTextSize = 5.sp,
@@ -95,17 +122,15 @@ fun MonthGrid(
                         )
 //                                    .background(Color.Blue)
                         .onPointerEvent(eventType = PointerEventType.Enter) {
-                            date?.let {
-                                hovered = true
-                            }
+                            date?.let { hovered = true }
                         }
                         .onPointerEvent(eventType = PointerEventType.Exit) {
-                            date?.let {
-                                hovered = false
-                            }
+                            date?.let { hovered = false }
                         }
                         .clickable(
-                            enabled = date != null
+                            enabled = date != null,
+                            interactionSource = interactionSource1,
+                            indication = indication1,
                         ) {
                             dateHolder.select(
                                 date!!,
@@ -113,15 +138,25 @@ fun MonthGrid(
                                 mutableStateOf(CalendarWindowState.CALENDAR)
                             )
                             (dateHolder as? DateInput.SingleDate)?.date?.value
-                                ?.toInstant(TimeZone.currentSystemDefault())
-                                ?.toEpochMilliseconds()
                                 ?.let {
-                                    onDateSelected(it)
+                                    onDateSelected(
+                                        it,
+                                        currentProdDay
+                                    )
                                 }
                         }
-                        .background(if (selected) colorPalette.calendarDaySelectedBackground else Color.Transparent)
+                        .indication(
+                            interactionSource = interactionSource1,
+                            indication = rememberRipple(
+                                color = rippleColor,
+                                radius = 8.dp
+                            )
+                        )
+                        .background(
+                            if (selected) Color.Red else Color.Transparent
+                        )
                         .padding(vertical = 2.dp),
-                    alignment = Alignment.Center
+                    alignment = Alignment.Center,
 //                                textAlign = TextAlign.Center
                 )
             }
