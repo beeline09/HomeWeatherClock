@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
@@ -29,7 +30,6 @@ import ru.weatherclock.adg.app.data.Result
 import ru.weatherclock.adg.app.data.asResult
 import ru.weatherclock.adg.app.domain.model.Forecast
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
-import ru.weatherclock.adg.app.domain.model.calendar.asDbModel
 import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel
 import ru.weatherclock.adg.app.domain.usecase.ByteArrayUseCase
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
@@ -64,25 +64,16 @@ class HomeScreenViewModel(
     private val _time: MutableStateFlow<Pair<String, String>> = MutableStateFlow("00" to "00")
     val time = _time.asStateFlow()
 
-    val currentProdDay = _time.flatMapConcat {
+    val currentProdDay = _time.flatMapLatest {
         currentYearProdCalendar.map { calendarDays ->
             calendarDays.firstOrNull { prodCalendarDay ->
                 prodCalendarDay.date == LocalDateTime.now().date
             }
         }
-    }.mapNotNull {
-        it?.let { pcd ->
-            buildString {
-                val typeText = pcd.asDbModel().type_text
-                if (!typeText.isNullOrBlank()) {
-                    append(typeText)
-                    append(": ")
-                }
-                if (pcd.note.isNotBlank()) {
-                    append(pcd.note)
-                }
-            }
-        }
+    }
+
+    val currentProdDayString = currentProdDay.mapNotNull {
+        it?.note
     }
 
     private val _date = MutableStateFlow(

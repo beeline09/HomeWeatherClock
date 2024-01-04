@@ -1,3 +1,4 @@
+import java.time.LocalDateTime
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -206,6 +207,7 @@ compose.desktop {
 //        jvmArgs += "-XX:+PrintCompilation"
         jvmArgs += "-XX:CompileThreshold=1"
         jvmArgs += "-Dhttps.protocols=TLSv1.1,TLSv1.2"
+        jvmArgs += "-Xdock:name=$appName"
 
         nativeDistributions {
             val iconsRoot = project.file("src/commonMain/resources/drawables")
@@ -231,7 +233,7 @@ compose.desktop {
                 "java.naming",
                 "java.sql"
             )
-            copyright = "© 2023 Rasul Ismailov. All rights reserved."
+            copyright = "© ${LocalDateTime.now()} Rasul Ismailov. All rights reserved."
 
             linux {
                 iconFile.set(iconsRoot.resolve("launcher_icons/linux.png"))
@@ -244,12 +246,9 @@ compose.desktop {
             }
 
             macOS {
-
-                this.packageName = appName
-                this.bundleID = appPackageName
-
-//                packageName = "HomeWeatherClock"
-//                bundleID = "ru.homeweatherclock.adg"
+                dockName = appName
+                packageName = appName
+                bundleID = appPackageName
                 iconFile.set(iconsRoot.resolve("launcher_icons/macos.icns"))
 //                runtimeEntitlementsFile.set(project.file("runtime-entitlements.plist"))
             }

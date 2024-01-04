@@ -41,6 +41,9 @@ internal fun LocalDateTime.getMonthGrid(): List<List<Int?>> {
         week.add(null)
     }
     grid.add(week.toList())
+    if (grid.last().all { it == null }) {
+        grid.removeLast()
+    }
     return grid.toList()
 }
 

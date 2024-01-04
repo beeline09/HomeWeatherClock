@@ -1,5 +1,6 @@
 package ru.weatherclock.adg
 
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarResult
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.rememberScaffoldState
@@ -23,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,25 +37,69 @@ import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import co.touchlab.kermit.Logger
 import ru.weatherclock.adg.app.presentation.tabs.HomeTab
-import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
 import ru.weatherclock.adg.theme.AppTheme
+
+private var showToast: ((text: String, actionLabel: String, onActionClick: () -> Unit) -> Unit)? =
+    null
+
+fun showToast(
+    text: String,
+    actionLabel: String = "",
+    onActionClick: () -> Unit = {}
+) {
+    showToast?.invoke(
+        text,
+        actionLabel,
+        onActionClick
+    )
+}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 internal fun App() = AppTheme {
 
-    Box(
-        modifier = Modifier.background(Color.Black).fillMaxSize()
-            .windowInsetsPadding(WindowInsets.safeDrawing)
-    ) {
-        Navigator(
-            screen = HomeTab,
-            onBackPressed = {
-                Logger.d("Pop screen #${(it as Tab).key}")
-                true
+    var isToolbarShowed by remember { mutableStateOf(false) }
+    val scaffoldState = rememberScaffoldState()
+    val coroutineScope = rememberCoroutineScope()
+
+    showToast = { text, action, onClick ->
+        coroutineScope.launch { // using the `coroutineScope` to `launch` showing the snackbar
+            // taking the `snackbarHostState` from the attached `scaffoldState`
+            val snackbarResult: SnackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                message = text,
+                actionLabel = action
+            )
+            when (snackbarResult) {
+                SnackbarResult.Dismissed -> {}
+                SnackbarResult.ActionPerformed -> onClick()
             }
-        )
-        /*        TabNavigator(HomeTab) {
+        }
+    }
+
+    Scaffold(
+        modifier = Modifier,
+        scaffoldState = scaffoldState,
+        topBar = {
+            if (isToolbarShowed) {
+                TopAppBar {
+                    Text("Settingss")
+                }
+            }
+        },
+    ) {
+
+        Box(
+            modifier = Modifier.background(Color.Black).fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+        ) {
+            Navigator(
+                screen = HomeTab,
+                onBackPressed = {
+                    Logger.d("Pop screen #${(it as Tab).key}")
+                    true
+                }
+            )
+            /*        TabNavigator(HomeTab) {
                     BottomSheetNavigator(
                         modifier = Modifier.animateContentSize(),
                         sheetShape = RoundedCornerShape(
@@ -64,6 +111,7 @@ internal fun App() = AppTheme {
                         Navigator(Application()) { navigator -> SlideTransition(navigator) }
                     }
                 }*/
+        }
     }
 }
 
@@ -74,18 +122,16 @@ class Application: Screen {
     @Composable
     override fun Content() {
 
-        var isToolbarShowed by remember { mutableStateOf(false) }
-
         Scaffold(
             modifier = Modifier,
-            scaffoldState = rememberScaffoldState(),
-            topBar = {
-                if (isToolbarShowed) {
-                    TopAppBar {
-                        Text("Settingss")
-                    }
-                }
-            },
+            /*            scaffoldState = scaffoldState,
+                        topBar = {
+                            if (isToolbarShowed) {
+                                TopAppBar {
+                                    Text("Settingss")
+                                }
+                            }
+                        },*/
             bottomBar = {
                 Card(
                     shape = RoundedCornerShape(50.dp),
@@ -97,12 +143,12 @@ class Application: Screen {
                         contentColor = Color.Green,
                         elevation = 4.dp,
                     ) {
-                        TabNavigationItem(tab = HomeTab){
+                        /*TabNavigationItem(tab = HomeTab){
                             isToolbarShowed = false
                         }
                         TabNavigationItem(tab = SettingsTab){
                             isToolbarShowed = true
-                        }
+                        }*/
                     }
                 }
 
@@ -118,7 +164,7 @@ class Application: Screen {
 @Composable
 private fun RowScope.TabNavigationItem(
     tab: Tab,
-    onClick: ( tab: Tab) -> Unit
+    onClick: (tab: Tab) -> Unit
 ) {
     val tabNavigator = LocalTabNavigator.current
     val title = tab.options.title

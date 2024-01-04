@@ -55,3 +55,12 @@ fun ProdCalendar.asDomainModel(): ProdCalendarDay = ProdCalendarDay(
     type = type_id.toInt().toDayType(type_text.orEmpty()),
     note = note.orEmpty()
 )
+
+val DayType.typeText: String?
+    get() = when (this) {
+        is DayType.AdditionalDayOff -> typeText
+        is DayType.NationalHoliday -> typeText
+        is DayType.PreHoliday -> typeText
+        is DayType.RegionalHoliday -> typeText
+        else -> null
+    }

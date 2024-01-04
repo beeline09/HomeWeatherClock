@@ -13,6 +13,8 @@
     <!--    <string name="november">november</string>-->
     <!--    <string name="december">december</string>-->
 
+    <string name="app_window_name">Home clock with weather and calendar</string>
+
     <string name="january_f">january</string>
     <string name="february_f">february</string>
     <string name="march_f">march</string>
@@ -49,4 +51,7 @@
     <string name="day_name_short_friday">FR</string>
     <string name="day_name_short_saturday">SA</string>
     <string name="day_name_short_sunday">SU</string>
+
+    <string name="day_description_standard">Ordinary day</string>
+    <string name="day_description_weekend">Weekend day</string>
 </resources>

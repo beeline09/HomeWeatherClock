@@ -13,6 +13,8 @@
     <!--    <string name="november">Ноябрь</string>-->
     <!--    <string name="december">Декабрь</string>-->
 
+    <string name="app_window_name">Настенные часы с погодой и календарём</string>
+
     <string name="january_f">Января</string>
     <string name="february_f">Февраля</string>
     <string name="march_f">Марта</string>
@@ -49,4 +51,7 @@
     <string name="day_name_short_friday">ПТ</string>
     <string name="day_name_short_saturday">СБ</string>
     <string name="day_name_short_sunday">ВС</string>
+
+    <string name="day_description_standard">Обычный день</string>
+    <string name="day_description_weekend">Выходной день</string>
 </resources>

@@ -3,7 +3,6 @@ package ru.weatherclock.adg.app.presentation.components.calendar
 import kotlinx.datetime.LocalDateTime
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -29,14 +28,14 @@ fun Calendar(
     dateTime: LocalDateTime,
     dateHolder: DateInput,
     prodCalendarDays: List<ProdCalendarDay>,
-    onDateSelected: (Long) -> Unit,
+    onDateSelected: CalendarCallback,
 ) {
     val dates = dateTime.getMonthGrid()
     Column(
         Modifier
             .wrapContentHeight(align = Alignment.CenterVertically)
             .wrapContentWidth(align = Alignment.CenterHorizontally)
-            .aspectRatio(1f)
+//            .aspectRatio(1f)
     ) {
         weekHeader()
         Spacer(Modifier.height(5.dp))
