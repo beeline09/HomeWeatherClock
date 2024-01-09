@@ -41,7 +41,9 @@ fun DayType.toDbData(): Pair<Int, String> = when (this) {
 fun ProdCalendarDay.asDbModel(): ProdCalendar {
     val typeData = type.toDbData()
     return ProdCalendar(
-        date = date.toEpochDays().toLong(),
+        year = date.year,
+        month = date.monthNumber,
+        day_of_month = date.dayOfMonth,
         type_id = typeData.first.toLong(),
         type_text = typeData.second,
         note = note,
@@ -51,7 +53,11 @@ fun ProdCalendarDay.asDbModel(): ProdCalendar {
 }
 
 fun ProdCalendar.asDomainModel(): ProdCalendarDay = ProdCalendarDay(
-    date = LocalDate.fromEpochDays(date.toInt()),
+    date = LocalDate(
+        year = year,
+        monthNumber = month,
+        dayOfMonth = day_of_month
+    ),
     type = type_id.toInt().toDayType(type_text.orEmpty()),
     note = note.orEmpty()
 )
