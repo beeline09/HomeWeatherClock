@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -31,6 +30,7 @@ import ru.weatherclock.adg.app.data.asResult
 import ru.weatherclock.adg.app.domain.model.Forecast
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel
+import ru.weatherclock.adg.app.domain.model.calendar.typeText
 import ru.weatherclock.adg.app.domain.usecase.ByteArrayUseCase
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
 import ru.weatherclock.adg.app.domain.usecase.DatabaseUseCase
@@ -64,7 +64,7 @@ class HomeScreenViewModel(
     private val _time: MutableStateFlow<Pair<String, String>> = MutableStateFlow("00" to "00")
     val time = _time.asStateFlow()
 
-    val currentProdDay = _time.flatMapLatest {
+    val currentProdDay = _calendarDay.flatMapLatest {
         currentYearProdCalendar.map { calendarDays ->
             calendarDays.firstOrNull { prodCalendarDay ->
                 prodCalendarDay.date == LocalDateTime.now().date
@@ -72,8 +72,10 @@ class HomeScreenViewModel(
         }
     }
 
-    val currentProdDayString = currentProdDay.mapNotNull {
-        it?.note
+    val currentProdDayString = currentProdDay.map {
+        if (!it?.note.isNullOrBlank()) {
+            it?.note
+        } else it?.type?.typeText
     }
 
     private val _date = MutableStateFlow(
@@ -86,7 +88,7 @@ class HomeScreenViewModel(
     val date = _date.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val prodCalendarDays: Flow<List<ProdCalendarDay>> = _calendarDay.flatMapConcat { calendarDay ->
+    val prodCalendarDays: Flow<List<ProdCalendarDay>> = _calendarDay.flatMapLatest { calendarDay ->
         currentYearProdCalendar.map {
             it.filter { prodCalendarDay ->
                 prodCalendarDay.date.year == calendarDay.year && prodCalendarDay.date.monthNumber == calendarDay.monthNumber
