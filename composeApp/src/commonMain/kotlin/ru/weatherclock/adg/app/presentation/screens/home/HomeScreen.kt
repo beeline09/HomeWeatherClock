@@ -1,6 +1,7 @@
 package ru.weatherclock.adg.app.presentation.screens.home
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.datetime.LocalDateTime
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -56,6 +57,7 @@ import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.CalendarCallbackData
 import ru.weatherclock.adg.app.presentation.components.calendar.color
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateInput
+import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.calendar.stringForToast
 import ru.weatherclock.adg.app.presentation.components.calendar.toMessageDateString
 import ru.weatherclock.adg.app.presentation.components.player.AudioPlayer
@@ -75,20 +77,27 @@ import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val forecast by screenModel.forecast.collectAsState()
     //Текущая дата для календаря
-    val dateTime by screenModel.calendarDay.collectAsState()
+    val dateTime by screenModel.calendarDay.collectAsState(LocalDateTime.now())
+    val dot by screenModel.dot.collectAsState()
+    val time by screenModel.time.collectAsState("00" to "00")
+    val date by screenModel.date.collectAsState(
+        Triple(
+            1,
+            1,
+            2023
+        )
+    )
     val prodCalendarDays by screenModel.prodCalendarDays.collectAsState(emptyList())
     val currentProdCalendarDay by screenModel.currentProdDay.collectAsState(null)
     val currentProdCalendarDayStr by screenModel.currentProdDayString.collectAsState(null)
 
     val playerState = rememberPlayerState()
+    val player = AudioPlayer(playerState)
     LaunchedEffect(Unit) {
-        val player = AudioPlayer(playerState)
         MR.files.casiohour.byteArrayFromResources(player::play)
         screenModel.onLaunch()
     }
-    val dot by screenModel.dot.collectAsState()
-    val time by screenModel.time.collectAsState()
-    val date by screenModel.date.collectAsState()
+
 
     var dateSelected by remember {
         mutableStateOf(
@@ -140,11 +149,9 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         color = colorPalette.clockText,
                         text = "${time.first}${dot}${time.second}",
                         maxLines = 1,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
+                        modifier = Modifier.fillMaxSize(),
                         minTextSize = 5.sp,
-                        maxTextSize = 800.sp,
+                        maxTextSize = 1000.sp,
                         alignment = Alignment.Center,
                         style = MaterialTheme.typography.bodyLarge,
                     )
