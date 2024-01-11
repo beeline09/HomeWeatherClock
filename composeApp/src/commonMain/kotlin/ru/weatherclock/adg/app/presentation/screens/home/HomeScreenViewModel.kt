@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +17,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -47,10 +48,15 @@ class HomeScreenViewModel(
     private val byteArrayUseCase: ByteArrayUseCase,
 ): ScreenModel {
 
+    private var oneSecondTickJob: Job? = null
     private val job = SupervisorJob()
     private val coroutineContextX: CoroutineContext = job + Dispatchers.IO
     private val viewModelScope = CoroutineScope(coroutineContextX)
     private val timersScope = CoroutineScope(coroutineContextX)
+    private val _oneSecondTickFlow = MutableStateFlow(LocalDateTime.now())
+    private val _oneMinuteTickFlow = _oneSecondTickFlow.distinctUntilChanged { old, new ->
+        old.hour == new.hour && old.minute == new.minute
+    }
 
     private val _forecast = MutableStateFlow<ForecastState>(ForecastState.Idle)
     val forecast = _forecast.asStateFlow()
@@ -58,13 +64,23 @@ class HomeScreenViewModel(
     private val _dot = MutableStateFlow<String>(":")
     val dot = _dot.asStateFlow()
 
-    private val _calendarDay = MutableStateFlow<LocalDateTime>(LocalDateTime.now())
-    val calendarDay = _calendarDay.asStateFlow()
+    val calendarDay = _oneMinuteTickFlow.distinctUntilChanged { old, new ->
+        old.date == new.date
+    }
 
-    private val _time: MutableStateFlow<Pair<String, String>> = MutableStateFlow("00" to "00")
-    val time = _time.asStateFlow()
+    val time: Flow<Pair<String, String>> = _oneMinuteTickFlow.mapLatest {
+        val hour = it.hour
+        val minute = it.minute
+        "$hour".padStart(
+            2,
+            '0'
+        ) to "$minute".padStart(
+            2,
+            '0'
+        )
+    }
 
-    val currentProdDay = _calendarDay.flatMapLatest {
+    val currentProdDay = calendarDay.flatMapLatest {
         currentYearProdCalendar.map { calendarDays ->
             calendarDays.firstOrNull { prodCalendarDay ->
                 prodCalendarDay.date == LocalDateTime.now().date
@@ -78,17 +94,19 @@ class HomeScreenViewModel(
         } else it?.type?.typeText
     }
 
-    private val _date = MutableStateFlow(
+    val date: Flow<Triple<Int, Int, Int>> = _oneMinuteTickFlow.mapLatest {
+        val dayOfMonth = it.dayOfMonth
+        val month = it.monthNumber
+        val year = it.year
         Triple(
-            0,
-            0,
-            0
+            dayOfMonth,
+            month,
+            year
         )
-    )
-    val date = _date.asStateFlow()
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val prodCalendarDays: Flow<List<ProdCalendarDay>> = _calendarDay.flatMapLatest { calendarDay ->
+    val prodCalendarDays: Flow<List<ProdCalendarDay>> = calendarDay.flatMapLatest { calendarDay ->
         currentYearProdCalendar.map {
             it.filter { prodCalendarDay ->
                 prodCalendarDay.date.year == calendarDay.year && prodCalendarDay.date.monthNumber == calendarDay.monthNumber
@@ -116,67 +134,22 @@ class HomeScreenViewModel(
             }
         }
 
-    init {
-        tickerFlow(period = 1.seconds)
-            .map { Clock.System.now() }
+    fun onLaunch() {
+        oneSecondTickJob?.cancel()
+        oneSecondTickJob = tickerFlow(period = 1.seconds)
+            .map { LocalDateTime.now() }
             .onEach {
                 val dotStr = if (dot.value == " ") ":" else " "
                 _dot.value = dotStr
+                _oneSecondTickFlow.value = it
             }
             .launchIn(timersScope)
-
-        tickerFlow(period = 1.seconds)
-            .map { Clock.System.now() }
-            .distinctUntilChanged { old, new ->
-                val oltTime = old.toLocalDateTime(TimeZone.currentSystemDefault())
-                val newTime = new.toLocalDateTime(TimeZone.currentSystemDefault())
-                oltTime.hour == newTime.hour && oltTime.minute == newTime.minute
-            }
-            .onEach {
-                val ldt = it.toLocalDateTime(TimeZone.currentSystemDefault())
-                val hour = ldt.hour
-                val minute = ldt.minute
-                val dayOfMonth = ldt.dayOfMonth
-                val month = ldt.monthNumber
-                val year = ldt.year
-                _time.value = "$hour".padStart(
-                    2,
-                    '0'
-                ) to "$minute".padStart(
-                    2,
-                    '0'
-                )
-                _date.value = Triple(
-                    dayOfMonth,
-                    month,
-                    year
-                )
-            }
-            .launchIn(timersScope)
-
-        currentYearProdCalendar.mapNotNull {
-            it.firstOrNull { prodCalendarDay ->
-                prodCalendarDay.date == LocalDateTime.now().date
-            }
-        }.onEach {
-            println("Current production day: $it")
-        }.launchIn(viewModelScope)
-
-        tickerFlow(period = 1.seconds)
-            .map { LocalDateTime.now() }
-            .distinctUntilChanged { old, new ->
-                old.date == new.date
-            }.onEach {
-                _calendarDay.value = it
-            }.launchIn(timersScope)
-    }
-
-    fun onLaunch() {
 //        getForecast()
 //        getProdCalendar()
     }
 
     override fun onDispose() {
+        oneSecondTickJob?.cancel()
         super.onDispose()
         timersScope.cancel()
     }
