@@ -25,6 +25,7 @@ kotlin {
         compilations.all {
             kotlinOptions {
                 jvmTarget = "17"
+//                freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi::class"
             }
         }
     }
@@ -45,9 +46,9 @@ kotlin {
         it.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
-            export(libs.moko.resources)
+//            export(libs.moko.resources)
             // Make AppleSettings visible from Swift
-            export(libs.multiplatform.settings)
+//            export(libs.multiplatform.settings)
 //            export(libs.moko.graphics)
         }
     }
@@ -99,6 +100,7 @@ kotlin {
 //                api(libs.androidx.datastore.preferences.core)
 //                api(libs.androidx.datastore.core.okio)
                 implementation(libs.kstore)
+                implementation(libs.stately.common)
             }
         }
 

@@ -1,11 +1,16 @@
+@file:OptIn(ExperimentalResourceApi::class)
+
 package ru.weatherclock.adg.app.presentation.components.player
 
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import platform.AVFAudio.AVAudioPlayer
 import platform.AVFAudio.AVAudioSession
 import platform.AVFAudio.AVAudioSessionCategoryPlayback
+import platform.AVFAudio.AVAudioSessionModeDefault
 import platform.AVFAudio.setActive
 import platform.AVFoundation.AVPlayer
 import platform.AVFoundation.AVPlayerItem
@@ -27,10 +32,14 @@ import platform.CoreMedia.CMTimeMakeWithSeconds
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
 import platform.Foundation.NSURL
+import platform.Foundation.NSURL.Companion.URLWithString
 import platform.darwin.Float64
 import platform.darwin.NSEC_PER_SEC
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(
+    ExperimentalForeignApi::class,
+    ExperimentalResourceApi::class
+)
 actual class AudioPlayer actual constructor(
     private val playerState: PlayerState
 ) {
@@ -188,8 +197,30 @@ actual class AudioPlayer actual constructor(
         stop()
     }
 
-    actual fun play(byteArray: ByteArray) {
-
+    actual fun play(resource: ResourceWrapper) {
+        try {
+            AVAudioSession
+                .sharedInstance()
+                .setCategory(
+                    category = AVAudioSessionCategoryPlayback,
+                    mode = AVAudioSessionModeDefault,
+                    options = 0u,
+                    error = null
+                )
+            AVAudioSession
+                .sharedInstance()
+                .setActive(
+                    active = true,
+                    error = null
+                )
+            val player = AVAudioPlayer(
+                contentsOfURL = URLWithString(resource.path)!!,
+                error = null
+            )
+            player.play()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
 }

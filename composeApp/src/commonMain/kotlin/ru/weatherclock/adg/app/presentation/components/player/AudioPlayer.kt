@@ -1,5 +1,8 @@
 package ru.weatherclock.adg.app.presentation.components.player
 
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+
+@OptIn(ExperimentalResourceApi::class)
 expect class AudioPlayer(playerState: PlayerState) {
 
     fun play()
@@ -11,5 +14,5 @@ expect class AudioPlayer(playerState: PlayerState) {
     fun addSongsUrls(songsUrl: List<String>)
     fun cleanUp()
 
-    fun play(byteArray: ByteArray)
+    fun play(resource: ResourceWrapper)
 }

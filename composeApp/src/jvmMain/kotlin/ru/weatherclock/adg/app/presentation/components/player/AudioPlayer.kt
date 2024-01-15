@@ -1,9 +1,18 @@
+@file:OptIn(
+    ExperimentalResourceApi::class,
+    ExperimentalResourceApi::class,
+    ExperimentalResourceApi::class
+)
+
 package ru.weatherclock.adg.app.presentation.components.player
 
 import java.io.BufferedInputStream
+import kotlinx.coroutines.runBlocking
 import javazoom.jl.player.Player
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import uk.co.caprica.vlcj.player.base.MediaPlayer
 
+@OptIn(ExperimentalResourceApi::class)
 actual class AudioPlayer actual constructor(
     private val playerState: PlayerState
 ) {
@@ -113,7 +122,7 @@ actual class AudioPlayer actual constructor(
         mediaPlayer?.media()?.play(playItem)
     }
 
-    actual fun play(byteArray: ByteArray) {
+    private fun play(byteArray: ByteArray) {
         val buffer = BufferedInputStream(
             byteArray.inputStream()
         )
@@ -122,6 +131,12 @@ actual class AudioPlayer actual constructor(
             mp3Player.play()
         } catch (ex: Exception) {
             println("Error occured during playback process:" + ex.message)
+        }
+    }
+
+    actual fun play(resource: ResourceWrapper) {
+        runBlocking {
+            play(resource.resource.readBytes())
         }
     }
 }

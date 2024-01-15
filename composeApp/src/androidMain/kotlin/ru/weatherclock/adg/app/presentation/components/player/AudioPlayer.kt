@@ -1,20 +1,17 @@
+@file:OptIn(ExperimentalResourceApi::class)
+
 package ru.weatherclock.adg.app.presentation.components.player
 
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import android.annotation.TargetApi
-import android.media.MediaDataSource
 import android.media.MediaPlayer
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import ru.weatherclock.adg.AndroidApp
 
+@OptIn(ExperimentalResourceApi::class)
 actual class AudioPlayer actual constructor(
     private val playerState: PlayerState
 ): Runnable {
@@ -145,55 +142,11 @@ actual class AudioPlayer actual constructor(
         mediaPlayer.removeListener(listener)
     }
 
-    actual fun play(byteArray: ByteArray) {
-        try {
-            val path = File(AndroidApp.INSTANCE.cacheDir.path + "/musicfile.mp3")
-            val fos = FileOutputStream(path)
-            fos.write(byteArray)
-            fos.close()
-
-            val mediaPlayer = MediaPlayer()
-
-            val fis = FileInputStream(path)
-            mediaPlayer.setDataSource(AndroidApp.INSTANCE.cacheDir.path + "/musicfile.mp3")
-
-            mediaPlayer.prepare()
-            mediaPlayer.start()
-        } catch (ex: IOException) {
-            val s = ex.toString()
-            ex.printStackTrace()
-        }
+    actual fun play(resource: ResourceWrapper) {
+        val mediaPlayer = MediaPlayer()
+        mediaPlayer.setDataSource(resource.path)
+        mediaPlayer.prepare()
+        mediaPlayer.start()
     }
 
-}
-
-@TargetApi(Build.VERSION_CODES.M)
-class ByteArrayMediaDataSource(private val data: ByteArray): MediaDataSource() {
-
-    @Throws(IOException::class)
-    override fun readAt(
-        position: Long,
-        buffer: ByteArray,
-        offset: Int,
-        size: Int
-    ): Int {
-        System.arraycopy(
-            data,
-            position.toInt(),
-            buffer,
-            offset,
-            size
-        )
-        return size
-    }
-
-    @Throws(IOException::class)
-    override fun getSize(): Long {
-        return data.size.toLong()
-    }
-
-    @Throws(IOException::class)
-    override fun close() {
-        // Nothing to do here
-    }
 }

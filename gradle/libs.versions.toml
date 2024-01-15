@@ -2,7 +2,6 @@
 
 atomicfu = "0.23.1"
 coreKtx = "1.12.0"
-geoCompose = "0.6.0"
 jlayer = "1.0.2"
 kotlin = "1.9.21"
 agp = "8.2.1"
@@ -10,9 +9,9 @@ compose = "1.5.11"
 androidx-appcompat = "1.6.1"
 androidx-activityCompose = "1.8.2"
 compose-uitooling = "1.5.4"
-#libres = "1.2.1"
 media3Exoplayer = "1.2.0"
 multiplatformSettings = "1.1.1"
+statelyCommon = "2.0.5"
 vlcj = "4.7.3"
 voyager = "1.0.0-rc10"
 composeImageLoader = "1.7.1"
@@ -30,7 +29,7 @@ sqlDelight = "2.0.1"
 kermit = "2.0.0-RC4"
 moko = "0.23.0"
 androidx-preferences = "1.2.1"
-dataStoreVersion = "1.1.0-alpha07"
+dataStoreVersion = "1.1.0-beta01"
 kstore = "0.6.0"
 java-appdirs = "1.2.2"
 
@@ -48,6 +47,7 @@ compose-uitooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "
 jlayer = { module = "com.github.umjammer:jlayer", version.ref = "jlayer" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettings" }
 multiplatform-settings-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "multiplatformSettings" }
+stately-common = { module = "co.touchlab:stately-common", version.ref = "statelyCommon" }
 vlcj = { module = "uk.co.caprica:vlcj", version.ref = "vlcj" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 voyager-bottomSheetNavigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyager" }
@@ -83,7 +83,6 @@ kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 moko-resources-compose = { module = "dev.icerock.moko:resources-compose", version.ref = "moko" }
 moko-resources = { module = "dev.icerock.moko:resources", version.ref = "moko" }
 moko-resources-generator = { module = "dev.icerock.moko:resources-generator", version.ref = "moko" }
-moko-geo = { module = "dev.icerock.moko:geo-compose", version.ref = "moko" }
 kstore = { module = "io.github.xxfast:kstore", version.ref = "kstore" }
 kstore-file = { module = "io.github.xxfast:kstore-file", version.ref = "kstore" }
 java-appdirs = { module = "net.harawata:appdirs", version.ref = "java-appdirs" }
@@ -109,7 +108,6 @@ voyager-common = [
 multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
 android-application = { id = "com.android.application", version.ref = "agp" }
-#libres = { id = "io.github.skeptick.libres", version.ref = "libres" }
 buildConfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildConfig" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }

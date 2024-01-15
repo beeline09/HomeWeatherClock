@@ -65,7 +65,8 @@ import ru.weatherclock.adg.app.presentation.components.player.rememberPlayerStat
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.app.presentation.screens.home.components.TextCalendar
 import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
-import ru.weatherclock.adg.platformSpecific.byteArrayFromResources
+import ru.weatherclock.adg.platformSpecific.fileName
+import ru.weatherclock.adg.platformSpecific.rawResource
 import ru.weatherclock.adg.showToast
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
@@ -94,7 +95,9 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val playerState = rememberPlayerState()
     val player = AudioPlayer(playerState)
     LaunchedEffect(Unit) {
-        MR.files.casiohour.byteArrayFromResources(player::play)
+        MR.files.casiohour.fileName().rawResource().also {
+            player.play(it)
+        }
         screenModel.onLaunch()
     }
 
