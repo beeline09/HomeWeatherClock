@@ -28,16 +28,18 @@ import ru.weatherclock.adg.app.data.remote.implementation.CalendarKtorServiceImp
 import ru.weatherclock.adg.app.data.remote.implementation.WeatherKtorServiceImpl
 import ru.weatherclock.adg.app.data.repository.ByteArrayKtorRepository
 import ru.weatherclock.adg.app.data.repository.CalendarRepository
-import ru.weatherclock.adg.app.data.repository.DatabaseRepository
+import ru.weatherclock.adg.app.data.repository.ForecastDbRepository
+import ru.weatherclock.adg.app.data.repository.ProdCalendarDbRepository
 import ru.weatherclock.adg.app.data.repository.WeatherRepository
 import ru.weatherclock.adg.app.data.repository.implementation.ByteArrayKtorRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.implementation.CalendarRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.implementation.DatabaseRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.implementation.ForecastDbRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.implementation.ProdCalendarDbRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.implementation.WeatherRepositoryImpl
 import ru.weatherclock.adg.app.domain.usecase.ByteArrayUseCase
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
-import ru.weatherclock.adg.app.domain.usecase.DatabaseUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
+import ru.weatherclock.adg.app.domain.usecase.ProdCalendarUseCase
 import ru.weatherclock.adg.app.presentation.screens.home.HomeScreenViewModel
 import ru.weatherclock.adg.db.Database
 import ru.weatherclock.adg.platformSpecific.createDatabase
@@ -85,6 +87,7 @@ fun getDataModule(
     single<WeatherRepository> { WeatherRepositoryImpl(get()) }
     single<CalendarRepository> { CalendarRepositoryImpl(get()) }
     single<ByteArrayKtorRepository> { ByteArrayKtorRepositoryImpl(get()) }
+    single<ForecastDbRepository> { ForecastDbRepositoryImpl(get()) }
 
     single<WeatherKtorService> {
         WeatherKtorServiceImpl(
@@ -113,15 +116,20 @@ fun getDataModule(
         )
     }
 
-    single<DatabaseRepository> { DatabaseRepositoryImpl(get()) }
+    single<ProdCalendarDbRepository> { ProdCalendarDbRepositoryImpl(get()) }
 
     single<Database> { createDatabase() }
 }
 
 fun getUseCaseModule() = module {
-    single { ForecastUseCase(get()) }
+    single {
+        ForecastUseCase(
+            get(),
+            get()
+        )
+    }
     single { CalendarUseCase(get()) }
-    single { DatabaseUseCase(get()) }
+    single { ProdCalendarUseCase(get()) }
     single { ByteArrayUseCase(get()) }
 }
 

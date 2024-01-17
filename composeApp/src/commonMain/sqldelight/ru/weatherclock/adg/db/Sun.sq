@@ -1,0 +1,29 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS Sun (
+    pid	                        INTEGER PRIMARY KEY AUTOINCREMENT,
+	forecast_pid	            INTEGER NOT NULL,
+	set_year	                INTEGER AS Int NOT NULL,
+	set_month	                INTEGER AS Int NOT NULL,
+	set_day_of_month	        INTEGER AS Int NOT NULL,
+	set_hour	                INTEGER AS Int NOT NULL,
+	set_minute	                INTEGER AS Int NOT NULL,
+	set_second	                INTEGER AS Int NOT NULL,
+	rise_year	                INTEGER AS Int NOT NULL,
+	rise_month	                INTEGER AS Int NOT NULL,
+	rise_day_of_month	        INTEGER AS Int NOT NULL,
+	rise_hour	                INTEGER AS Int NOT NULL,
+	rise_minute	                INTEGER AS Int NOT NULL,
+	rise_second	                INTEGER AS Int NOT NULL,
+	FOREIGN KEY(forecast_pid) REFERENCES DailyForecast(pid) ON DELETE CASCADE
+);
+
+insert:
+REPLACE INTO Sun
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+
+lastPid:
+SELECT MAX(pid) FROM Sun;
+
+getByForecastPid:
+SELECT * FROM Sun WHERE forecast_pid =? LIMIT 1;

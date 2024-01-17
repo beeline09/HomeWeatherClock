@@ -9,3 +9,5 @@ actual fun platformModule() = module { single { Darwin.create() } }
 
 actual val ioDispatcher: CoroutineDispatcher
     get() = Dispatchers.Default
+
+actual val separatorChar: String = "/"

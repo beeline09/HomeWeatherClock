@@ -1,0 +1,36 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS DailyForecast (
+	pid	            INTEGER PRIMARY KEY AUTOINCREMENT DEFAULT NULL,
+	year	        INTEGER AS Int  NOT NULL,
+	month	        INTEGER AS Int  NOT NULL,
+	day_of_month	INTEGER AS Int  NOT NULL,
+	hours_of_sun    REAL            NOT NULL DEFAULT 0,
+	forecast_key    TEXT            NOT NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS DailyForecastDate ON DailyForecast (
+	year	        DESC,
+	month	        DESC,
+	day_of_month	DESC,
+	forecast_key    DESC
+);
+
+insert:
+REPLACE INTO DailyForecast
+    VALUES (?,?,?,?,?,?);
+
+lastPid:
+SELECT MAX(pid) FROM DailyForecast;
+
+selectByDateRange:
+SELECT * FROM DailyForecast
+    WHERE
+        forecast_key = ?
+        AND year >= ?
+        AND month >= ?
+        AND day_of_month >= ?
+        AND year <= ?
+        AND month <= ?
+        AND day_of_month <= ? LIMIT 5;
+

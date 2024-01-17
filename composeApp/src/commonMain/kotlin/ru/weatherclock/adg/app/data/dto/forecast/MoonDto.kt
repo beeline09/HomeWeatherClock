@@ -2,6 +2,7 @@ package ru.weatherclock.adg.app.data.dto.forecast
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import ru.weatherclock.adg.app.data.util.epochSecondsToLocalDateTime
 import ru.weatherclock.adg.app.domain.model.forecast.Moon
 import ru.weatherclock.adg.app.domain.util.UNSPECIFIED_DATE
 
@@ -33,8 +34,8 @@ data class MoonDto(
 )
 
 fun MoonDto.asDomainModel(): Moon = Moon(
-    rise = rise,
-    set = set,
+    rise = rise.epochSecondsToLocalDateTime(),
+    set = set.epochSecondsToLocalDateTime(),
     phase = phase,
     age = age
 )

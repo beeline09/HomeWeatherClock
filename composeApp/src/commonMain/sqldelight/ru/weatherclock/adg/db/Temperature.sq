@@ -1,0 +1,26 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS Temperature (
+    pid	            INTEGER PRIMARY KEY AUTOINCREMENT,
+	min_value	    REAL            NOT NULL,
+	max_value	    REAL            NOT NULL,
+	min_unit	    TEXT            NOT NULL,
+	max_unit	    TEXT            NOT NULL,
+	min_unit_type	INTEGER AS Int  NOT NULL DEFAULT -1,
+	max_unit_type	INTEGER AS Int  NOT NULL DEFAULT -1,
+	min_phrase	    TEXT,
+	max_phrase	    TEXT,
+	forecast_pid	INTEGER         NOT NULL,
+	FOREIGN KEY(forecast_pid) REFERENCES DailyForecast(pid) ON DELETE CASCADE
+);
+
+insert:
+REPLACE INTO Temperature
+    VALUES (?,?,?,?,?,?,?,?,?,?);
+
+lastPid:
+SELECT MAX(pid) FROM Temperature;
+
+getByForecastPid:
+SELECT * FROM Temperature WHERE forecast_pid =?;
+

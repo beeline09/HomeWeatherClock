@@ -1,5 +1,7 @@
 package ru.weatherclock.adg.app.domain.model.forecast
 
+import ru.weatherclock.adg.db.ForecastDetail
+
 data class Detail(
     /**
      * Иконка погоды
@@ -129,5 +131,72 @@ data class Detail(
      * Ну тут всё понятно - солнечная радиация
      */
     val solarIrradiance: UnitInfo?,
+
+    var detailType: DetailType = DetailType.DAY
 )
+
+fun Detail.asDbModel(forecastPid: Long): ForecastDetail {
+    return ForecastDetail(
+        forecast_pid = forecastPid,
+        icon = icon,
+        icon_phrase = iconPhrase,
+        has_precipitation = hasPrecipitation,
+        precipitation_intensity = precipitationIntensity,
+        precipitation_probability = precipitationProbability,
+        precipitation_type = precipitationType,
+        hours_of_precipitation = hoursOfPrecipitation,
+        cloud_cover = cloudCover,
+        hours_of_ice = hoursOfIce,
+        hours_of_rain = hoursOfRain,
+        hours_of_snow = hoursOfSnow,
+        short_phrase = shortPhrase,
+        ice_probability = iceProbability,
+        snow_probability = snowProbability,
+        rain_probability = rainProbability,
+        is_night = detailType == DetailType.NIGHT,
+        long_phrase = longPhrase,
+        thunderstorm_probability = thunderstormProbability,
+        pid = -1L
+    )
+}
+
+fun ForecastDetail.asDomainModel(
+    evapotranspiration: UnitInfo?,
+    solarIrradiance: UnitInfo?,
+    wind: Wind?,
+    windGust: Wind?,
+    totalLiquid: UnitInfo?,
+    rain: UnitInfo?,
+    snow: UnitInfo?,
+    ice: UnitInfo?,
+): Detail {
+    return Detail(
+        icon = icon,
+        iconPhrase = icon_phrase,
+        hasPrecipitation = has_precipitation,
+        precipitationType = precipitation_type,
+        precipitationIntensity = precipitation_intensity,
+        precipitationProbability = precipitation_probability,
+        hoursOfPrecipitation = hours_of_precipitation,
+        cloudCover = cloud_cover,
+        hoursOfIce = hours_of_ice,
+        hoursOfRain = hours_of_rain,
+        hoursOfSnow = hours_of_snow,
+        shortPhrase = short_phrase,
+        iceProbability = ice_probability,
+        snowProbability = snow_probability,
+        rainProbability = rain_probability,
+        detailType = if (is_night) DetailType.NIGHT else DetailType.DAY,
+        longPhrase = long_phrase,
+        thunderstormProbability = thunderstorm_probability,
+        evapotranspiration = evapotranspiration,
+        ice = ice,
+        rain = rain,
+        snow = snow,
+        solarIrradiance = solarIrradiance,
+        totalLiquid = totalLiquid,
+        wind = wind,
+        windGust = windGust
+    )
+}
 

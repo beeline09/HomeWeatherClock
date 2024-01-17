@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS ProdCalendar (
 	year	        Integer AS Int NOT NULL DEFAULT 2000,
     month	        Integer AS Int NOT NULL DEFAULT 1,
     day_of_month    Integer AS Int NOT NULL DEFAULT 1,
-	type_id	        INTEGER NOT NULL DEFAULT 1,
+	type_id	        INTEGER AS Int NOT NULL DEFAULT 1,
 	type_text	    TEXT,
 	note	        TEXT,
 	week_day	    TEXT,

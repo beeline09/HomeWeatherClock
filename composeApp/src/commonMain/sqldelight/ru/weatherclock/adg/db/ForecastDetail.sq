@@ -1,0 +1,36 @@
+import kotlin.Boolean;
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS ForecastDetail (
+	pid	                        INTEGER PRIMARY KEY AUTOINCREMENT,
+	forecast_pid	            INTEGER             NOT NULL,
+	is_night	                INTEGER AS Boolean  NOT NULL DEFAULT 0,
+	icon	                    INTEGER AS Int      NOT NULL DEFAULT -1,
+	icon_phrase	                TEXT                NOT NULL,
+	has_precipitation	        INTEGER AS Boolean  NOT NULL DEFAULT 0,
+	precipitation_type	        TEXT,
+	precipitation_intensity	    TEXT,
+	short_phrase	            TEXT                NOT NULL,
+	long_phrase	                TEXT                NOT NULL,
+	precipitation_probability	INTEGER AS Int,
+	thunderstorm_probability	INTEGER AS Int,
+	rain_probability	        INTEGER AS Int,
+	snow_probability	        INTEGER AS Int,
+	ice_probability	            INTEGER AS Int,
+	hours_of_precipitation	    REAL                NOT NULL DEFAULT 0.0,
+	hours_of_rain	            REAL                NOT NULL DEFAULT 0.0,
+	hours_of_snow	            REAL                NOT NULL DEFAULT 0.0,
+	hours_of_ice	            REAL                NOT NULL DEFAULT 0.0,
+	cloud_cover	                INTEGER AS Int      NOT NULL DEFAULT 0,
+	FOREIGN KEY(forecast_pid) REFERENCES DailyForecast(pid) ON DELETE CASCADE
+);
+
+insert:
+INSERT OR IGNORE INTO ForecastDetail
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+
+lastPid:
+SELECT MAX(pid) FROM ForecastDetail;
+
+getByForecastPid:
+SELECT * FROM ForecastDetail WHERE forecast_pid = ? AND is_night = ?;

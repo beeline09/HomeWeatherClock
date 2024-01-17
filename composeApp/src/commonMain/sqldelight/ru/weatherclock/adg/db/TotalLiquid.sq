@@ -1,0 +1,21 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS TotalLiquid (
+    pid	        INTEGER PRIMARY KEY AUTOINCREMENT,
+	value	    REAL            NOT NULL,
+	unit	    TEXT            NOT NULL,
+	unit_type	INTEGER AS Int  NOT NULL DEFAULT -1,
+	phrase	    TEXT,
+	detail_pid	INTEGER         NOT NULL,
+	FOREIGN KEY(detail_pid) REFERENCES ForecastDetail(pid) ON DELETE CASCADE
+);
+
+insert:
+INSERT OR IGNORE INTO TotalLiquid
+    VALUES (?,?,?,?,?,?);
+
+lastPid:
+SELECT MAX(pid) FROM TotalLiquid;
+
+getByDetailPid:
+SELECT * FROM TotalLiquid WHERE detail_pid =?;
