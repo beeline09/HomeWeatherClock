@@ -64,7 +64,7 @@ class ForecastDbRepositoryImpl(private val database: Database): ForecastDbReposi
             hours_of_sun = hours_of_sun,
             forecast_key = forecast_key
         )
-        return database.dayliForecastQueries.lastPid().executeAsOneOrNull()?.MAX ?: -1L
+        return database.dayliForecastQueries.lastPid().executeAsOne().MAX ?: 0L
     }
 
     private fun insertAirAndPollenInternal(airAndPollen: AirAndPollen): Long {
