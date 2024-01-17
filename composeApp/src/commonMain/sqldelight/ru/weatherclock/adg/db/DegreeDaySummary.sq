@@ -1,0 +1,25 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS DegreeDaySummary (
+    pid	                INTEGER PRIMARY KEY AUTOINCREMENT,
+    forecast_pid	    INTEGER         NOT NULL,
+	cooling_value	    REAL            NOT NULL,
+	heating_value	    REAL            NOT NULL,
+	cooling_unit	    TEXT            NOT NULL,
+	heating_unit	    TEXT            NOT NULL,
+	cooling_unit_type	INTEGER AS Int  NOT NULL DEFAULT -1,
+	heating_unit_type	INTEGER AS Int  NOT NULL DEFAULT -1,
+	cooling_phrase	    TEXT,
+	heating_phrase	    TEXT,
+	FOREIGN KEY(forecast_pid) REFERENCES DailyForecast(pid) ON DELETE CASCADE
+);
+
+insert:
+REPLACE INTO DegreeDaySummary
+    VALUES (?,?,?,?,?,?,?,?,?,?);
+
+lastPid:
+SELECT MAX(pid) FROM DegreeDaySummary;
+
+getByForecastPid:
+SELECT * FROM DegreeDaySummary WHERE forecast_pid =? LIMIT 1;

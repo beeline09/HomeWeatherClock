@@ -1,0 +1,22 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS AirAndPollen (
+	pid	            INTEGER PRIMARY KEY AUTOINCREMENT,
+	forecast_pid    INTEGER         NOT NULL,
+	name	        TEXT            NOT NULL,
+	value	        INTEGER AS Int  NOT NULL    DEFAULT -1,
+	category	    TEXT,
+	categoryValue	INTEGER AS Int  NOT NULL    DEFAULT -1,
+	type	        TEXT,
+	FOREIGN KEY(forecast_pid) REFERENCES DailyForecast(pid) ON DELETE CASCADE
+);
+
+insert:
+INSERT OR IGNORE INTO AirAndPollen
+    VALUES (?,?,?,?,?,?,?);
+
+lastPid:
+SELECT MAX(pid) FROM AirAndPollen;
+
+getByForecastPid:
+SELECT * FROM AirAndPollen WHERE forecast_pid = ?;

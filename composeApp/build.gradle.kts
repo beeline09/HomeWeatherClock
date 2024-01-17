@@ -92,13 +92,7 @@ kotlin {
                 implementation(libs.sqlDelight.coroutines.extensions)
                 api(libs.moko.resources.compose)
                 api(libs.moko.resources)
-//                api(libs.moko.geo)
                 implementation(libs.atomicfu)
-//            implementation(libs.composeCalendar)
-//                api(libs.multiplatform.settings)
-//                implementation(libs.multiplatform.settings.coroutines)
-//                api(libs.androidx.datastore.preferences.core)
-//                api(libs.androidx.datastore.core.okio)
                 implementation(libs.kstore)
                 implementation(libs.stately.common)
             }

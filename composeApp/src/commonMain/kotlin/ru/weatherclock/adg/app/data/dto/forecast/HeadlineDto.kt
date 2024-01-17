@@ -2,6 +2,7 @@ package ru.weatherclock.adg.app.data.dto.forecast
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import ru.weatherclock.adg.app.data.util.epochSecondsToLocalDate
 import ru.weatherclock.adg.app.domain.model.forecast.Headline
 import ru.weatherclock.adg.app.domain.model.forecast.Severity
 import ru.weatherclock.adg.app.domain.util.UNSPECIFIED_DATE
@@ -40,10 +41,10 @@ data class HeadlineDto(
 )
 
 fun HeadlineDto.asDomainModel() = Headline(
-    startDate = startDate,
+    startDate = startDate.epochSecondsToLocalDate(),
     text = text,
     category = category,
-    endDate = endDate,
+    endDate = endDate.epochSecondsToLocalDate(),
     severity = when (severity) {
         7 -> Severity.INFORMATIONAL
         6 -> Severity.INSIGNIFICANT

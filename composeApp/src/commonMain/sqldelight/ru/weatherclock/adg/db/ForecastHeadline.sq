@@ -1,0 +1,47 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS ForecastHeadline (
+    pid	                INTEGER PRIMARY KEY AUTOINCREMENT,
+	start_year	        INTEGER AS Int NOT NULL DEFAULT 2024,
+	start_month	        INTEGER AS Int NOT NULL DEFAULT 1,
+	start_day_of_month	INTEGER AS Int NOT NULL DEFAULT 1,
+	end_year	        INTEGER AS Int NOT NULL DEFAULT 2024,
+	end_month	        INTEGER AS Int NOT NULL DEFAULT 1,
+	end_day_of_month	INTEGER AS Int NOT NULL DEFAULT 1,
+	severity	        INTEGER AS Int NOT NULL DEFAULT 0,
+	forecast_key        TEXT NOT NULL,
+	text	            TEXT,
+	category	        TEXT
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS HeadLineStartDate ON ForecastHeadline (
+	start_year	        DESC,
+	start_month	        DESC,
+	start_day_of_month	DESC,
+	forecast_key        DESC
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS  HeadLineEndDate ON ForecastHeadline (
+	end_year	        DESC,
+	end_month	        DESC,
+	end_day_of_month	DESC,
+	forecast_key        DESC
+);
+
+insert:
+REPLACE INTO ForecastHeadline
+    VALUES (?,?,?,?,?,?,?,?,?,?,?);
+
+lastPid:
+SELECT MAX(pid) FROM ForecastHeadline;
+
+selectByDateRange:
+SELECT * FROM ForecastHeadline
+    WHERE
+        forecast_key = ?
+        AND start_year >= ?
+        AND start_month >= ?
+        AND start_day_of_month >= ?
+        AND end_year <= ?
+        AND end_month <= ?
+        AND end_day_of_month <= ? LIMIT 1;

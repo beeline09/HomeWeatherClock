@@ -22,20 +22,24 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import cafe.adriel.voyager.core.model.ScreenModel
 import ru.weatherclock.adg.app.data.Result
 import ru.weatherclock.adg.app.data.asResult
+import ru.weatherclock.adg.app.data.util.atEndOfDay
+import ru.weatherclock.adg.app.data.util.atStartOfDay
 import ru.weatherclock.adg.app.domain.model.Forecast
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel
 import ru.weatherclock.adg.app.domain.model.calendar.typeText
 import ru.weatherclock.adg.app.domain.usecase.ByteArrayUseCase
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
-import ru.weatherclock.adg.app.domain.usecase.DatabaseUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
+import ru.weatherclock.adg.app.domain.usecase.ProdCalendarUseCase
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.tickerFlow
 import ru.weatherclock.adg.db.ProdCalendar
@@ -44,7 +48,7 @@ import ru.weatherclock.adg.db.ProdCalendar
 class HomeScreenViewModel(
     private val forecastUseCase: ForecastUseCase,
     private val calendarUseCase: CalendarUseCase,
-    private val databaseUseCase: DatabaseUseCase,
+    private val prodCalendarUseCase: ProdCalendarUseCase,
     private val byteArrayUseCase: ByteArrayUseCase,
 ): ScreenModel {
 
@@ -115,10 +119,11 @@ class HomeScreenViewModel(
     }
 
     private val currentYearProdCalendar: Flow<List<ProdCalendarDay>> =
-        databaseUseCase.getProdCalendarFlow().map { it ->
+        prodCalendarUseCase.getProdCalendarFlow().map { it ->
             val year = LocalDateTime.now().year
             if (it.isEmpty() || it.none { prodCalendar -> prodCalendar.asDomainModel().date.year == year }) {
                 println("DatabaseProdCalendar is empty or old. Request from network...")
+                //TODO вернуться сюда, чтобы правильно указывать регион!!!
                 calendarUseCase
                     .getForPeriod(
                         "$year",
@@ -126,7 +131,7 @@ class HomeScreenViewModel(
                     )
                     .also { days ->
                         println("NetworkProdCalendar downloaded. Days count: ${it.size}. Saving into DB...")
-                        databaseUseCase.insert(days)
+                        prodCalendarUseCase.insert(days)
                     }
             } else {
                 println("DatabaseProdCalendar size is ${it.size}")
@@ -146,6 +151,13 @@ class HomeScreenViewModel(
             .launchIn(timersScope)
 //        getForecast()
 //        getProdCalendar()
+        forecastUseCase.getForPeriodFlow(
+            startDate = LocalDateTime.now().atStartOfDay().date,
+            endDate = LocalDateTime.now().atEndOfDay().date.plus(DatePeriod(days = 5)),
+            forecastKey = "291658"
+        ).onEach {
+            println("ForecastDB: $it")
+        }.launchIn(viewModelScope)
     }
 
     override fun onDispose() {

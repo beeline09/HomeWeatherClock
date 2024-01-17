@@ -1,0 +1,24 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS Wind (
+    pid	                INTEGER PRIMARY KEY AUTOINCREMENT,
+	speed_value	        REAL    NOT NULL DEFAULT 0.0,
+	speed_unit	        TEXT    NOT NULL,
+	speed_unit_type	    INTEGER AS Int NOT NULL DEFAULT -1,
+	speed_phrase	    TEXT,
+	direction_degrees	REAL    NOT NULL DEFAULT 0.0,
+	direction_localized	TEXT    NOT NULL,
+	direction_english	TEXT    NOT NULL,
+	detail_pid	        INTEGER NOT NULL,
+	FOREIGN KEY(detail_pid) REFERENCES ForecastDetail(pid) ON DELETE CASCADE
+);
+
+insert:
+INSERT OR IGNORE INTO Wind
+    VALUES (?,?,?,?,?,?,?,?,?);
+
+lastPid:
+SELECT MAX(pid) FROM Wind;
+
+getByDetailPid:
+SELECT * FROM Wind WHERE detail_pid =?;

@@ -1,0 +1,21 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS SolarIrradiance (
+    pid	        INTEGER PRIMARY KEY AUTOINCREMENT,
+	value	    REAL            NOT NULL,
+	unit	    TEXT            NOT NULL,
+	unit_type	INTEGER AS Int  NOT NULL DEFAULT -1,
+	phrase	    TEXT,
+	detail_pid	INTEGER         NOT NULL,
+	FOREIGN KEY(detail_pid) REFERENCES ForecastDetail(pid) ON DELETE CASCADE
+);
+
+insert:
+REPLACE INTO SolarIrradiance
+    VALUES (?,?,?,?,?,?);
+
+lastPid:
+SELECT MAX(pid) FROM SolarIrradiance;
+
+getByDetailPid:
+SELECT * FROM SolarIrradiance WHERE detail_pid =?;

@@ -30,3 +30,25 @@ data class AirAndPollen(
      */
     val type: String
 )
+
+fun AirAndPollen.asDbModel(forecastPid: Long): ru.weatherclock.adg.db.AirAndPollen {
+    return ru.weatherclock.adg.db.AirAndPollen(
+        name = name,
+        value_ = value ?: -1,
+        category = category,
+        categoryValue = categoryValue,
+        type = type,
+        forecast_pid = forecastPid,
+        pid = -1L
+    )
+}
+
+fun ru.weatherclock.adg.db.AirAndPollen.asDomainModel(): AirAndPollen {
+    return AirAndPollen(
+        name = name,
+        value = value_,
+        category = category.orEmpty(),
+        categoryValue = categoryValue,
+        type = type.orEmpty(),
+    )
+}

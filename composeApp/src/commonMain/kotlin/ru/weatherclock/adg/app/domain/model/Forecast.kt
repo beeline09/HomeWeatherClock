@@ -8,7 +8,7 @@ data class Forecast(
     /**
      * Наиболее значительное погодное событие в течение следующих 5 дней.
      */
-    val headline: Headline,
+    val headline: Headline? = null,
 
     /**
      * Подробный прогноз на несколько дней

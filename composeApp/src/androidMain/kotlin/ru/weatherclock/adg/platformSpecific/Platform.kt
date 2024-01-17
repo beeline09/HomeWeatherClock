@@ -1,5 +1,6 @@
 package ru.weatherclock.adg.platformSpecific
 
+import java.io.File
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import android.annotation.SuppressLint
@@ -24,3 +25,5 @@ actual fun String.byteArrayFromResources(onSuccess: (ByteArray) -> Unit) {
             .readBytes()
     )
 }
+
+actual val separatorChar: String = File.separator

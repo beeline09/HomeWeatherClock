@@ -1,11 +1,11 @@
 package ru.weatherclock.adg.app.domain.usecase
 
-import ru.weatherclock.adg.app.data.repository.DatabaseRepository
+import ru.weatherclock.adg.app.data.repository.ProdCalendarDbRepository
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.asDbModel
 import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel
 
-class DatabaseUseCase(private val repository: DatabaseRepository) {
+class ProdCalendarUseCase(private val repository: ProdCalendarDbRepository) {
 
     fun getProdCalendarFlow() = repository.getProductionDaysFlow()
 

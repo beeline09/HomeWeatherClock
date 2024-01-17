@@ -1,7 +1,9 @@
 package ru.weatherclock.adg.app.domain.model.forecast
 
+import kotlinx.datetime.LocalDate
+
 data class DailyForecast(
-    val date: Long,
+    val date: LocalDate,
     val sun: Sun?,
     val moon: Moon?,
 
@@ -46,4 +48,51 @@ data class DailyForecast(
      * Ночная информация
      */
     val night: Detail?,
-)
+) {
+
+    init {
+        day?.detailType = DetailType.DAY
+        night?.detailType = DetailType.NIGHT
+    }
+}
+
+fun DailyForecast.asDbModel(forecastKey: String): ru.weatherclock.adg.db.DailyForecast {
+    return ru.weatherclock.adg.db.DailyForecast(
+        year = date.year,
+        month = date.monthNumber,
+        day_of_month = date.dayOfMonth,
+        hours_of_sun = hoursOfSun,
+        forecast_key = forecastKey,
+        pid = -1L
+    )
+}
+
+fun ru.weatherclock.adg.db.DailyForecast.asDomainModel(
+    temperature: Temperature?,
+    realFeelTemperature: Temperature?,
+    realFeelTemperatureShade: Temperature?,
+    degreeDaySummary: DaySummary?,
+    airAndPollen: List<AirAndPollen>?,
+    day: Detail?,
+    night: Detail?,
+    sun: Sun?,
+    moon: Moon?,
+): DailyForecast {
+    return DailyForecast(
+        date = LocalDate(
+            year,
+            month,
+            day_of_month
+        ),
+        hoursOfSun = hours_of_sun,
+        airAndPollen = airAndPollen,
+        temperature = temperature,
+        realFeelTemperature = realFeelTemperature,
+        realFeelTemperatureShade = realFeelTemperatureShade,
+        day = day,
+        night = night,
+        degreeDaySummary = degreeDaySummary,
+        sun = sun,
+        moon = moon
+    )
+}

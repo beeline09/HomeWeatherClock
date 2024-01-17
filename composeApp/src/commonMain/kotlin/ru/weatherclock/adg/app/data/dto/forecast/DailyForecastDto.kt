@@ -2,13 +2,13 @@ package ru.weatherclock.adg.app.data.dto.forecast
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import ru.weatherclock.adg.app.data.util.epochSecondsToLocalDate
 import ru.weatherclock.adg.app.domain.model.forecast.DailyForecast
-import ru.weatherclock.adg.app.domain.util.UNSPECIFIED_DATE
 
 @Serializable
 data class DailyForecastDto(
     @SerialName("EpochDate")
-    val date: Long = UNSPECIFIED_DATE,
+    val date: Long,
     @SerialName("Sun")
     val sun: SunDto? = null,
     @SerialName("Moon")
@@ -66,7 +66,7 @@ data class DailyForecastDto(
 )
 
 fun DailyForecastDto.asDomainModel(): DailyForecast = DailyForecast(
-    date = date,
+    date = date.epochSecondsToLocalDate(),
     sun = sun?.asDomainModel(),
     moon = moon?.asDomainModel(),
     temperature = temperature?.asDomainModel(),
@@ -74,7 +74,7 @@ fun DailyForecastDto.asDomainModel(): DailyForecast = DailyForecast(
     realFeelTemperatureShade = realFeelTemperatureShade?.asDomainModel(),
     hoursOfSun = hoursOfSun,
     degreeDaySummary = degreeDaySummary?.asDomainModel(),
-    airAndPollen = airAndPollen?.map { it.asDomainModel()},
+    airAndPollen = airAndPollen?.map { it.asDomainModel() },
     day = day?.asDomainModel(),
     night = night?.asDomainModel()
 )

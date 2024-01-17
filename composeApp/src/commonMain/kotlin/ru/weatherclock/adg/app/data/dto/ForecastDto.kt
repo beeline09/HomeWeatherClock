@@ -14,7 +14,7 @@ data class ForecastDto(
      * Наиболее значительное погодное событие в течение следующих 5 дней.
      */
     @SerialName("Headline")
-    val headline: HeadlineDto,
+    val headline: HeadlineDto? = null,
 
     /**
      * Подробный прогноз на несколько дней
@@ -24,7 +24,7 @@ data class ForecastDto(
 )
 
 fun ForecastDto.asDomainModel() = Forecast(
-    headline = headline.asDomainModel(),
+    headline = headline?.asDomainModel(),
     dailyForecasts = dailyForecasts.map { it.asDomainModel() }
 )
 

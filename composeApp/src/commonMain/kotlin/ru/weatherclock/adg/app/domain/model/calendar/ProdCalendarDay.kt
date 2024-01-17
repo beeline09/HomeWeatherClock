@@ -44,7 +44,7 @@ fun ProdCalendarDay.asDbModel(): ProdCalendar {
         year = date.year,
         month = date.monthNumber,
         day_of_month = date.dayOfMonth,
-        type_id = typeData.first.toLong(),
+        type_id = typeData.first,
         type_text = typeData.second,
         note = note,
         week_day = weekDay,

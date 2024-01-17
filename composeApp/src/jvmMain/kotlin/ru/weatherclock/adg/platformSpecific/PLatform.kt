@@ -9,3 +9,5 @@ actual fun platformModule() = module { single { Apache.create() } }
 
 actual val ioDispatcher: CoroutineDispatcher
     get() = Dispatchers.IO
+
+actual val separatorChar: String = System.getProperty("file.separator")
