@@ -1,5 +1,6 @@
 
 import java.awt.Dimension
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -8,6 +9,11 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import HomeWeatherClock.composeApp.BuildConfig
 import dev.icerock.moko.resources.compose.stringResource
+import io.kamel.core.config.KamelConfig
+import io.kamel.core.config.takeFrom
+import io.kamel.image.config.Default
+import io.kamel.image.config.batikSvgDecoder
+import io.kamel.image.config.resourcesFetcher
 import net.harawata.appdirs.AppDirsFactory
 import ru.weatherclock.adg.App
 import ru.weatherclock.adg.MR
@@ -39,6 +45,13 @@ fun main() = application {
             350,
             600
         )
-        App()
+        val kamelConfig = remember {
+            KamelConfig {
+                takeFrom(KamelConfig.Default)
+                resourcesFetcher()
+                batikSvgDecoder()
+            }
+        }
+        App(kamelConfig)
     }
 }

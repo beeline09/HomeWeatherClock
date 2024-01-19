@@ -9,202 +9,113 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
-import kotlinx.datetime.toLocalDateTime
-import cafe.adriel.voyager.core.model.ScreenModel
-import ru.weatherclock.adg.app.data.Result
-import ru.weatherclock.adg.app.data.asResult
 import ru.weatherclock.adg.app.data.util.atEndOfDay
 import ru.weatherclock.adg.app.data.util.atStartOfDay
-import ru.weatherclock.adg.app.domain.model.Forecast
-import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
-import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel
-import ru.weatherclock.adg.app.domain.model.calendar.typeText
-import ru.weatherclock.adg.app.domain.usecase.ByteArrayUseCase
+import ru.weatherclock.adg.app.data.util.isEqualsByHour
+import ru.weatherclock.adg.app.data.util.isEqualsByMinute
+import ru.weatherclock.adg.app.data.util.timeStr
+import ru.weatherclock.adg.app.domain.model.forecast.Severity
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
-import ru.weatherclock.adg.app.domain.usecase.ProdCalendarUseCase
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.tickerFlow
-import ru.weatherclock.adg.db.ProdCalendar
+import ru.weatherclock.adg.app.presentation.components.viewModel.ViewModelState
 
 @ExperimentalCoroutinesApi
 class HomeScreenViewModel(
     private val forecastUseCase: ForecastUseCase,
     private val calendarUseCase: CalendarUseCase,
-    private val prodCalendarUseCase: ProdCalendarUseCase,
-    private val byteArrayUseCase: ByteArrayUseCase,
-): ScreenModel {
+): ViewModelState<HomeScreenState, HomeScreenIntent>(initialState = HomeScreenState()) {
 
+    private val coroutineContextX: CoroutineContext = SupervisorJob() + Dispatchers.IO
     private var oneSecondTickJob: Job? = null
-    private val job = SupervisorJob()
-    private val coroutineContextX: CoroutineContext = job + Dispatchers.IO
-    private val viewModelScope = CoroutineScope(coroutineContextX)
+    private var oneMinuteJob: Job? = null
+    private var oneHourJob: Job? = null
     private val timersScope = CoroutineScope(coroutineContextX)
-    private val _oneSecondTickFlow = MutableStateFlow(LocalDateTime.now())
-    private val _oneMinuteTickFlow = _oneSecondTickFlow.distinctUntilChanged { old, new ->
-        old.hour == new.hour && old.minute == new.minute
+
+    override fun intent(intent: HomeScreenIntent) {
+
     }
 
-    private val _forecast = MutableStateFlow<ForecastState>(ForecastState.Idle)
-    val forecast = _forecast.asStateFlow()
-
-    private val _dot = MutableStateFlow<String>(":")
-    val dot = _dot.asStateFlow()
-
-    val calendarDay = _oneMinuteTickFlow.distinctUntilChanged { old, new ->
-        old.date == new.date
+    //TODO вернуться сюда, чтобы правильно указывать регион!!!
+    private suspend fun refreshCalendarData(region: Int) {
+        val yearDays = calendarUseCase.getProdCalendarForThisYear(region)
+        val currentDayTime = LocalDateTime.now()
+        val calendarDay = currentDayTime.date
+        val currentMonthDays = yearDays.filter { prodCalendarDay ->
+            prodCalendarDay.date.year == calendarDay.year && prodCalendarDay.date.monthNumber == calendarDay.monthNumber
+        }
+        val currentDayProdCalendar = currentMonthDays.firstOrNull {
+            it.date == calendarDay
+        }
+        setState {
+            copy(
+                prodCalendarDaysForCurrentMonth = currentMonthDays,
+                currentProdDay = currentDayProdCalendar,
+                dateTime = currentDayTime,
+            )
+        }
     }
 
-    val time: Flow<Pair<String, String>> = _oneMinuteTickFlow.mapLatest {
-        val hour = it.hour
-        val minute = it.minute
-        "$hour".padStart(
-            2,
-            '0'
-        ) to "$minute".padStart(
-            2,
-            '0'
+    //TODO вернуться сюда и разобраться с forecastKey!!!
+    private suspend fun refreshWeatherData(currentDateTime: LocalDateTime) {
+        val forecast = forecastUseCase.getForPeriod(
+            startDate = currentDateTime.atStartOfDay().date,
+            endDate = currentDateTime.atEndOfDay().date.plus(DatePeriod(days = 5)),
+            forecastKey = "291658"
         )
-    }
-
-    val currentProdDay = calendarDay.flatMapLatest {
-        currentYearProdCalendar.map { calendarDays ->
-            calendarDays.firstOrNull { prodCalendarDay ->
-                prodCalendarDay.date == LocalDateTime.now().date
-            }
+        setState {
+            copy(
+                forecast5Days = forecast?.dailyForecasts.orEmpty(),
+                headline = forecast?.headline?.text,
+                headlineSeverity = forecast?.headline?.severity ?: Severity.UNKNOWN
+            )
         }
     }
-
-    val currentProdDayString = currentProdDay.map {
-        if (!it?.note.isNullOrBlank()) {
-            it?.note
-        } else it?.type?.typeText
-    }
-
-    val date: Flow<Triple<Int, Int, Int>> = _oneMinuteTickFlow.mapLatest {
-        val dayOfMonth = it.dayOfMonth
-        val month = it.monthNumber
-        val year = it.year
-        Triple(
-            dayOfMonth,
-            month,
-            year
-        )
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val prodCalendarDays: Flow<List<ProdCalendarDay>> = calendarDay.flatMapLatest { calendarDay ->
-        currentYearProdCalendar.map {
-            it.filter { prodCalendarDay ->
-                prodCalendarDay.date.year == calendarDay.year && prodCalendarDay.date.monthNumber == calendarDay.monthNumber
-            }
-        }
-    }
-
-    private val currentYearProdCalendar: Flow<List<ProdCalendarDay>> =
-        prodCalendarUseCase.getProdCalendarFlow().map { it ->
-            val year = LocalDateTime.now().year
-            if (it.isEmpty() || it.none { prodCalendar -> prodCalendar.asDomainModel().date.year == year }) {
-                println("DatabaseProdCalendar is empty or old. Request from network...")
-                //TODO вернуться сюда, чтобы правильно указывать регион!!!
-                calendarUseCase
-                    .getForPeriod(
-                        "$year",
-                        1
-                    )
-                    .also { days ->
-                        println("NetworkProdCalendar downloaded. Days count: ${it.size}. Saving into DB...")
-                        prodCalendarUseCase.insert(days)
-                    }
-            } else {
-                println("DatabaseProdCalendar size is ${it.size}")
-                it.map(ProdCalendar::asDomainModel)
-            }
-        }
 
     fun onLaunch() {
         oneSecondTickJob?.cancel()
         oneSecondTickJob = tickerFlow(period = 1.seconds)
             .map { LocalDateTime.now() }
             .onEach {
-                val dotStr = if (dot.value == " ") ":" else " "
-                _dot.value = dotStr
-                _oneSecondTickFlow.value = it
+                val containsDots = state.value.time.contains(":")
+                setState {
+                    copy(time = it.timeStr(withDots = !containsDots))
+                }
+//                if (it.second == 0){
+//                    refreshCalendarData(1)
+//                }
             }
             .launchIn(timersScope)
-//        getForecast()
-//        getProdCalendar()
-        forecastUseCase.getForPeriodFlow(
-            startDate = LocalDateTime.now().atStartOfDay().date,
-            endDate = LocalDateTime.now().atEndOfDay().date.plus(DatePeriod(days = 5)),
-            forecastKey = "291658"
-        ).onEach {
-            println("ForecastDB: $it")
-        }.launchIn(viewModelScope)
+        oneMinuteJob?.cancel()
+        oneMinuteJob = tickerFlow(period = 1.seconds)
+            .map { LocalDateTime.now() }
+            .distinctUntilChanged { old, new -> old.isEqualsByMinute(new) }
+            .onEach {
+                //Обновляем производственный календарь
+                refreshCalendarData(1)
+            }
+            .launchIn(timersScope)
+        oneHourJob?.cancel()
+        oneHourJob = tickerFlow(period = 1.seconds)
+            .map { LocalDateTime.now() }
+            .distinctUntilChanged { old, new -> old.isEqualsByHour(new) }
+            .onEach(::refreshWeatherData)
+            .launchIn(CoroutineScope(Dispatchers.IO))
     }
 
     override fun onDispose() {
         oneSecondTickJob?.cancel()
+        oneMinuteJob?.cancel()
+        oneHourJob?.cancel()
         super.onDispose()
         timersScope.cancel()
-    }
-
-    private fun getProdCalendar() {
-        val year = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
-        calendarUseCase.invoke(period = "$year").onEach {
-            println("Day count: ${it.size}")
-        }.launchIn(viewModelScope)
-
-    }
-
-    private fun getForecast() {
-        if (_forecast.value !is ForecastState.Success) {
-            viewModelScope.launch(Dispatchers.IO) {
-                forecastUseCase().asResult().collectLatest { result ->
-                    when (result) {
-                        is Result.Error -> {
-                            _forecast.update { ForecastState.Error(result.exception) }
-                        }
-
-                        is Result.Loading -> {
-                            _forecast.update { ForecastState.Loading }
-                        }
-
-                        is Result.Success -> {
-                            _forecast.update { ForecastState.Success(result.data) }
-                        }
-                    }
-                }
-            }
-        }
-
-    }
-
-    sealed interface ForecastState {
-
-        data object Loading: ForecastState
-
-        data object Idle: ForecastState
-
-        data class Success(val movies: Forecast): ForecastState
-
-        data class Error(val error: String): ForecastState
     }
 }

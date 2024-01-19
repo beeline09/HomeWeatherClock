@@ -200,3 +200,9 @@ fun ForecastDetail.asDomainModel(
     )
 }
 
+fun Detail.flatSvgIconUrl(): String =
+    "https://vortex.accuweather.com/adc2010/images/slate/icons/${icon}.svg"
+
+fun Detail.accuweatherPngIconUrl(): String =
+    "https://vortex.accuweather.com/adc2010/images/slate/icons/${icon}.svg"
+

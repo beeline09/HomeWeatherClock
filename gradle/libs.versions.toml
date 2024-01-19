@@ -9,7 +9,7 @@ compose = "1.5.11"
 androidx-appcompat = "1.6.1"
 androidx-activityCompose = "1.8.2"
 compose-uitooling = "1.5.4"
-media3Exoplayer = "1.2.0"
+media3Exoplayer = "1.2.1"
 multiplatformSettings = "1.1.1"
 statelyCommon = "2.0.5"
 vlcj = "4.7.3"
@@ -32,8 +32,10 @@ androidx-preferences = "1.2.1"
 dataStoreVersion = "1.1.0-beta01"
 kstore = "0.6.0"
 java-appdirs = "1.2.2"
+kamelImageLoader = "0.9.1"
 
 [libraries]
+kamelImageLoader = { module = "media.kamel:kamel-image", version.ref = "kamelImageLoader" }
 androidx-datastore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "dataStoreVersion" }
 androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "dataStoreVersion" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }

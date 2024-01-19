@@ -22,6 +22,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +37,8 @@ import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import co.touchlab.kermit.Logger
+import io.kamel.core.config.KamelConfig
+import io.kamel.image.config.LocalKamelConfig
 import ru.weatherclock.adg.app.presentation.tabs.HomeTab
 import ru.weatherclock.adg.theme.AppTheme
 
@@ -56,64 +59,68 @@ fun showToast(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-internal fun App() = AppTheme {
+internal fun App(kamelConfig: KamelConfig) =
+    CompositionLocalProvider(LocalKamelConfig provides kamelConfig) {
+        AppTheme {
 
-    var isToolbarShowed by remember { mutableStateOf(false) }
-    val scaffoldState = rememberScaffoldState()
-    val coroutineScope = rememberCoroutineScope()
+            var isToolbarShowed by remember { mutableStateOf(false) }
+            val scaffoldState = rememberScaffoldState()
+            val coroutineScope = rememberCoroutineScope()
 
-    showToast = { text, action, onClick ->
-        coroutineScope.launch { // using the `coroutineScope` to `launch` showing the snackbar
-            // taking the `snackbarHostState` from the attached `scaffoldState`
-            val snackbarResult: SnackbarResult = scaffoldState.snackbarHostState.showSnackbar(
-                message = text,
-                actionLabel = action
-            )
-            when (snackbarResult) {
-                SnackbarResult.Dismissed -> {}
-                SnackbarResult.ActionPerformed -> onClick()
-            }
-        }
-    }
-
-    Scaffold(
-        modifier = Modifier,
-        scaffoldState = scaffoldState,
-        topBar = {
-            if (isToolbarShowed) {
-                TopAppBar {
-                    Text("Settingss")
-                }
-            }
-        },
-    ) {
-
-        Box(
-            modifier = Modifier.background(Color.Black).fillMaxSize()
-                .windowInsetsPadding(WindowInsets.safeDrawing)
-        ) {
-            Navigator(
-                screen = HomeTab,
-                onBackPressed = {
-                    Logger.d("Pop screen #${(it as Tab).key}")
-                    true
-                }
-            )
-            /*        TabNavigator(HomeTab) {
-                    BottomSheetNavigator(
-                        modifier = Modifier.animateContentSize(),
-                        sheetShape = RoundedCornerShape(
-                            topStart = 32.dp,
-                            topEnd = 32.dp
-                        ),
-                        skipHalfExpanded = true
-                    ) {
-                        Navigator(Application()) { navigator -> SlideTransition(navigator) }
+            showToast = { text, action, onClick ->
+                coroutineScope.launch { // using the `coroutineScope` to `launch` showing the snackbar
+                    // taking the `snackbarHostState` from the attached `scaffoldState`
+                    val snackbarResult: SnackbarResult =
+                        scaffoldState.snackbarHostState.showSnackbar(
+                            message = text,
+                            actionLabel = action
+                        )
+                    when (snackbarResult) {
+                        SnackbarResult.Dismissed -> {}
+                        SnackbarResult.ActionPerformed -> onClick()
                     }
-                }*/
+                }
+            }
+
+            Scaffold(
+                modifier = Modifier,
+                scaffoldState = scaffoldState,
+                topBar = {
+                    if (isToolbarShowed) {
+                        TopAppBar {
+                            Text("Settingss")
+                        }
+                    }
+                },
+            ) {
+
+                Box(
+                    modifier = Modifier.background(Color.Black).fillMaxSize()
+                        .windowInsetsPadding(WindowInsets.safeDrawing)
+                ) {
+                    Navigator(
+                        screen = HomeTab,
+                        onBackPressed = {
+                            Logger.d("Pop screen #${(it as Tab).key}")
+                            true
+                        }
+                    )
+                    /*        TabNavigator(HomeTab) {
+                            BottomSheetNavigator(
+                                modifier = Modifier.animateContentSize(),
+                                sheetShape = RoundedCornerShape(
+                                    topStart = 32.dp,
+                                    topEnd = 32.dp
+                                ),
+                                skipHalfExpanded = true
+                            ) {
+                                Navigator(Application()) { navigator -> SlideTransition(navigator) }
+                            }
+                        }*/
+                }
+            }
         }
     }
-}
 
 class Application: Screen {
 

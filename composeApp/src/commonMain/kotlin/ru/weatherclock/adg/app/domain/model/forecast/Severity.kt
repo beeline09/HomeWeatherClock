@@ -13,7 +13,7 @@ enum class Severity {
     SIGNIFICANT,
 
     /**
-     * 2 = Значительно, Major
+     * 2 = Важно, Major
      */
     MAJOR,
 

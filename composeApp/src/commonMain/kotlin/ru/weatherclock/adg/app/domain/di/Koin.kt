@@ -36,7 +36,6 @@ import ru.weatherclock.adg.app.data.repository.implementation.CalendarRepository
 import ru.weatherclock.adg.app.data.repository.implementation.ForecastDbRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.implementation.ProdCalendarDbRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.implementation.WeatherRepositoryImpl
-import ru.weatherclock.adg.app.domain.usecase.ByteArrayUseCase
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.domain.usecase.ProdCalendarUseCase
@@ -75,8 +74,6 @@ fun getScreenModelModule() = module {
         HomeScreenViewModel(
             get(),
             get(),
-            get(),
-            get()
         )
     }
 }
@@ -128,9 +125,13 @@ fun getUseCaseModule() = module {
             get()
         )
     }
-    single { CalendarUseCase(get()) }
+    single {
+        CalendarUseCase(
+            get(),
+            get()
+        )
+    }
     single { ProdCalendarUseCase(get()) }
-    single { ByteArrayUseCase(get()) }
 }
 
 fun createHttpClient(

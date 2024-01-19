@@ -1,7 +1,6 @@
 package ru.weatherclock.adg.app.presentation.screens.home
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.datetime.LocalDateTime
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -31,7 +30,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.MaterialTheme
@@ -53,16 +51,19 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.koinInject
 import ru.weatherclock.adg.MR
+import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
+import ru.weatherclock.adg.app.domain.model.calendar.stringForCalendar
 import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.CalendarCallbackData
 import ru.weatherclock.adg.app.presentation.components.calendar.color
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateInput
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.calendar.stringForToast
 import ru.weatherclock.adg.app.presentation.components.calendar.toMessageDateString
 import ru.weatherclock.adg.app.presentation.components.player.AudioPlayer
 import ru.weatherclock.adg.app.presentation.components.player.rememberPlayerState
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
+import ru.weatherclock.adg.app.presentation.components.util.getColor
+import ru.weatherclock.adg.app.presentation.components.weather.WeatherCell
 import ru.weatherclock.adg.app.presentation.screens.home.components.TextCalendar
 import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
 import ru.weatherclock.adg.platformSpecific.fileName
@@ -76,21 +77,16 @@ import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 )
 @Composable
 fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
-    val forecast by screenModel.forecast.collectAsState()
+    val state by screenModel.state.collectAsState()
+    val forecast5Days = state.forecast5Days
+    val headline = state.headline
     //Текущая дата для календаря
-    val dateTime by screenModel.calendarDay.collectAsState(LocalDateTime.now())
-    val dot by screenModel.dot.collectAsState()
-    val time by screenModel.time.collectAsState("00" to "00")
-    val date by screenModel.date.collectAsState(
-        Triple(
-            1,
-            1,
-            2023
-        )
-    )
-    val prodCalendarDays by screenModel.prodCalendarDays.collectAsState(emptyList())
-    val currentProdCalendarDay by screenModel.currentProdDay.collectAsState(null)
-    val currentProdCalendarDayStr by screenModel.currentProdDayString.collectAsState(null)
+    val dateTime = state.dateTime
+    val time = state.time
+    val date = dateTime.date
+    val prodCalendarDays: List<ProdCalendarDay> = state.prodCalendarDaysForCurrentMonth
+    val currentProdCalendarDay = state.currentProdDay
+    val currentProdCalendarDayStr = state.currentProdDay?.stringForCalendar()
 
     val playerState = rememberPlayerState()
     val player = AudioPlayer(playerState)
@@ -100,7 +96,6 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
         }
         screenModel.onLaunch()
     }
-
 
     var dateSelected by remember {
         mutableStateOf(
@@ -146,11 +141,11 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxSize().weight(1f)
                 ) {
                     AutoSizeText(
                         color = colorPalette.clockText,
-                        text = "${time.first}${dot}${time.second}",
+                        text = time,
                         maxLines = 1,
                         modifier = Modifier.fillMaxSize(),
                         minTextSize = 5.sp,
@@ -185,6 +180,22 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         }
                     }
                 }
+                if (!headline.isNullOrBlank()) {
+                    AutoSizeText(
+                        color = state.headlineSeverity.getColor(),
+                        text = headline,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(all = 5.dp)
+                            .wrapContentHeight(align = Alignment.CenterVertically),
+                        minTextSize = 5.sp,
+                        maxTextSize = 25.sp,
+                        stepGranularityTextSize = 1.sp,
+                        alignment = Alignment.BottomStart,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
             }
 
             Column(modifier = Modifier.aspectRatio(0.4f).align(Alignment.CenterVertically)) {
@@ -194,14 +205,14 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         .wrapContentWidth()
                         .fillMaxHeight()
                         .padding(horizontal = 5.dp),
-                    dayOfMonth = date.first,
-                    month = date.second,
-                    year = date.third,
+                    dayOfMonth = date.dayOfMonth,
+                    month = date.monthNumber,
+                    year = date.year,
                     currentProdCalendarDay
                 )
                 if (!currentProdCalendarDayStr.isNullOrBlank()) {
                     AutoSizeText(
-                        text = currentProdCalendarDayStr!!,
+                        text = currentProdCalendarDayStr,
                         maxLines = 1,
                         maxTextSize = 22.sp,
                         minTextSize = 6.sp,
@@ -239,45 +250,29 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
 //                Spacer(Modifier.height(5.dp))
             }
         }
-        val colors = listOf(
-            Color.Yellow,
-            Color.Green,
-            Color.Black,
-            Color.Magenta,
-            Color.Cyan
-        )
-        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(colorPalette.divider))
-        Row(modifier = Modifier.fillMaxSize().weight(0.3f)) {
-            colors.forEachIndexed { index, color ->
-                Box(
-                    modifier = Modifier.fillMaxSize().weight(1f)
-                ) {
-                    Row(Modifier.fillMaxSize()) {
 
-                        Column(
-                            Modifier.weight(1f).fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "Number",
-                                modifier = Modifier.wrapContentHeight().fillMaxWidth()
-                            )
-                            Text(text = "Color:  $color")
+        if (forecast5Days.isNotEmpty()) {
+            Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(colorPalette.divider))
+            Row(modifier = Modifier.fillMaxSize().weight(0.3f)) {
+                forecast5Days.forEachIndexed { index, dailyForecast ->
+                    Box(modifier = Modifier.fillMaxSize().weight(1f)) {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            WeatherCell(dailyForecast)
                         }
-
-                        //Vertical divider avoiding the last cell in each row
-                        if ((index + 1) % 5 != 0) {
-                            Divider(
-                                color = colorPalette.divider,
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .width(1.dp)
-                            )
-                        }
+                    }
+                    //Vertical divider avoiding the last cell in each row
+                    if ((index + 1) % forecast5Days.size != 0) {
+                        Divider(
+                            color = colorPalette.divider,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .width(1.dp)
+                        )
                     }
                 }
             }
+            Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(colorPalette.divider))
         }
-        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(colorPalette.divider))
+
     }
 }

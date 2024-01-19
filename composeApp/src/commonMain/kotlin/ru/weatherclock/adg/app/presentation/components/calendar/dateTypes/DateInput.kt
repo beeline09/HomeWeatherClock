@@ -1,6 +1,7 @@
 package ru.weatherclock.adg.app.presentation.components.calendar.dateTypes
 
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -307,6 +308,9 @@ fun initializeInput(
 
 fun LocalDateTime.Companion.now(): LocalDateTime =
     Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+fun LocalDate.Companion.now(): LocalDate =
+    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
 fun LocalDateTime.withDayOfMonth(day: Int) = LocalDateTime(
     year,

@@ -25,6 +25,10 @@ data class CustomColorsPalette(
     val calendarDayNationalHoliday: Color = Color(0xffffeb08),
     val calendarDayPreHoliday: Color = Color(0xff03fd3d),
     val calendarDayRegionalHoliday: Color = Color(0xfff86f10),
+    val weatherSeveritySignificant: Color = Color.Unspecified,
+    val weatherSeverityMajor: Color = Color.Unspecified,
+    val weatherSeverityModerate: Color = Color.Unspecified,
+    val weatherSeverityOther: Color = Color.Unspecified,
 )
 
 val LightCustomColorsPalette = CustomColorsPalette(
@@ -47,6 +51,10 @@ val LightCustomColorsPalette = CustomColorsPalette(
     calendarDayNationalHoliday = light_calendarDayNationalHoliday,
     calendarDayPreHoliday = light_calendarDayPreHoliday,
     calendarDayRegionalHoliday = light_calendarDayRegionalHoliday,
+    weatherSeverityMajor = light_weatherSeverityMajor,
+    weatherSeverityModerate = light_weatherSeverityModerate,
+    weatherSeverityOther = light_weatherSeverityOther,
+    weatherSeveritySignificant = light_weatherSeveritySignificant
 )
 
 val DarkCustomColorsPalette = CustomColorsPalette(
@@ -69,6 +77,10 @@ val DarkCustomColorsPalette = CustomColorsPalette(
     calendarDayNationalHoliday = dark_calendarDayNationalHoliday,
     calendarDayPreHoliday = dark_calendarDayPreHoliday,
     calendarDayRegionalHoliday = dark_calendarDayRegionalHoliday,
+    weatherSeveritySignificant = dark_weatherSeveritySignificant,
+    weatherSeverityMajor = dark_weatherSeverityMajor,
+    weatherSeverityModerate = dark_weatherSeverityModerate,
+    weatherSeverityOther = dark_weatherSeverityOther
 )
 
 val LocalCustomColorsPalette = staticCompositionLocalOf { CustomColorsPalette() }

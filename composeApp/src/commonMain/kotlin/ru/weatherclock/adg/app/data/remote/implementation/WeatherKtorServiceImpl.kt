@@ -13,14 +13,17 @@ class WeatherKtorServiceImpl(
     private val baseUrl: String
 ): WeatherKtorService() {
 
-    private val apiKey = "GSWo67YCWgJ6raZqsluqkuhxsl2zJAOK"
+    private val apiKeys = listOf(
+        "GSWo67YCWgJ6raZqsluqkuhxsl2zJAOK",
+        "JZz9kz4ElQp8VVKLiF3KVSpDtyllS7CC"
+    )
 
     override suspend fun getWeatherForecast(forecastKey: String): ForecastDto =
         httpClient
             .get(
                 baseUrl + Endpoints.WEATHER_FORECAST.getUrl(
                     forecastKey,
-                    apiKey,
+                    apiKeys.random(),
                     "ru-ru"
                 )
             )

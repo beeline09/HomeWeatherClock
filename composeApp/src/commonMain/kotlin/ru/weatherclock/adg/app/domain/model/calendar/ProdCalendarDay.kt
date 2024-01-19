@@ -70,3 +70,9 @@ val DayType.typeText: String?
         is DayType.RegionalHoliday -> typeText
         else -> null
     }
+
+fun ProdCalendarDay?.stringForCalendar(): String? {
+    return if (!this?.note.isNullOrBlank()) {
+        this?.note
+    } else this?.type?.typeText
+}

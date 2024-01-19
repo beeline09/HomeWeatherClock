@@ -41,20 +41,34 @@ class ForecastUseCase(
         startDate: LocalDate,
         endDate: LocalDate
     ) = flow {
+        emit(
+            getForPeriod(
+                forecastKey,
+                startDate,
+                endDate
+            )
+        )
+    }
+
+    suspend fun getForPeriod(
+        forecastKey: String,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): Forecast? {
         val forecast = getForecastInternal(
             forecastKey,
             startDate,
             endDate
         )
 
-        val result = if (forecast == null) {
+        val result = if (forecast == null || forecast.dailyForecasts.size < 5) {
             val response = try {
                 repository.getWeatherForecast(forecastKey).asDomainModel()
             } catch (e: Exception) {
                 e.printStackTrace()
-                null
+                return forecast
             }
-            if (response?.headline != null || response?.dailyForecasts?.isNotEmpty() == true) {
+            if (response.headline != null || response.dailyForecasts.isNotEmpty()) {
                 response.saveToDb(forecastKey = forecastKey)
             }
             getForecastInternal(
@@ -63,7 +77,7 @@ class ForecastUseCase(
                 endDate
             )
         } else forecast
-        emit(result)
+        return result
     }
 
     private suspend fun Forecast.saveToDb(forecastKey: String) {

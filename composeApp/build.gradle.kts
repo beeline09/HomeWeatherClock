@@ -95,6 +95,7 @@ kotlin {
                 implementation(libs.atomicfu)
                 implementation(libs.kstore)
                 implementation(libs.stately.common)
+                implementation(libs.kamelImageLoader)
             }
         }
 
