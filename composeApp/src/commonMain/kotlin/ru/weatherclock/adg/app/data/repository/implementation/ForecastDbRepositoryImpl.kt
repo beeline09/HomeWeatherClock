@@ -26,7 +26,7 @@ import ru.weatherclock.adg.db.WindGust
 class ForecastDbRepositoryImpl(private val database: Database): ForecastDbRepository() {
 
     override suspend fun insertHeadline(headline: ForecastHeadline) {
-        database.transactionWithResult {
+        database.transaction {
             database.forecastHeadlineQueries.insert(
                 pid = if (headline.pid >= 0L) headline.pid else null,
                 forecast_key = headline.forecast_key,

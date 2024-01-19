@@ -11,6 +11,11 @@ import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.remember
+import io.kamel.core.config.KamelConfig
+import io.kamel.core.config.takeFrom
+import io.kamel.image.config.Default
+import io.kamel.image.config.resourcesFetcher
 import ru.weatherclock.adg.app.domain.di.initKoin
 import ru.weatherclock.adg.platformSpecific.appStorage
 
@@ -38,7 +43,13 @@ class AppActivity: ComponentActivity() {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState)
         setContent {
-            App()
+            val kamelConfig = remember {
+                KamelConfig {
+                    takeFrom(KamelConfig.Default)
+                    resourcesFetcher(this@AppActivity)
+                }
+            }
+            App(kamelConfig)
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         @Suppress("DEPRECATION")

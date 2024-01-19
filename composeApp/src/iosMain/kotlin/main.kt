@@ -6,6 +6,9 @@ import com.seiko.imageloader.ImageLoader
 import com.seiko.imageloader.LocalImageLoader
 import com.seiko.imageloader.cache.memory.maxSizePercent
 import com.seiko.imageloader.component.setupDefaultComponents
+import io.kamel.core.config.KamelConfig
+import io.kamel.core.config.takeFrom
+import io.kamel.image.config.Default
 import okio.Path.Companion.toPath
 import platform.Foundation.NSCachesDirectory
 import platform.Foundation.NSFileManager
@@ -21,7 +24,10 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
         LocalImageLoader provides remember { generateImageLoader() },
     ) {
         appStorage = NSHomeDirectory()
-        App()
+        val kamelConfig = KamelConfig {
+            takeFrom(KamelConfig.Default)
+        }
+        App(kamelConfig)
     }
 }
 
