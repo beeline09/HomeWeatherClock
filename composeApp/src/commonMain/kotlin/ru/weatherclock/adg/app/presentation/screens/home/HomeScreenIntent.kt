@@ -4,4 +4,6 @@ import ru.weatherclock.adg.app.presentation.components.viewModel.Intent
 
 sealed class HomeScreenIntent: Intent {
 
+    data object ShowSettings: HomeScreenIntent()
+
 }

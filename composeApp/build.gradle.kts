@@ -96,6 +96,7 @@ kotlin {
                 implementation(libs.kstore)
                 implementation(libs.stately.common)
                 implementation(libs.kamelImageLoader)
+                implementation(libs.androidx.annotation)
             }
         }
 
@@ -255,6 +256,7 @@ compose.desktop {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.annotation.jvm)
 }
 
 buildConfig {

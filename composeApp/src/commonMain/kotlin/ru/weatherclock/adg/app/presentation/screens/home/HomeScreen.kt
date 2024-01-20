@@ -2,13 +2,12 @@ package ru.weatherclock.adg.app.presentation.screens.home
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -97,6 +96,12 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
         screenModel.onLaunch()
     }
 
+    LaunchedEffect(Unit) {
+        screenModel.catch {
+            showToast(text = it.message.orEmpty())
+        }
+    }
+
     var dateSelected by remember {
         mutableStateOf(
             false to CalendarCallbackData()
@@ -133,7 +138,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxSize().weight(1f)
         ) {
-
+            //Часы с кнопокой настроек
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -141,7 +146,9 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize().weight(1f)
+                        .fillMaxSize().weight(1f).clickable {
+                            screenModel.showSettings()
+                        }
                 ) {
                     AutoSizeText(
                         color = colorPalette.clockText,
@@ -153,19 +160,17 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         alignment = Alignment.Center,
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    val vis = false
                     this@Row.AnimatedVisibility(
-                        visible = vis,
-                        enter = slideInHorizontally()
-                                + expandHorizontally(expandFrom = Alignment.End)
+                        visible = state.settingsButtonShowed,
+                        enter = scaleIn()
                                 + fadeIn(),
-                        exit = slideOutHorizontally(targetOffsetX = { fullWidth -> fullWidth })
-                                + shrinkHorizontally()
+                        exit = scaleOut()
                                 + fadeOut(),
                     ) {
                         Box(modifier = Modifier.fillMaxSize().alpha(0.5f).background(Color.Black)) {
                             IconButton(
                                 onClick = {
+                                    screenModel.hideSettings()
                                     navigator.push(SettingsTab)
                                 },
                                 modifier = Modifier.align(Alignment.Center)

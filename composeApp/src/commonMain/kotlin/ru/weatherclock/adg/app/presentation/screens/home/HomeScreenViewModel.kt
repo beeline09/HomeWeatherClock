@@ -9,10 +9,12 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.plus
@@ -45,7 +47,7 @@ class HomeScreenViewModel(
     }
 
     //TODO вернуться сюда, чтобы правильно указывать регион!!!
-    private suspend fun refreshCalendarData(region: Int) {
+    private suspend fun refreshCalendarData(region: Int) = safeScope.launch {
         val yearDays = calendarUseCase.getProdCalendarForThisYear(region)
         val currentDayTime = LocalDateTime.now()
         val calendarDay = currentDayTime.date
@@ -65,7 +67,7 @@ class HomeScreenViewModel(
     }
 
     //TODO вернуться сюда и разобраться с forecastKey!!!
-    private suspend fun refreshWeatherData(currentDateTime: LocalDateTime) {
+    private suspend fun refreshWeatherData(currentDateTime: LocalDateTime) = safeScope.launch {
         val forecast = forecastUseCase.getForPeriod(
             startDate = currentDateTime.atStartOfDay().date,
             endDate = currentDateTime.atEndOfDay().date.plus(DatePeriod(days = 5)),
@@ -80,6 +82,23 @@ class HomeScreenViewModel(
         }
     }
 
+    private var settingsJob: Job? = null
+    fun showSettings() {
+        setState {
+            copy(settingsButtonShowed = true)
+        }
+        settingsJob = timersScope.launch {
+            delay(5.seconds)
+            hideSettings()
+        }
+    }
+
+    fun hideSettings() {
+        setState { copy(settingsButtonShowed = false) }
+        settingsJob?.cancel()
+        settingsJob = null
+    }
+
     fun onLaunch() {
         oneSecondTickJob?.cancel()
         oneSecondTickJob = tickerFlow(period = 1.seconds)
@@ -89,9 +108,6 @@ class HomeScreenViewModel(
                 setState {
                     copy(time = it.timeStr(withDots = !containsDots))
                 }
-//                if (it.second == 0){
-//                    refreshCalendarData(1)
-//                }
             }
             .launchIn(timersScope)
         oneMinuteJob?.cancel()
@@ -111,11 +127,10 @@ class HomeScreenViewModel(
             .launchIn(CoroutineScope(Dispatchers.IO))
     }
 
-    override fun onDispose() {
+    override fun dispose() {
         oneSecondTickJob?.cancel()
         oneMinuteJob?.cancel()
         oneHourJob?.cancel()
-        super.onDispose()
         timersScope.cancel()
     }
 }

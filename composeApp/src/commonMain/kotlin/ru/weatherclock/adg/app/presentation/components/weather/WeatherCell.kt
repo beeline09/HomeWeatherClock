@@ -27,14 +27,18 @@ import ru.weatherclock.adg.app.presentation.components.text.toTemperature
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @Composable
-fun ColumnScope.WeatherCell(forecast: DailyForecast) {
+fun ColumnScope.WeatherCell(
+    forecast: DailyForecast,
+    isPreview: Boolean = false
+) {
     val colorPalette = LocalCustomColorsPalette.current
+    //Температура
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .weight(0.7f)
+            .weight(3.5f)
             .padding(horizontal = 5.dp)
-            .wrapContentHeight(align = Alignment.CenterVertically)
+//            .wrapContentHeight(align = Alignment.CenterVertically)
     ) {
         Column(
             modifier = Modifier
@@ -62,6 +66,7 @@ fun ColumnScope.WeatherCell(forecast: DailyForecast) {
                 alignment = Alignment.Center,
                 maxLines = 1,
                 style = MaterialTheme.typography.bodySmall,
+                color = colorPalette.weatherSeverityOther,
             )
         }
         Spacer(
@@ -95,17 +100,19 @@ fun ColumnScope.WeatherCell(forecast: DailyForecast) {
                 alignment = Alignment.Center,
                 maxLines = 1,
                 style = MaterialTheme.typography.bodySmall,
+                color = colorPalette.weatherSeverityOther
             )
         }
     }
     Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(color = colorPalette.divider))
+    //Иконки погоды для дня и ночи
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .weight(1f)
+            .weight(4f)
             .padding(horizontal = 5.dp)
             .padding(top = 2.dp)
-            .wrapContentHeight(align = Alignment.CenterVertically)
+//            .wrapContentHeight(align = Alignment.CenterVertically)
     ) {
         Column(
             modifier = Modifier
@@ -114,7 +121,12 @@ fun ColumnScope.WeatherCell(forecast: DailyForecast) {
                 .weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            forecast.day?.let { WeatherIcon(it) }
+            forecast.day?.let {
+                WeatherIcon(
+                    it,
+                    isPreview
+                )
+            }
         }
         Spacer(
             modifier = Modifier
@@ -128,15 +140,22 @@ fun ColumnScope.WeatherCell(forecast: DailyForecast) {
                 .weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            forecast.night?.let { WeatherIcon(it) }
+            forecast.night?.let {
+                WeatherIcon(
+                    it,
+                    isPreview
+                )
+            }
         }
     }
+    //Краткое описание иконки погоды
     Row(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
+            .weight(1.3f)
             .padding(horizontal = 5.dp)
             .padding(top = 2.dp)
-            .wrapContentHeight(align = Alignment.CenterVertically)
+//            .wrapContentHeight(align = Alignment.CenterVertically)
     ) {
         Column(
             modifier = Modifier
@@ -145,35 +164,21 @@ fun ColumnScope.WeatherCell(forecast: DailyForecast) {
                 .align(Alignment.CenterVertically)
                 .weight(1f)
         ) {
-            /*Text(
-                text = forecast.day?.iconPhrase.orEmpty(),
-                fontSize = 11.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 5.dp)
-                    .padding(top = 2.dp)
-                    .wrapContentHeight(align = Alignment.CenterVertically),
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                style = MaterialTheme.typography.bodySmall,
-            )*/
             AutoSizeText(
                 text = forecast.day?.iconPhrase.orEmpty(),
                 maxTextSize = 11.sp,
-                minTextSize = 4.sp,
+                minTextSize = 5.sp,
                 stepGranularityTextSize = 1.sp,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 5.dp,
-                        vertical = 2.dp
-                    )
-                    .wrapContentHeight(align = Alignment.CenterVertically),
+                    .fillMaxSize()
+                    .padding(bottom = 2.dp)
+                    .align(Alignment.CenterHorizontally),
                 alignment = Alignment.Center,
-                maxLines = 1
+                maxLines = 1,
+                color = colorPalette.weatherSeverityOther
             )
         }
-        Spacer(modifier = Modifier.width(1.dp))
+        Spacer(modifier = Modifier.width(10.dp))
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -183,26 +188,26 @@ fun ColumnScope.WeatherCell(forecast: DailyForecast) {
             AutoSizeText(
                 text = forecast.night?.iconPhrase.orEmpty(),
                 maxTextSize = 11.sp,
-                minTextSize = 4.sp,
+                minTextSize = 5.sp,
                 stepGranularityTextSize = 1.sp,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 5.dp,
-                        vertical = 2.dp
-                    )
-                    .wrapContentHeight(align = Alignment.CenterVertically),
+                    .fillMaxSize()
+                    .padding(bottom = 2.dp)
+                    .align(Alignment.CenterHorizontally),
                 alignment = Alignment.Center,
-                maxLines = 1
+                maxLines = 1,
+                color = colorPalette.weatherSeverityOther
             )
         }
     }
+    //Вертикальный разделитель над нижним текстом
     Spacer(
         modifier = Modifier
             .fillMaxWidth()
             .height(1.dp)
             .background(color = colorPalette.divider)
     )
+    //Нижний текст с датой
     Text(
         text = forecast.date.formatForWeatherCell(),
         fontSize = 12.sp,
@@ -210,11 +215,12 @@ fun ColumnScope.WeatherCell(forecast: DailyForecast) {
             .fillMaxWidth()
             .padding(
                 horizontal = 5.dp,
-                vertical = 2.dp
+                vertical = 1.dp
             )
             .wrapContentHeight(align = Alignment.CenterVertically),
         textAlign = TextAlign.Center,
         maxLines = 1,
         style = MaterialTheme.typography.bodySmall,
+        color = colorPalette.weatherSeverityOther
     )
 }
