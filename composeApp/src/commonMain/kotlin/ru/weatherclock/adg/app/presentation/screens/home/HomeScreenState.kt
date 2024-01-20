@@ -16,5 +16,6 @@ data class HomeScreenState(
     val prodCalendarDaysForCurrentMonth: List<ProdCalendarDay> = emptyList(),
     val forecast5Days: List<DailyForecast> = emptyList(),
     val headline: String? = null,
-    val headlineSeverity: Severity = Severity.UNKNOWN
+    val headlineSeverity: Severity = Severity.UNKNOWN,
+    val settingsButtonShowed: Boolean = false
 ): State

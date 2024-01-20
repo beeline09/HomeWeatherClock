@@ -33,6 +33,7 @@ dataStoreVersion = "1.1.0-beta01"
 kstore = "0.6.0"
 java-appdirs = "1.2.2"
 kamelImageLoader = "0.9.1"
+annotationJvm = "1.7.1"
 
 [libraries]
 kamelImageLoader = { module = "media.kamel:kamel-image", version.ref = "kamelImageLoader" }
@@ -88,6 +89,8 @@ moko-resources-generator = { module = "dev.icerock.moko:resources-generator", ve
 kstore = { module = "io.github.xxfast:kstore", version.ref = "kstore" }
 kstore-file = { module = "io.github.xxfast:kstore-file", version.ref = "kstore" }
 java-appdirs = { module = "net.harawata:appdirs", version.ref = "java-appdirs" }
+androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jvm", version.ref = "annotationJvm" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotationJvm" }
 
 [bundles]
 ktor-common = [
