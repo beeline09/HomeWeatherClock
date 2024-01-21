@@ -55,7 +55,7 @@ class ForecastDbRepositoryImpl(private val database: Database): ForecastDbReposi
         }
     }
 
-    private inline fun DailyForecast.insertForecast(): Long {
+    private fun DailyForecast.insertForecast(): Long {
         database.dayliForecastQueries.insert(
             pid = pid.takeIf { it >= 0L },
             year = year,

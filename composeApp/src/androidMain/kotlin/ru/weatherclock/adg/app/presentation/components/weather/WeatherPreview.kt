@@ -1,12 +1,12 @@
 package ru.weatherclock.adg.app.presentation.components.weather
 
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import ru.weatherclock.adg.app.domain.model.forecast.DailyForecast
 import ru.weatherclock.adg.app.domain.model.forecast.Detail
 import ru.weatherclock.adg.app.domain.model.forecast.DetailType
@@ -25,7 +25,7 @@ import ru.weatherclock.adg.theme.AppTheme
     locale = "ru"
 )
 fun WeatherCellPreview() {
-    AppTheme {
+    AppTheme(true) {
         Column(
             modifier = Modifier
 //                .background(color = Color.Green)

@@ -1,7 +1,5 @@
 package ru.weatherclock.adg.app.presentation.screens.home
 
-import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,6 +27,9 @@ import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.tickerFlow
 import ru.weatherclock.adg.app.presentation.components.viewModel.ViewModelState
+import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @ExperimentalCoroutinesApi
 class HomeScreenViewModel(
@@ -111,7 +112,7 @@ class HomeScreenViewModel(
             }
             .launchIn(timersScope)
         oneMinuteJob?.cancel()
-        oneMinuteJob = tickerFlow(period = 1.seconds)
+        oneMinuteJob = tickerFlow(period = 1.minutes)
             .map { LocalDateTime.now() }
             .distinctUntilChanged { old, new -> old.isEqualsByMinute(new) }
             .onEach {
@@ -120,7 +121,7 @@ class HomeScreenViewModel(
             }
             .launchIn(timersScope)
         oneHourJob?.cancel()
-        oneHourJob = tickerFlow(period = 1.seconds)
+        oneHourJob = tickerFlow(period = 1.minutes)
             .map { LocalDateTime.now() }
             .distinctUntilChanged { old, new -> old.isEqualsByHour(new) }
             .onEach(::refreshWeatherData)

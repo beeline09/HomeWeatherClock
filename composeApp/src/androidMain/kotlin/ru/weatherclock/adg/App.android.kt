@@ -5,6 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.view.View
 import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
@@ -19,7 +21,8 @@ import io.kamel.image.config.resourcesFetcher
 import ru.weatherclock.adg.app.domain.di.initKoin
 import ru.weatherclock.adg.platformSpecific.appStorage
 
-class AndroidApp: Application() {
+
+class AndroidApp : Application() {
     companion object {
 
         lateinit var INSTANCE: AndroidApp
@@ -37,7 +40,7 @@ class AndroidApp: Application() {
     }
 }
 
-class AppActivity: ComponentActivity() {
+class AppActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -49,7 +52,10 @@ class AppActivity: ComponentActivity() {
                     resourcesFetcher(this@AppActivity)
                 }
             }
-            App(kamelConfig)
+            App(
+                isDarkThemeSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q,
+                kamelConfig = kamelConfig
+            )
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         @Suppress("DEPRECATION")
@@ -62,10 +68,19 @@ class AppActivity: ComponentActivity() {
                     WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
         } else {
-            window.setFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
-            )
+            val decorView = window.decorView
+            var uiVisibility = decorView.systemUiVisibility
+            uiVisibility = uiVisibility or View.SYSTEM_UI_FLAG_LOW_PROFILE
+            uiVisibility = uiVisibility or View.SYSTEM_UI_FLAG_FULLSCREEN
+            uiVisibility = uiVisibility or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            uiVisibility = uiVisibility or View.SYSTEM_UI_FLAG_IMMERSIVE
+            uiVisibility = uiVisibility or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            decorView.systemUiVisibility = uiVisibility
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(applicationContext)) {
+                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION));
+            }
         }
     }
 }
