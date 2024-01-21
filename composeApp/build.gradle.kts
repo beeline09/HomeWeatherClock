@@ -1,5 +1,5 @@
-import java.time.LocalDateTime
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.time.LocalDateTime
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -113,6 +113,9 @@ kotlin {
                 implementation(libs.sqlDelight.driver.android)
                 implementation(libs.androidx.media3.exoplayer)
                 implementation(libs.kstore.file)
+//                implementation (libs.desugar.jdk.libs)
+//                coreLibraryDesugaring (libs.desugar.jdk.libs)
+//                implementation(libs.kotlinx.datetime)
 //                implementation(libs.androidx.preferences)
             }
         }
@@ -171,6 +174,8 @@ android {
         applicationId = appPackageName
         versionCode = appVersionCode
         versionName = appVersionName
+
+        multiDexEnabled = true
     }
     sourceSets["main"].apply {
         manifest.srcFile("src/androidMain/AndroidManifest.xml")
@@ -182,6 +187,9 @@ android {
         resources.exclude("src/commonMain/resources/MR")
     }
     compileOptions {
+        //Нужно для работы kotlinx.datetime на версии Android ниже 7
+        isCoreLibraryDesugaringEnabled = true
+
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -196,6 +204,11 @@ android {
             excludes += "META-INF/versions/**"
             excludes += "META-INF/*"
         }
+    }
+
+    dependencies {
+        //Нужно для работы kot,inx.datetime на версии Android ниже 7
+        coreLibraryDesugaring(libs.desugar.jdk.libs)
     }
 }
 

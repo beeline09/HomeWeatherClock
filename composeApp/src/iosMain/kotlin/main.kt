@@ -1,4 +1,3 @@
-import kotlinx.cinterop.ExperimentalForeignApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.window.ComposeUIViewController
@@ -9,6 +8,7 @@ import com.seiko.imageloader.component.setupDefaultComponents
 import io.kamel.core.config.KamelConfig
 import io.kamel.core.config.takeFrom
 import io.kamel.image.config.Default
+import kotlinx.cinterop.ExperimentalForeignApi
 import okio.Path.Companion.toPath
 import platform.Foundation.NSCachesDirectory
 import platform.Foundation.NSFileManager
@@ -27,7 +27,7 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
         val kamelConfig = KamelConfig {
             takeFrom(KamelConfig.Default)
         }
-        App(kamelConfig)
+        App(isDarkThemeSupported = true, kamelConfig = kamelConfig)
     }
 }
 

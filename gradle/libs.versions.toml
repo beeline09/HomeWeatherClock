@@ -2,6 +2,7 @@
 
 atomicfu = "0.23.1"
 coreKtx = "1.12.0"
+desugar_jdk_libs = "2.0.4"
 jlayer = "1.0.2"
 kotlin = "1.9.21"
 agp = "8.2.1"
@@ -18,7 +19,7 @@ composeImageLoader = "1.7.1"
 napier = "2.6.1"
 buildConfig = "4.1.1"
 kotlinx-coroutines = "1.8.0-RC"
-ktor = "2.3.6"
+ktor = "2.3.7"
 composeIcons = "1.1.0"
 kotlinx-serialization = "1.6.2"
 kotlinx-datetime = "0.5.0"
@@ -36,6 +37,7 @@ kamelImageLoader = "0.9.1"
 annotationJvm = "1.7.1"
 
 [libraries]
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 kamelImageLoader = { module = "media.kamel:kamel-image", version.ref = "kamelImageLoader" }
 androidx-datastore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "dataStoreVersion" }
 androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "dataStoreVersion" }

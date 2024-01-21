@@ -1,5 +1,5 @@
 
-import java.awt.Dimension
+import HomeWeatherClock.composeApp.BuildConfig
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
@@ -7,7 +7,6 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import HomeWeatherClock.composeApp.BuildConfig
 import dev.icerock.moko.resources.compose.stringResource
 import io.kamel.core.config.KamelConfig
 import io.kamel.core.config.takeFrom
@@ -19,6 +18,7 @@ import ru.weatherclock.adg.App
 import ru.weatherclock.adg.MR
 import ru.weatherclock.adg.app.domain.di.initKoin
 import ru.weatherclock.adg.platformSpecific.appStorage
+import java.awt.Dimension
 
 fun main() = application {
     Window(
@@ -52,6 +52,6 @@ fun main() = application {
                 batikSvgDecoder()
             }
         }
-        App(kamelConfig)
+        App(isDarkThemeSupported = true, kamelConfig = kamelConfig)
     }
 }

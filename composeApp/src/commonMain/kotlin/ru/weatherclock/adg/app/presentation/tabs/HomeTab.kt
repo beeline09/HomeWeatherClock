@@ -7,10 +7,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.weatherclock.adg.app.presentation.screens.home.HomeScreen
 
 object HomeTab: Tab {
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Composable
     override fun Content() {
         HomeScreen()
