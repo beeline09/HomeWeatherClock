@@ -1,5 +1,5 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import java.time.LocalDateTime
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -52,21 +52,6 @@ kotlin {
 //            export(libs.moko.graphics)
         }
     }
-
-//    cocoapods {
-//        version = "1.0.0"
-//        summary = "Some description for the Shared Module"
-//        homepage = "Link to the Shared Module homepage"
-////        ios.deploymentTarget = "14.0"
-//        podfile = project.file("../iosApp/Podfile")
-//        framework {
-//            baseName = "ComposeApp"
-//            isStatic = true
-//        }
-//        extraSpecAttributes["resources"] =
-//            "['src/commonMain/resources/**', 'src/iosMain/resources/**']"
-//        extraSpecAttributes["exclude_files"] = "['src/commonMain/resources/MR/**']"
-//    }
 
     sourceSets {
         val commonMain by getting {
@@ -207,7 +192,7 @@ android {
     }
 
     dependencies {
-        //Нужно для работы kot,inx.datetime на версии Android ниже 7
+        //Нужно для работы kotlinx.datetime на версии Android ниже 7
         coreLibraryDesugaring(libs.desugar.jdk.libs)
     }
 }

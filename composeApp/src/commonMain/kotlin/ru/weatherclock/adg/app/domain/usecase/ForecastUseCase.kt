@@ -36,20 +36,6 @@ class ForecastUseCase(
         emit(response)
     }
 
-    fun getForPeriodFlow(
-        forecastKey: String,
-        startDate: LocalDate,
-        endDate: LocalDate
-    ) = flow {
-        emit(
-            getForPeriod(
-                forecastKey,
-                startDate,
-                endDate
-            )
-        )
-    }
-
     suspend fun getForPeriod(
         forecastKey: String,
         startDate: LocalDate,
@@ -225,11 +211,10 @@ class ForecastUseCase(
             startDate,
             endDate
         ).map { it.toDomainModel() }
-        if (headline == null && forecast.isEmpty()) return null
         return Forecast(
             headline = headline,
             dailyForecasts = forecast
-        )
+        ).takeIf { headline != null || forecast.isNotEmpty() }
     }
 
     private suspend fun ForecastDetail.toDomainModel(): Detail {

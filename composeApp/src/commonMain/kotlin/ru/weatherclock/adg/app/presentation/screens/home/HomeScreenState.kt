@@ -17,5 +17,6 @@ data class HomeScreenState(
     val forecast5Days: List<DailyForecast> = emptyList(),
     val headline: String? = null,
     val headlineSeverity: Severity = Severity.UNKNOWN,
-    val settingsButtonShowed: Boolean = false
+    val settingsButtonShowed: Boolean = false,
+    val hourlyBeepIncrement: Long = 0,
 ): State
