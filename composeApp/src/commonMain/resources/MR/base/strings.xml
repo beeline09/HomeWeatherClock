@@ -14,6 +14,7 @@
     <!--    <string name="december">december</string>-->
 
     <string name="app_window_name">Home clock with weather and calendar</string>
+    <string name="settings_toolbar">Settings</string>
 
     <string name="january_f">january</string>
     <string name="february_f">february</string>

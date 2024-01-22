@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import cafe.adriel.voyager.core.model.ScreenModel
+import ru.weatherclock.adg.app.domain.model.WeatherSettings
+import ru.weatherclock.adg.app.domain.model.orDefault
+import ru.weatherclock.adg.platformSpecific.weatherSettingsKStore
 
 abstract class ViewModelState<STATE: State, INTENT: Intent>(
     initialState: STATE
@@ -42,12 +45,19 @@ abstract class ViewModelState<STATE: State, INTENT: Intent>(
     val state: StateFlow<STATE> get() = _state
 
     abstract fun intent(intent: INTENT)
-    abstract fun dispose()
+
+    protected open fun dispose() {}
 
     protected fun setState(block: STATE.() -> STATE) = safeScope.launch {
         val currentState = _state.value
         val newState = block.invoke(currentState)
         _state.tryEmit(newState)
+    }
+
+    protected fun updateSettings(block: WeatherSettings.() -> WeatherSettings) = safeScope.launch {
+        val currentState = weatherSettingsKStore.get().orDefault()
+        val newState = block.invoke(currentState)
+        weatherSettingsKStore.update { newState }
     }
 
     final override fun onDispose() {

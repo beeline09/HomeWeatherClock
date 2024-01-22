@@ -130,3 +130,5 @@ expect fun platformModule(): Module
 expect val ioDispatcher: CoroutineDispatcher
 
 expect val separatorChar: String
+
+expect val systemLocale: String

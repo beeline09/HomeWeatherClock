@@ -1,4 +1,7 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
+@file:OptIn(
+    ExperimentalCoroutinesApi::class,
+    ExperimentalCoroutinesApi::class
+)
 
 package ru.weatherclock.adg.app.domain.di
 
@@ -40,6 +43,7 @@ import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.domain.usecase.ProdCalendarUseCase
 import ru.weatherclock.adg.app.presentation.screens.home.HomeScreenViewModel
+import ru.weatherclock.adg.app.presentation.screens.settings.SettingsScreenViewModel
 import ru.weatherclock.adg.db.Database
 import ru.weatherclock.adg.platformSpecific.createDatabase
 import ru.weatherclock.adg.platformSpecific.platformModule
@@ -75,6 +79,9 @@ fun getScreenModelModule() = module {
             get(),
             get(),
         )
+    }
+    single {
+        SettingsScreenViewModel()
     }
 }
 

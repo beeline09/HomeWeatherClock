@@ -14,6 +14,7 @@
     <!--    <string name="december">Декабрь</string>-->
 
     <string name="app_window_name">Настенные часы с погодой и календарём</string>
+    <string name="settings_toolbar">Настройки</string>
 
     <string name="january_f">Января</string>
     <string name="february_f">Февраля</string>

@@ -1,6 +1,7 @@
 package ru.weatherclock.adg.platformSpecific
 
 import java.io.File
+import java.util.Locale
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import android.annotation.SuppressLint
@@ -27,3 +28,11 @@ actual fun String.byteArrayFromResources(onSuccess: (ByteArray) -> Unit) {
 }
 
 actual val separatorChar: String = File.separator
+
+actual val systemLocale: String
+    get() {
+        val locale: Locale = Locale.getDefault()
+        val lang: String = locale.displayLanguage
+        val country: String = locale.displayCountry
+        return "${country}-${lang}".lowercase()
+    }

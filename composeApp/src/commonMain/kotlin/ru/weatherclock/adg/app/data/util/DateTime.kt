@@ -95,6 +95,45 @@ fun LocalDateTime.timeStr(withDots: Boolean = true) = buildString {
     )
 }
 
+fun LocalDateTime.hourStr(withLeadingZero: Boolean = true) = buildString {
+    append(
+        hour.toString().let {
+            if (withLeadingZero) {
+                it.padStart(
+                    2,
+                    '0'
+                )
+            } else it
+        }
+    )
+}
+
+fun LocalDateTime.minuteStr(withLeadingZero: Boolean = true) = buildString {
+    append(
+        minute.toString().let {
+            if (withLeadingZero) {
+                it.padStart(
+                    2,
+                    '0'
+                )
+            } else it
+        }
+    )
+}
+
+fun LocalDateTime.secondStr(withLeadingZero: Boolean = true) = buildString {
+    append(
+        second.toString().let {
+            if (withLeadingZero) {
+                it.padStart(
+                    2,
+                    '0'
+                )
+            } else it
+        }
+    )
+}
+
 fun LocalDateTime.isEqualsBySecond(other: LocalDateTime): Boolean {
     if (year != other.year) return false
     if (monthNumber != other.monthNumber) return false

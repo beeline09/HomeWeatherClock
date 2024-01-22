@@ -122,7 +122,7 @@ fun AutoSizeText(
  * @see AutoSizeText
  */
 @Composable
-private fun AutoSizeText(
+fun AutoSizeText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     suggestedFontSizes: ImmutableWrapper<List<TextUnit>> = emptyList<TextUnit>().toImmutableWrapper(),
