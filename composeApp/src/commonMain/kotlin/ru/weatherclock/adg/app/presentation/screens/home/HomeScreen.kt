@@ -2,6 +2,9 @@ package ru.weatherclock.adg.app.presentation.screens.home
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -43,6 +46,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -50,8 +56,10 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.koinInject
 import ru.weatherclock.adg.MR
+import ru.weatherclock.adg.app.domain.model.WeatherSettings
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.stringForCalendar
+import ru.weatherclock.adg.app.domain.model.orDefault
 import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.CalendarCallbackData
 import ru.weatherclock.adg.app.presentation.components.calendar.color
@@ -67,6 +75,7 @@ import ru.weatherclock.adg.app.presentation.screens.home.components.TextCalendar
 import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
 import ru.weatherclock.adg.platformSpecific.fileName
 import ru.weatherclock.adg.platformSpecific.rawResource
+import ru.weatherclock.adg.platformSpecific.weatherSettingsKStore
 import ru.weatherclock.adg.showToast
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
@@ -76,17 +85,28 @@ import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 )
 @Composable
 fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
+    val colorsPalette = LocalCustomColorsPalette.current
     val state by screenModel.state.collectAsState()
+    val weatherSettings by weatherSettingsKStore.updates.collectAsState(WeatherSettings())
+    val settings = weatherSettings.orDefault()
     val forecast5Days = state.forecast5Days
     val headline = state.headline
-    //Текущая дата для календаря
     val dateTime = state.dateTime
-    val time = state.time
     val date = dateTime.date
     val prodCalendarDays: List<ProdCalendarDay> = state.prodCalendarDaysForCurrentMonth
     val currentProdCalendarDay = state.currentProdDay
     val currentProdCalendarDayStr = state.currentProdDay?.stringForCalendar()
-
+    var dotsColor = colorsPalette.clockText
+    if (settings.dotsAnimated) {
+        val dotsColorAnimated: Color by animateColorAsState(
+            if (state.dotsShowed) colorsPalette.clockText else colorsPalette.background,
+            animationSpec = tween(
+                400,
+                easing = LinearEasing
+            )
+        )
+        dotsColor = dotsColorAnimated
+    }
     val playerState = rememberPlayerState()
     LaunchedEffect(state.hourlyBeepIncrement) {
         val player = AudioPlayer(playerState)
@@ -141,19 +161,25 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
         ) {
             //Часы с кнопокой настроек
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize()
+                modifier = Modifier.weight(1f).fillMaxSize()
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize().weight(1f).clickable {
-                            screenModel.intent(HomeScreenIntent.Settings.Show)
-                        }
-                ) {
+                val columnScope = this
+                Box(modifier = Modifier.fillMaxSize().weight(1f).clickable {
+                    if (state.settingsButtonShowed) {
+                        screenModel.intent(HomeScreenIntent.Settings.Hide)
+                    } else {
+                        screenModel.intent(HomeScreenIntent.Settings.Show)
+                    }
+                }) {
                     AutoSizeText(
                         color = colorPalette.clockText,
-                        text = time,
+                        text = buildAnnotatedString {
+                            append(state.hour)
+                            withStyle(SpanStyle(color = dotsColor)) {
+                                append(":")
+                            }
+                            append(state.minute)
+                        },
                         maxLines = 1,
                         modifier = Modifier.fillMaxSize(),
                         minTextSize = 5.sp,
@@ -161,12 +187,12 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         alignment = Alignment.Center,
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    this@Row.AnimatedVisibility(
+                    columnScope.AnimatedVisibility(
                         visible = state.settingsButtonShowed,
-                        enter = scaleIn()
-                                + fadeIn(),
-                        exit = scaleOut()
-                                + fadeOut(),
+                        enter = scaleIn() + fadeIn(),
+                        exit = scaleOut() + fadeOut(),
+                        label = "",
+                        modifier = Modifier,
                     ) {
                         Box(modifier = Modifier.fillMaxSize().alpha(0.5f).background(Color.Black)) {
                             IconButton(
@@ -178,7 +204,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                             ) {
                                 Icon(
                                     Icons.Filled.Settings,
-                                    contentDescription = "Favorite",
+                                    contentDescription = "Settings",
                                     tint = Color.LightGray,
                                     modifier = Modifier.size(150.dp)
                                 )
@@ -270,9 +296,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                     if ((index + 1) % forecast5Days.size != 0) {
                         Divider(
                             color = colorPalette.divider,
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .width(1.dp)
+                            modifier = Modifier.fillMaxHeight().width(1.dp)
                         )
                     }
                 }
