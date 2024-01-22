@@ -96,6 +96,7 @@ class HomeScreenViewModel(
 
     private var oneMinuteTime: LocalDateTime = LocalDateTime.now()
     private var oneHourTime: LocalDateTime = LocalDateTime.now()
+
     fun onLaunch() {
         oneSecondTickJob?.cancel()
         oneSecondTickJob = tickerFlow(period = 1.seconds)

@@ -27,19 +27,17 @@ fun SettingsScreen(screenModel: SettingsScreenViewModel = koinInject()) {
     val navigator = LocalNavigator.currentOrThrow
     val state by screenModel.state.collectAsState(SettingsScreenState(WeatherSettings()))
     val settings = state.settings
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = stringResource(MR.strings.settings_toolbar)) },
-                navigationIcon = navigator.backIcon()
-            )
-        },
+    Scaffold(topBar = {
+        TopAppBar(
+            title = { Text(text = stringResource(MR.strings.settings_toolbar)) },
+            navigationIcon = navigator.backIcon()
+        )
+    },
         content = {
             Box(modifier = Modifier.background(Color.Green).padding(top = 100.dp).fillMaxSize()) {
                 Button(onClick = {}) {
                     Text(text = "Click me")
                 }
             }
-        }
-    )
+        })
 }
