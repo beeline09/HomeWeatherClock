@@ -190,6 +190,15 @@ android {
             excludes += "META-INF/*"
         }
     }
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = true
+            multiDexEnabled = true
+        }
+        getByName("debug") {
+            multiDexEnabled = true
+        }
+    }
 
     dependencies {
         //Нужно для работы kotlinx.datetime на версии Android ниже 7
