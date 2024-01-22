@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarResult
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -37,82 +35,66 @@ private var showToast: ((text: String, actionLabel: String, onActionClick: () ->
     null
 
 fun showToast(
-    text: String, actionLabel: String = "", onActionClick: () -> Unit = {}
+    text: String,
+    actionLabel: String = "",
+    onActionClick: () -> Unit = {}
 ) {
     showToast?.invoke(
-        text, actionLabel, onActionClick
+        text,
+        actionLabel,
+        onActionClick
     )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-internal fun App(isDarkThemeSupported: Boolean, kamelConfig: KamelConfig) =
-    CompositionLocalProvider(LocalKamelConfig provides kamelConfig) {
-        AppTheme(isDarkThemeSupported = isDarkThemeSupported) {
+internal fun App(
+    isDarkThemeSupported: Boolean,
+    kamelConfig: KamelConfig
+) = CompositionLocalProvider(LocalKamelConfig provides kamelConfig) {
+    AppTheme(isDarkThemeSupported = isDarkThemeSupported) {
 
-            var isToolbarShowed by remember { mutableStateOf(false) }
-            val scaffoldState = rememberScaffoldState()
-            val coroutineScope = rememberCoroutineScope()
-            val weatherSettings by weatherSettingsKStore.updates.collectAsState(WeatherSettings())
-            val settings = weatherSettings.orDefault()
-            val initialScreen = if (settings.weatherEnabled && settings.weatherKey.isBlank()) {
-                SettingsTab
-            } else {
-                HomeTab
-            }
+        var isToolbarShowed by remember { mutableStateOf(false) }
+        val scaffoldState = rememberScaffoldState()
+        val coroutineScope = rememberCoroutineScope()
+        val weatherSettings by weatherSettingsKStore.updates.collectAsState(WeatherSettings())
+        val settings = weatherSettings.orDefault()
+        val initialScreen = if (settings.weatherEnabled && settings.weatherKey.isBlank()) {
+            SettingsTab
+        } else {
+            HomeTab
+        }
 
-            showToast = { text, action, onClick ->
-                coroutineScope.launch { // using the `coroutineScope` to `launch` showing the snackbar
-                    // taking the `snackbarHostState` from the attached `scaffoldState`
-                    val snackbarResult: SnackbarResult =
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            message = text,
-                            actionLabel = action
-                        )
-                    when (snackbarResult) {
-                        SnackbarResult.Dismissed -> {}
-                        SnackbarResult.ActionPerformed -> onClick()
-                    }
-                }
-            }
-
-            Scaffold(
-                modifier = Modifier.fillMaxWidth().fillMaxHeight().background(color = Color.Black),
-                scaffoldState = scaffoldState,
-                topBar = {
-                    if (isToolbarShowed) {
-                        TopAppBar {
-                            Text("Settingss")
-                        }
-                    }
-                },
-            ) {
-
-                Box(
-                    modifier = Modifier.fillMaxWidth().fillMaxHeight()
-                        .background(color = Color.Black)
-//                        .windowInsetsPadding(WindowInsets.safeDrawing)
-                ) {
-                    Navigator(
-                        screen = initialScreen,
-                        onBackPressed = {
-                            Logger.d("Pop screen #${(it as Tab).key}")
-                            true
-                        })/*        TabNavigator(HomeTab) {
-                            BottomSheetNavigator(
-                                modifier = Modifier.animateContentSize(),
-                                sheetShape = RoundedCornerShape(
-                                    topStart = 32.dp,
-                                    topEnd = 32.dp
-                                ),
-                                skipHalfExpanded = true
-                            ) {
-                                Navigator(Application()) { navigator -> SlideTransition(navigator) }
-                            }
-                        }*/
+        showToast = { text, action, onClick ->
+            coroutineScope.launch { // using the `coroutineScope` to `launch` showing the snackbar
+                // taking the `snackbarHostState` from the attached `scaffoldState`
+                val snackbarResult: SnackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                    message = text,
+                    actionLabel = action
+                )
+                when (snackbarResult) {
+                    SnackbarResult.Dismissed -> {}
+                    SnackbarResult.ActionPerformed -> onClick()
                 }
             }
         }
+
+        Scaffold(
+            modifier = Modifier.fillMaxWidth().fillMaxHeight().background(color = Color.Black),
+            scaffoldState = scaffoldState,
+            topBar = {},
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth().fillMaxHeight().background(color = Color.Black)
+            ) {
+                Navigator(screen = initialScreen,
+                    onBackPressed = {
+                        Logger.d("Pop screen #${(it as Tab).key}")
+                        true
+                    })
+            }
+        }
     }
+}
 
 internal expect fun openUrl(url: String?)
