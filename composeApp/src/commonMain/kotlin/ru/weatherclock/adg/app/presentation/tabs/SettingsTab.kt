@@ -7,6 +7,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import dev.icerock.moko.resources.compose.stringResource
+import ru.weatherclock.adg.MR
 import ru.weatherclock.adg.app.presentation.screens.settings.SettingsScreen
 
 object SettingsTab: Tab {
@@ -20,11 +22,11 @@ object SettingsTab: Tab {
         @Composable
         get() {
             val icon = rememberVectorPainter(Icons.Rounded.Settings)
-
+            val title = stringResource(MR.strings.settings_toolbar)
             return remember {
                 TabOptions(
                     index = 1u,
-                    title = "Settings",
+                    title = title,
                     icon = icon
                 )
             }
