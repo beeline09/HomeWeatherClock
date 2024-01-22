@@ -1,17 +1,13 @@
 package ru.weatherclock.adg.app.presentation.screens.home
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDateTime
@@ -27,9 +23,6 @@ import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.tickerFlow
 import ru.weatherclock.adg.app.presentation.components.viewModel.ViewModelState
-import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 @ExperimentalCoroutinesApi
 class HomeScreenViewModel(
@@ -37,14 +30,14 @@ class HomeScreenViewModel(
     private val calendarUseCase: CalendarUseCase,
 ): ViewModelState<HomeScreenState, HomeScreenIntent>(initialState = HomeScreenState()) {
 
-    private val coroutineContextX: CoroutineContext = SupervisorJob() + Dispatchers.IO
     private var oneSecondTickJob: Job? = null
-    private var oneMinuteJob: Job? = null
-    private var oneHourJob: Job? = null
-    private val timersScope = CoroutineScope(coroutineContextX)
+    private var settingsJob: Job? = null
 
     override fun intent(intent: HomeScreenIntent) {
-
+        when (intent) {
+            HomeScreenIntent.Settings.Hide -> hideSettings()
+            HomeScreenIntent.Settings.Show -> showSettings()
+        }
     }
 
     //TODO вернуться сюда, чтобы правильно указывать регион!!!
@@ -83,55 +76,59 @@ class HomeScreenViewModel(
         }
     }
 
-    private var settingsJob: Job? = null
-    fun showSettings() {
+    private fun showSettings() {
         setState {
             copy(settingsButtonShowed = true)
         }
-        settingsJob = timersScope.launch {
+        settingsJob = safeScope.launch {
             delay(5.seconds)
             hideSettings()
         }
     }
 
-    fun hideSettings() {
+    private fun hideSettings() {
         setState { copy(settingsButtonShowed = false) }
         settingsJob?.cancel()
         settingsJob = null
     }
 
+    private var oneMinuteTime: LocalDateTime = LocalDateTime.now()
+    private var oneHourTime: LocalDateTime = LocalDateTime.now()
     fun onLaunch() {
         oneSecondTickJob?.cancel()
         oneSecondTickJob = tickerFlow(period = 1.seconds)
             .map { LocalDateTime.now() }
+            .onStart {
+                val currentTime = LocalDateTime.now()
+                oneMinuteTime = currentTime
+                refreshCalendarData(1)
+                setState {
+                    copy(hourlyBeepIncrement = hourlyBeepIncrement + 1L)
+                }
+                oneHourTime = currentTime
+                refreshWeatherData(currentTime)
+            }
             .onEach {
                 val containsDots = state.value.time.contains(":")
                 setState {
                     copy(time = it.timeStr(withDots = !containsDots))
                 }
+                if (!it.isEqualsByMinute(oneMinuteTime)) {
+                    oneMinuteTime = it
+                    refreshCalendarData(1)
+                }
+                if (!it.isEqualsByHour(oneHourTime)) {
+                    setState {
+                        copy(hourlyBeepIncrement = hourlyBeepIncrement + 1L)
+                    }
+                    oneHourTime = it
+                    refreshWeatherData(it)
+                }
             }
-            .launchIn(timersScope)
-        oneMinuteJob?.cancel()
-        oneMinuteJob = tickerFlow(period = 1.minutes)
-            .map { LocalDateTime.now() }
-            .distinctUntilChanged { old, new -> old.isEqualsByMinute(new) }
-            .onEach {
-                //Обновляем производственный календарь
-                refreshCalendarData(1)
-            }
-            .launchIn(timersScope)
-        oneHourJob?.cancel()
-        oneHourJob = tickerFlow(period = 1.minutes)
-            .map { LocalDateTime.now() }
-            .distinctUntilChanged { old, new -> old.isEqualsByHour(new) }
-            .onEach(::refreshWeatherData)
-            .launchIn(CoroutineScope(Dispatchers.IO))
+            .launchIn(safeScope)
     }
 
     override fun dispose() {
         oneSecondTickJob?.cancel()
-        oneMinuteJob?.cancel()
-        oneHourJob?.cancel()
-        timersScope.cancel()
     }
 }

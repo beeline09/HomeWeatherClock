@@ -88,11 +88,12 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val currentProdCalendarDayStr = state.currentProdDay?.stringForCalendar()
 
     val playerState = rememberPlayerState()
-    val player = AudioPlayer(playerState)
+    LaunchedEffect(state.hourlyBeepIncrement) {
+        val player = AudioPlayer(playerState)
+        player.play(MR.files.casiohour.fileName().rawResource())
+    }
+
     LaunchedEffect(Unit) {
-        MR.files.casiohour.fileName().rawResource().also {
-            player.play(it)
-        }
         screenModel.onLaunch()
     }
 
@@ -147,7 +148,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize().weight(1f).clickable {
-                            screenModel.showSettings()
+                            screenModel.intent(HomeScreenIntent.Settings.Show)
                         }
                 ) {
                     AutoSizeText(
@@ -170,7 +171,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         Box(modifier = Modifier.fillMaxSize().alpha(0.5f).background(Color.Black)) {
                             IconButton(
                                 onClick = {
-                                    screenModel.hideSettings()
+                                    screenModel.intent(HomeScreenIntent.Settings.Hide)
                                     navigator.push(SettingsTab)
                                 },
                                 modifier = Modifier.align(Alignment.Center)

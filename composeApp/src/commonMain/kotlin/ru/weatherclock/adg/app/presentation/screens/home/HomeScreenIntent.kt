@@ -2,8 +2,11 @@ package ru.weatherclock.adg.app.presentation.screens.home
 
 import ru.weatherclock.adg.app.presentation.components.viewModel.Intent
 
-sealed class HomeScreenIntent: Intent {
+sealed interface HomeScreenIntent: Intent {
 
-    data object ShowSettings: HomeScreenIntent()
+    sealed interface Settings: HomeScreenIntent {
+        data object Show: Settings
+        data object Hide: Settings
+    }
 
 }
