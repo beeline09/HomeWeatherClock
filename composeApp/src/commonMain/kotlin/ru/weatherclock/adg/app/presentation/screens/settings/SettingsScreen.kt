@@ -19,13 +19,13 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import dev.icerock.moko.resources.compose.stringResource
 import org.koin.compose.koinInject
 import ru.weatherclock.adg.MR
-import ru.weatherclock.adg.app.domain.model.WeatherSettings
-import ru.weatherclock.adg.app.presentation.screens.settings.component.backIcon
+import ru.weatherclock.adg.app.domain.model.AppSettings
+import ru.weatherclock.adg.app.presentation.screens.settings.components.backIcon
 
 @Composable
 fun SettingsScreen(screenModel: SettingsScreenViewModel = koinInject()) {
     val navigator = LocalNavigator.currentOrThrow
-    val state by screenModel.state.collectAsState(SettingsScreenState(WeatherSettings()))
+    val state by screenModel.state.collectAsState(SettingsScreenState(AppSettings()))
     val settings = state.settings
     Scaffold(topBar = {
         TopAppBar(

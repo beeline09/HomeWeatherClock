@@ -2,11 +2,11 @@ package ru.weatherclock.adg.platformSpecific
 
 import io.github.xxfast.kstore.KStore
 import io.github.xxfast.kstore.file.storeOf
-import ru.weatherclock.adg.app.domain.model.WeatherSettings
+import ru.weatherclock.adg.app.domain.model.AppSettings
 
-actual val weatherSettingsKStore: KStore<WeatherSettings> by lazy {
+actual val appSettingsKStore: KStore<AppSettings> by lazy {
     storeOf(
         "${appStorage}/weather_settings.json",
-        WeatherSettings()
+        AppSettings()
     )
 }

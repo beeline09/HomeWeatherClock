@@ -1,4 +1,4 @@
-package ru.weatherclock.adg.app.presentation.screens.settings.component
+package ru.weatherclock.adg.app.presentation.screens.settings.components
 
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
