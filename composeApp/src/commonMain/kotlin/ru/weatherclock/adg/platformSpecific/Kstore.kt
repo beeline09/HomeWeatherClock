@@ -1,6 +1,6 @@
 package ru.weatherclock.adg.platformSpecific
 
 import io.github.xxfast.kstore.KStore
-import ru.weatherclock.adg.app.domain.model.WeatherSettings
+import ru.weatherclock.adg.app.domain.model.AppSettings
 
-expect val weatherSettingsKStore: KStore<WeatherSettings>
+expect val appSettingsKStore: KStore<AppSettings>

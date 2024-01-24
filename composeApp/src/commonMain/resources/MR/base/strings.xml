@@ -16,6 +16,7 @@
     <string name="app_window_name">Home clock with weather and calendar</string>
     <string name="settings_toolbar">Settings</string>
     <string name="home_toolbar">Home</string>
+    <string name="on_start_config_weather">Setup weather or turn it off</string>
 
     <string name="january_f">january</string>
     <string name="february_f">february</string>

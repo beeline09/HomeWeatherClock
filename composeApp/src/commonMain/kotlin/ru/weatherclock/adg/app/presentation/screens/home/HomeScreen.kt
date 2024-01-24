@@ -56,7 +56,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.koinInject
 import ru.weatherclock.adg.MR
-import ru.weatherclock.adg.app.domain.model.WeatherSettings
+import ru.weatherclock.adg.app.domain.model.AppSettings
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.stringForCalendar
 import ru.weatherclock.adg.app.domain.model.orDefault
@@ -73,9 +73,9 @@ import ru.weatherclock.adg.app.presentation.components.util.getColor
 import ru.weatherclock.adg.app.presentation.components.weather.WeatherCell
 import ru.weatherclock.adg.app.presentation.screens.home.components.TextCalendar
 import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
+import ru.weatherclock.adg.platformSpecific.appSettingsKStore
 import ru.weatherclock.adg.platformSpecific.fileName
 import ru.weatherclock.adg.platformSpecific.rawResource
-import ru.weatherclock.adg.platformSpecific.weatherSettingsKStore
 import ru.weatherclock.adg.showToast
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
@@ -87,8 +87,8 @@ import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val colorsPalette = LocalCustomColorsPalette.current
     val state by screenModel.state.collectAsState()
-    val weatherSettings by weatherSettingsKStore.updates.collectAsState(WeatherSettings())
-    val settings = weatherSettings.orDefault()
+    val appSettings by appSettingsKStore.updates.collectAsState(AppSettings())
+    val settings = appSettings.orDefault()
     val forecast5Days = state.forecast5Days
     val headline = state.headline
     val dateTime = state.dateTime
