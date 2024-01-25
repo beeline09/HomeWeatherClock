@@ -1,4 +1,4 @@
-package ru.weatherclock.adg.app.domain.model
+package ru.weatherclock.adg.app.domain.model.settings
 
 import kotlinx.serialization.Serializable
 import ru.weatherclock.adg.platformSpecific.systemLocale
@@ -7,7 +7,17 @@ import ru.weatherclock.adg.platformSpecific.systemLocale
 data class AppSettings(
     val weatherConfig: WeatherConfig = WeatherConfig(),
     val calendarConfig: CalendarConfig = CalendarConfig(),
-    val dotsAnimated: Boolean = true,
+    val timeConfig: TimeConfig = TimeConfig(),
+    val colorTheme: ColorTheme = ColorTheme.System
+)
+
+@Serializable
+data class TimeConfig(
+    val dotsFlashEnabled: Boolean = true,
+    val dotsFlashAnimated: Boolean = true,
+    val hourlyBeepEnabled: Boolean = true,
+    val hourlyBeepStartHour: Int = 9,
+    val hourlyBeepEndHour: Int = 23,
 )
 
 @Serializable
@@ -32,6 +42,14 @@ data class ProdCalendarConfig(
     val russiaRegion: Int = 0,
     val dayDescriptionEnabled: Boolean = true,
 )
+
+@Serializable
+enum class ColorTheme {
+
+    Day,
+    Night,
+    System
+}
 
 fun AppSettings?.orDefault(): AppSettings {
     if (this == null) return AppSettings()

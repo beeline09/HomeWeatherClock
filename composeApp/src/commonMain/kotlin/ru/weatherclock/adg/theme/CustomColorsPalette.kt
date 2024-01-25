@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 @Immutable
 data class CustomColorsPalette(
     val background: Color = Color.Unspecified,
+    val toolbarColor: Color = Color.Unspecified,
     val clockText: Color = Color.Unspecified,
     val dateDay: Color = Color.Unspecified,
     val dateMonth: Color = Color.Unspecified,
@@ -29,6 +30,9 @@ data class CustomColorsPalette(
     val weatherSeverityMajor: Color = Color.Unspecified,
     val weatherSeverityModerate: Color = Color.Unspecified,
     val weatherSeverityOther: Color = Color.Unspecified,
+    val switchChecked: Color = Color.Unspecified,
+    val switchUnchecked: Color = Color.Unspecified,
+    val switchDisabled: Color = Color.Unspecified,
 )
 
 val LightCustomColorsPalette = CustomColorsPalette(
@@ -54,7 +58,11 @@ val LightCustomColorsPalette = CustomColorsPalette(
     weatherSeverityMajor = light_weatherSeverityMajor,
     weatherSeverityModerate = light_weatherSeverityModerate,
     weatherSeverityOther = light_weatherSeverityOther,
-    weatherSeveritySignificant = light_weatherSeveritySignificant
+    weatherSeveritySignificant = light_weatherSeveritySignificant,
+    toolbarColor = light_toolbarBackground,
+    switchChecked = light_switch_checked,
+    switchUnchecked = light_switch_unchecked,
+    switchDisabled = light_switch_disabled,
 )
 
 val DarkCustomColorsPalette = CustomColorsPalette(
@@ -80,7 +88,11 @@ val DarkCustomColorsPalette = CustomColorsPalette(
     weatherSeveritySignificant = dark_weatherSeveritySignificant,
     weatherSeverityMajor = dark_weatherSeverityMajor,
     weatherSeverityModerate = dark_weatherSeverityModerate,
-    weatherSeverityOther = dark_weatherSeverityOther
+    weatherSeverityOther = dark_weatherSeverityOther,
+    toolbarColor = dark_toolbarBackground,
+    switchChecked = dark_switch_checked,
+    switchUnchecked = dark_switch_unchecked,
+    switchDisabled = dark_switch_disabled,
 )
 
 val LocalCustomColorsPalette = staticCompositionLocalOf { CustomColorsPalette() }

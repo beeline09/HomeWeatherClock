@@ -1,5 +1,7 @@
-
-import HomeWeatherClock.composeApp.BuildConfig
+import java.awt.Dimension
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
@@ -7,6 +9,8 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import HomeWeatherClock.composeApp.BuildConfig
+import com.jthemedetecor.OsThemeDetector
 import dev.icerock.moko.resources.compose.stringResource
 import io.kamel.core.config.KamelConfig
 import io.kamel.core.config.takeFrom
@@ -18,9 +22,15 @@ import ru.weatherclock.adg.App
 import ru.weatherclock.adg.MR
 import ru.weatherclock.adg.app.domain.di.initKoin
 import ru.weatherclock.adg.platformSpecific.appStorage
-import java.awt.Dimension
 
 fun main() = application {
+    appStorage = AppDirsFactory.getInstance()
+        .getUserDataDir(
+            BuildConfig.APP_NAME,
+            BuildConfig.APP_PACKAGE_NAME,
+            BuildConfig.APP_AUTHOR
+        )
+    initKoin()
     Window(
         title = stringResource(MR.strings.app_window_name),
         state = rememberWindowState(
@@ -34,13 +44,6 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         undecorated = false,
     ) {
-        appStorage = AppDirsFactory.getInstance()
-            .getUserDataDir(
-                BuildConfig.APP_NAME,
-                BuildConfig.APP_PACKAGE_NAME,
-                BuildConfig.APP_AUTHOR
-            )
-        initKoin()
         window.minimumSize = Dimension(
             350,
             600
@@ -52,6 +55,21 @@ fun main() = application {
                 batikSvgDecoder()
             }
         }
-        App(isDarkThemeSupported = true, kamelConfig = kamelConfig)
+
+        val isDark = remember { mutableStateOf(false) }
+        val dark = isSystemInDarkTheme()
+        LaunchedEffect(Unit) {
+            isDark.value = dark
+        }
+        val detector = OsThemeDetector.getDetector()
+        detector.registerListener {
+            isDark.value = it
+        }
+
+        App(
+            isDarkThemeSupported = true,
+            kamelConfig = kamelConfig,
+            systemIsDark = isDark.value
+        )
     }
 }

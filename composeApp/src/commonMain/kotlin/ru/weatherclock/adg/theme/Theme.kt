@@ -9,11 +9,17 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
+import ru.weatherclock.adg.app.domain.model.settings.AppSettings
+import ru.weatherclock.adg.app.domain.model.settings.ColorTheme
+import ru.weatherclock.adg.app.domain.model.settings.orDefault
+import ru.weatherclock.adg.platformSpecific.appSettingsKStore
 import ru.weatherclock.adg.platformSpecific.getTypography
 
 private val LightColorScheme = lightColorScheme(
@@ -94,28 +100,35 @@ internal val LocalThemeIsDark = compositionLocalOf { mutableStateOf(true) }
 internal fun AppTheme(
     isDarkThemeSupported: Boolean,
     systemIsDark: Boolean = isSystemInDarkTheme(),
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     val isDarkState = remember { mutableStateOf(systemIsDark) }
+    val settings by appSettingsKStore.updates.collectAsState(AppSettings())
+    val isDark = when (settings.orDefault().colorTheme) {
+        ColorTheme.Day -> false
+        ColorTheme.Night -> isDarkThemeSupported
+        ColorTheme.System -> isDarkThemeSupported && systemIsDark
+    }
+    isDarkState.value = isDark
 
-    val customColorsPalette =
-        if (systemIsDark || !isDarkThemeSupported) DarkCustomColorsPalette
-        else LightCustomColorsPalette
+    LaunchedEffect(isSystemInDarkTheme()) {
+        isDarkState.value = isDark
+    }
+
+    val customColorsPalette = if (isDark) DarkCustomColorsPalette
+    else LightCustomColorsPalette
 
     CompositionLocalProvider(
         LocalThemeIsDark provides isDarkState,
         LocalCustomColorsPalette provides customColorsPalette
     ) {
-        val isDark by isDarkState
         SystemAppearance(isDark)
-        MaterialTheme(
-            colorScheme = if (isDark || !isDarkThemeSupported) DarkColorScheme else LightColorScheme,
+        MaterialTheme(colorScheme = if (isDark || !isDarkThemeSupported) DarkColorScheme else LightColorScheme,
             typography = getTypography(),
             shapes = AppShapes,
             content = {
                 Surface(content = content)
-            }
-        )
+            })
     }
 }
 
