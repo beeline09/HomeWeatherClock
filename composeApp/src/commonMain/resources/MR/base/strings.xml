@@ -18,6 +18,67 @@
     <string name="home_toolbar">Home</string>
     <string name="on_start_config_weather">Setup weather or turn it off</string>
 
+    <string name="setting_title_weather_enabled">Show weather</string>
+    <string name="setting_title_weather_api_keys">Accuweather API-Key</string>
+    <string name="setting_title_weather_city_key">Location code</string>
+    <string name="setting_title_weather_language">Weather language</string>
+    <string name="setting_title_text_calendar_enabled">Show text calendar</string>
+    <string name="setting_title_grid_calendar_enabled">Show table calendar</string>
+    <string
+        name="setting_title_prod_calendar_is_russia">Show production calendar (only for Russia!)
+    </string>
+    <string name="setting_title_prod_calendar_russia_region">Region of the Russian Federation
+    </string>
+    <string
+        name="setting_title_prod_calendar_day_description_enabled">Display the name of the current holiday
+    </string>
+    <string name="setting_title_dots_flash_enabled">Enable blinking seconds dots</string>
+    <string name="setting_title_dots_flash_animated">Animate seconds dots blinking</string>
+    <string name="setting_title_hourly_beep_enabled">Play a sound every hour</string>
+    <string name="setting_title_hourly_beep_hours_range">Interval of hours between which to sound
+    </string>
+    <string name="setting_title_header_weather_config">Weather settings</string>
+    <string name="setting_title_header_time_config">Time settings</string>
+    <string name="setting_title_header_calendar_config">Calendar settings</string>
+    <string name="setting_title_header_prod_calendar_config">Production calendar settings</string>
+    <string name="setting_title_header_theme">Appearance</string>
+    <string name="setting_title_theme">Select theme</string>
+
+    <string
+        name="setting_description_weather_api_keys">The application uses the accuweather server to display the weather. To have access to the API, you need to obtain a key for the application on the website https://developer.accuweather.com/user/me/apps \n\nYou can enter several API Keys to avoid blocking from the API, because the maximum number of requests per day is 50.
+    </string>
+    <string name="setting_description_weather_city_key">Click to select a location</string>
+    <string
+        name="setting_description_weather_language">The default is the system locale. It must be strictly specified in a specific format. For example, for an English-speaking person in the USA it will be en-us, and for a Russian speaker it will be ru-ru
+    </string>
+    <string
+        name="setting_description_text_calendar_enabled">From top to bottom, the day will be displayed first in large numbers, then the month, then the year
+    </string>
+    <string
+        name="setting_description_grid_calendar_enabled">If enabled, a calendar in tabular form will be displayed below the text calendar, with holidays from the production calendar, if enabled, plotted on it.
+    </string>
+    <string
+        name="setting_description_prod_calendar_is_russia">Unfortunately, at the moment, it is possible to show the production calendar only for Russia
+    </string>
+    <string
+        name="setting_description_prod_calendar_russia_region">Click to select a region of the Russian Federation to display regional holidays in the production calendar
+    </string>
+    <string
+        name="setting_description_prod_calendar_day_description_enabled">If enabled, the name of the holiday on the current day will be displayed between the text and table calendars, if there is one in the production calendar
+    </string>
+    <string
+        name="setting_description_dots_flash_animated">If enabled, the seconds dots will fade in and out every second. Not recommended for old devices!
+    </string>
+    <string
+        name="setting_description_hourly_beep_enabled">If enabled, every hour during the selected period a peak will sound like in a Casio watch
+    </string>
+    <string
+        name="setting_description_hourly_beep_hours_range">The start hour must start from zero and not be greater than 22, the end hour must be greater than the start hour and less than, or equal to 23
+    </string>
+    <string name="setting_theme_system">System</string>
+    <string name="setting_theme_day">Day</string>
+    <string name="setting_theme_night">Night</string>
+
     <string name="january_f">january</string>
     <string name="february_f">february</string>
     <string name="march_f">march</string>

@@ -42,9 +42,11 @@ import ru.weatherclock.adg.app.data.repository.implementation.WeatherRepositoryI
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.domain.usecase.ProdCalendarUseCase
+import ru.weatherclock.adg.app.domain.usecase.SettingsUseCase
 import ru.weatherclock.adg.app.presentation.screens.home.HomeScreenViewModel
 import ru.weatherclock.adg.app.presentation.screens.settings.SettingsScreenViewModel
 import ru.weatherclock.adg.db.Database
+import ru.weatherclock.adg.platformSpecific.appSettingsKStore
 import ru.weatherclock.adg.platformSpecific.createDatabase
 import ru.weatherclock.adg.platformSpecific.platformModule
 
@@ -68,10 +70,7 @@ fun initKoin() = initKoin(
 fun commonModule(
     enableNetworkLogs: Boolean,
 ) =
-    platformModule() +
-            getDataModule(enableNetworkLogs) +
-            getUseCaseModule() +
-            getScreenModelModule()
+    platformModule() + getDataModule(enableNetworkLogs) + getUseCaseModule() + getScreenModelModule()
 
 fun getScreenModelModule() = module {
     single {
@@ -81,7 +80,7 @@ fun getScreenModelModule() = module {
         )
     }
     single {
-        SettingsScreenViewModel()
+        SettingsScreenViewModel(get())
     }
 }
 
@@ -139,41 +138,43 @@ fun getUseCaseModule() = module {
         )
     }
     single { ProdCalendarUseCase(get()) }
+    single {
+        SettingsUseCase(appSettings = appSettingsKStore)
+    }
 }
 
 fun createHttpClient(
     httpClientEngine: HttpClientEngine,
     json: Json,
     enableNetworkLogs: Boolean
-) =
-    HttpClient(httpClientEngine) {
+) = HttpClient(httpClientEngine) {
 
-        // exception handling
-        install(HttpTimeout) {
-            requestTimeoutMillis = 10000
-            connectTimeoutMillis = 10000
-            socketTimeoutMillis = 10000
-        }
+    // exception handling
+    install(HttpTimeout) {
+        requestTimeoutMillis = 10000
+        connectTimeoutMillis = 10000
+        socketTimeoutMillis = 10000
+    }
 
-        install(HttpRequestRetry) {
-            maxRetries = 3
-            retryIf { _, response -> !response.status.isSuccess() }
-            retryOnExceptionIf { _, cause -> cause is HttpRequestTimeoutException }
-            delayMillis { 3000L } // retries in 3, 6, 9, etc. seconds
-        }
+    install(HttpRequestRetry) {
+        maxRetries = 3
+        retryIf { _, response -> !response.status.isSuccess() }
+        retryOnExceptionIf { _, cause -> cause is HttpRequestTimeoutException }
+        delayMillis { 3000L } // retries in 3, 6, 9, etc. seconds
+    }
 
-        install(HttpCallValidator) {
-            handleResponseExceptionWithRequest { cause, _ -> println("exception $cause") }
-        }
+    install(HttpCallValidator) {
+        handleResponseExceptionWithRequest { cause, _ -> println("exception $cause") }
+    }
 
-        install(ContentNegotiation) { json(json) }
-        if (enableNetworkLogs) {
-            install(Logging) {
-                logger = Logger.SIMPLE
-                level = LogLevel.ALL
-            }
+    install(ContentNegotiation) { json(json) }
+    if (enableNetworkLogs) {
+        install(Logging) {
+            logger = Logger.SIMPLE
+            level = LogLevel.ALL
         }
     }
+}
 
 fun createJson() = Json {
     ignoreUnknownKeys = true

@@ -2,6 +2,7 @@ package ru.weatherclock.adg
 
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,7 @@ import androidx.compose.material.SnackbarResult
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -21,9 +23,9 @@ import co.touchlab.kermit.Logger
 import dev.icerock.moko.resources.compose.stringResource
 import io.kamel.core.config.KamelConfig
 import io.kamel.image.config.LocalKamelConfig
-import ru.weatherclock.adg.app.domain.model.AppSettings
-import ru.weatherclock.adg.app.domain.model.isAvailableToShow
-import ru.weatherclock.adg.app.domain.model.orDefault
+import ru.weatherclock.adg.app.domain.model.settings.AppSettings
+import ru.weatherclock.adg.app.domain.model.settings.isAvailableToShow
+import ru.weatherclock.adg.app.domain.model.settings.orDefault
 import ru.weatherclock.adg.app.presentation.tabs.HomeTab
 import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
 import ru.weatherclock.adg.platformSpecific.appSettingsKStore
@@ -47,14 +49,23 @@ fun showToast(
 @Composable
 internal fun App(
     isDarkThemeSupported: Boolean,
+    systemIsDark: Boolean = isSystemInDarkTheme(),
     kamelConfig: KamelConfig
 ) = CompositionLocalProvider(LocalKamelConfig provides kamelConfig) {
-    AppTheme(isDarkThemeSupported = isDarkThemeSupported) {
+    AppTheme(
+        isDarkThemeSupported = isDarkThemeSupported,
+        systemIsDark = systemIsDark
+    ) {
 
         val scaffoldState = rememberScaffoldState()
         val coroutineScope = rememberCoroutineScope()
         val appSettings by appSettingsKStore.updates.collectAsState(AppSettings())
         val settings = appSettings.orDefault()
+        var showSettings = false
+
+        LaunchedEffect(Unit) {
+            showSettings = !appSettingsKStore.get().orDefault().weatherConfig.isAvailableToShow()
+        }
 
         showToast = { text, action, onClick ->
             coroutineScope.launch {
@@ -69,7 +80,7 @@ internal fun App(
             }
         }
 
-        val initialScreen = if (!settings.weatherConfig.isAvailableToShow()) {
+        val initialScreen = if (showSettings) {
             showToast(text = stringResource(MR.strings.on_start_config_weather))
             SettingsTab
         } else {
@@ -84,8 +95,7 @@ internal fun App(
             Box(
                 modifier = Modifier.fillMaxWidth().fillMaxHeight().background(color = Color.Black)
             ) {
-                Navigator(
-                    screen = initialScreen,
+                Navigator(screen = initialScreen,
                     onBackPressed = {
                         Logger.d("Pop screen #${(it as Tab).key}")
                         true

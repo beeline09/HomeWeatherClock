@@ -118,6 +118,7 @@ kotlin {
                 implementation(libs.jlayer)
                 implementation(libs.kstore.file)
                 implementation(libs.java.appdirs)
+                implementation(libs.jSystemThemeDetector)
             }
         }
 

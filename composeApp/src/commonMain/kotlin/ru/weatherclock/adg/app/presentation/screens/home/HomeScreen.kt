@@ -56,10 +56,10 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.koinInject
 import ru.weatherclock.adg.MR
-import ru.weatherclock.adg.app.domain.model.AppSettings
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.stringForCalendar
-import ru.weatherclock.adg.app.domain.model.orDefault
+import ru.weatherclock.adg.app.domain.model.settings.AppSettings
+import ru.weatherclock.adg.app.domain.model.settings.orDefault
 import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.CalendarCallbackData
 import ru.weatherclock.adg.app.presentation.components.calendar.color
@@ -97,7 +97,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val currentProdCalendarDay = state.currentProdDay
     val currentProdCalendarDayStr = state.currentProdDay?.stringForCalendar()
     var dotsColor = colorsPalette.clockText
-    if (settings.dotsAnimated) {
+    if (settings.timeConfig.dotsFlashAnimated) {
         val dotsColorAnimated: Color by animateColorAsState(
             if (state.dotsShowed) colorsPalette.clockText else colorsPalette.background,
             animationSpec = tween(
