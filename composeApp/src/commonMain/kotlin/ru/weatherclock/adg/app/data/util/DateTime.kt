@@ -7,6 +7,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
 import kotlinx.datetime.toLocalDateTime
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
+import ru.weatherclock.adg.app.presentation.components.util.padStart
 
 fun Long.epochSecondsToLocalDateTime(): LocalDateTime {
     return Instant
@@ -73,12 +74,7 @@ fun LocalDateTime.atStartOfHour(): LocalDateTime {
 
 fun LocalDateTime.timeStr(withDots: Boolean = true) = buildString {
     append(
-        hour
-            .toString()
-            .padStart(
-                2,
-                '0'
-            )
+        hour.padStart(2)
     )
     if (withDots) {
         append(":")
@@ -86,12 +82,7 @@ fun LocalDateTime.timeStr(withDots: Boolean = true) = buildString {
         append(" ")
     }
     append(
-        minute
-            .toString()
-            .padStart(
-                2,
-                '0'
-            )
+        minute.padStart(2)
     )
 }
 

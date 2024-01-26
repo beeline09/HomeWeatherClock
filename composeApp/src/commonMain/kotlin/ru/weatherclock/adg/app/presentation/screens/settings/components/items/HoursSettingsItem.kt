@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.material.Button
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Text
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,7 +34,6 @@ import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.ge
 import ru.weatherclock.adg.showToast
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("UnusedReceiverParameter")
 @Composable
 fun LazyItemScope.HoursSettingsItem(item: HoursRangeSetting) {
