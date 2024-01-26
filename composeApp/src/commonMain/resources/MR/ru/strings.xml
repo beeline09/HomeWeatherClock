@@ -72,7 +72,7 @@
         name="setting_description_dots_flash_animated">Если включено, точки секунд будут плавно исчезать и появляться каждую секунду. Не рекомендуется на слабых устройствах!
     </string>
     <string
-        name="setting_description_hourly_beep_enabled">Если включено, каждый час в выранный промежуток будет раздаваться пик как в наручных часах Casio
+        name="setting_description_hourly_beep_enabled">Если включено, каждый час в выбранный промежуток будет раздаваться пик как в наручных часах Casio
     </string>
     <string
         name="setting_description_hourly_beep_hours_range">Час начала должен начинаться с нуля и не быть больше 22, час окончания должен быть больше часа начала и меньше, либо равен 23
@@ -81,6 +81,17 @@
     <string name="setting_theme_day">Дневная</string>
     <string name="setting_theme_night">Ночная</string>
 
+    <string name="setting_hours_item_start_hour">Начало</string>
+    <string name="setting_hours_item_end_hour">Окончание</string>
+    <string name="setting_hours_dialog_title_start">Выберите час начала</string>
+    <string name="setting_hours_dialog_title_end">Выберите час окончания</string>
+    <string name="dialog_button_cancel">Отмена</string>
+    <string
+        name="setting_hours_error_start_bigger_than_end">Время начала должно быть меньше времени окончания!
+    </string>
+    <string
+        name="setting_hours_error_end_smaller_than_start">Время окончания должно быть больше времени начала!
+    </string>
 
     <string name="january_f">Января</string>
     <string name="february_f">Февраля</string>

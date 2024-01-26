@@ -17,7 +17,7 @@ data class TimeConfig(
     val dotsFlashAnimated: Boolean = true,
     val hourlyBeepEnabled: Boolean = true,
     val hourlyBeepStartHour: Int = 9,
-    val hourlyBeepEndHour: Int = 23,
+    val hourlyBeepEndHour: Int = 22,
 )
 
 @Serializable
