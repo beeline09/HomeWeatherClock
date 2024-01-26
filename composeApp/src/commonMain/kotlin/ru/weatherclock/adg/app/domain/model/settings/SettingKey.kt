@@ -19,5 +19,16 @@ enum class SettingKey {
     HeaderCalendarConfig,
     HeaderProdCalendarConfig,
     HeaderTheme,
-    Theme,
+    Theme;
+
+    companion object {
+
+        val headers = listOf(
+            HeaderTheme,
+            HeaderTimeConfig,
+            HeaderWeatherConfig,
+            HeaderCalendarConfig,
+            HeaderProdCalendarConfig,
+        )
+    }
 }

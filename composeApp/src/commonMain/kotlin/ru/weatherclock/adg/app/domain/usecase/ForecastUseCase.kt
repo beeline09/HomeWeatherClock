@@ -1,10 +1,10 @@
 package ru.weatherclock.adg.app.domain.usecase
 
-import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.LocalDate
 import ru.weatherclock.adg.app.data.dto.asDomainModel
-import ru.weatherclock.adg.app.data.repository.ForecastDbRepository
-import ru.weatherclock.adg.app.data.repository.WeatherRepository
+import ru.weatherclock.adg.app.data.repository.db.forecast.ForecastDbRepository
+import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
+import ru.weatherclock.adg.app.data.repository.weather.WeatherRepository
 import ru.weatherclock.adg.app.domain.model.Forecast
 import ru.weatherclock.adg.app.domain.model.forecast.Detail
 import ru.weatherclock.adg.app.domain.model.forecast.DetailType
@@ -26,15 +26,9 @@ import ru.weatherclock.adg.db.ForecastDetail
 
 class ForecastUseCase(
     private val repository: WeatherRepository,
-    private val forecastDbRepository: ForecastDbRepository
+    private val forecastDbRepository: ForecastDbRepository,
+    private val weatherSettings: WeatherSettingsRepository,
 ) {
-
-    private var forecast: Forecast? = null
-    operator fun invoke() = flow {
-        val response = repository.getWeatherForecast("291658").asDomainModel()
-        forecast = response
-        emit(response)
-    }
 
     suspend fun getForPeriod(
         forecastKey: String,
@@ -47,9 +41,18 @@ class ForecastUseCase(
             endDate
         )
 
+        val apiKeys = listOf(
+            "GSWo67YCWgJ6raZqsluqkuhxsl2zJAOK",
+            "JZz9kz4ElQp8VVKLiF3KVSpDtyllS7CC"
+        )
+
         val result = if (forecast == null || forecast.dailyForecasts.size < 5) {
             val response = try {
-                repository.getWeatherForecast(forecastKey).asDomainModel()
+                repository.getWeatherForecast(
+                    cityKey = weatherSettings.getCityKey(),
+                    apiKeys = weatherSettings.getApiKeys(),
+                    language = weatherSettings.getWeatherLanguage()
+                ).asDomainModel()
             } catch (e: Exception) {
                 e.printStackTrace()
                 return forecast

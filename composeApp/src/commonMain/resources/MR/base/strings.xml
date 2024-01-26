@@ -85,6 +85,8 @@
     <string name="setting_hours_dialog_title_start">Select start hour</string>
     <string name="setting_hours_dialog_title_end">Select end hour</string>
     <string name="dialog_button_cancel">Cancel</string>
+    <string name="dialog_button_ok">OK</string>
+    <string name="dialog_edittext_hint_enter_new_value">Enter new value</string>
 
     <string
         name="setting_hours_error_start_bigger_than_end">The start time must be less than the end time!
@@ -92,6 +94,9 @@
     <string
         name="setting_hours_error_end_smaller_than_start">The end time must be greater than the start time!
     </string>
+
+    <string name="setting_prod_calendar_region_all_russia">All Russia</string>
+    <string name="setting_prod_calendar_dialog_select_region_title">Select region of Russia</string>
 
     <string name="january_f">january</string>
     <string name="february_f">february</string>

@@ -4,8 +4,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.LocalDateTime
 import ru.weatherclock.adg.app.data.dto.asDomainModel
-import ru.weatherclock.adg.app.data.repository.CalendarRepository
-import ru.weatherclock.adg.app.data.repository.ProdCalendarDbRepository
+import ru.weatherclock.adg.app.data.repository.calendar.CalendarRepository
+import ru.weatherclock.adg.app.data.repository.db.prodCalendar.ProdCalendarDbRepository
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.asDbModel
 import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel

@@ -33,7 +33,9 @@ data class CustomColorsPalette(
     val switchChecked: Color = Color.Unspecified,
     val switchUnchecked: Color = Color.Unspecified,
     val switchDisabled: Color = Color.Unspecified,
-    val alertDialogBackground: Color = Color.Unspecified
+    val alertDialogBackground: Color = Color.Unspecified,
+    val alertDialogPositiveButton: Color = Color.Unspecified,
+    val alertDialogDismissButton: Color = Color.Unspecified
 )
 
 val LightCustomColorsPalette = CustomColorsPalette(
@@ -65,6 +67,8 @@ val LightCustomColorsPalette = CustomColorsPalette(
     switchUnchecked = light_switch_unchecked,
     switchDisabled = light_switch_disabled,
     alertDialogBackground = light_alert_dialog_background,
+    alertDialogPositiveButton = light_alert_dialog_positive_button,
+    alertDialogDismissButton = light_alert_dialog_dismiss_button,
 )
 
 val DarkCustomColorsPalette = CustomColorsPalette(
@@ -96,6 +100,8 @@ val DarkCustomColorsPalette = CustomColorsPalette(
     switchUnchecked = dark_switch_unchecked,
     switchDisabled = dark_switch_disabled,
     alertDialogBackground = dark_alert_dialog_background,
+    alertDialogPositiveButton = dark_alert_dialog_positive_button,
+    alertDialogDismissButton = dark_alert_dialog_dismiss_button,
 )
 
 val LocalCustomColorsPalette = staticCompositionLocalOf { CustomColorsPalette() }

@@ -3,7 +3,11 @@ package ru.weatherclock.adg.app.presentation.screens.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Scaffold
@@ -20,6 +24,7 @@ import dev.icerock.moko.resources.compose.stringResource
 import org.koin.compose.koinInject
 import ru.weatherclock.adg.MR
 import ru.weatherclock.adg.app.domain.model.settings.BaseSettingItem
+import ru.weatherclock.adg.app.domain.model.settings.SettingKey
 import ru.weatherclock.adg.app.presentation.screens.settings.components.backIcon
 import ru.weatherclock.adg.app.presentation.screens.settings.components.getListItem
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
@@ -60,6 +65,17 @@ fun SettingsScreen(screenModel: SettingsScreenViewModel = koinInject()) {
                             index,
                             item
                         )
+                        if (index < settings.lastIndex && index > 0 && item.settingsKey !in SettingKey.headers) {
+                            val nextItem = settings[index + 1]
+                            if (nextItem.settingsKey !in SettingKey.headers) {
+                                Spacer(
+                                    modifier = Modifier.fillMaxWidth().height(1.dp).padding(
+                                        start = 16.dp,
+                                        end = 16.dp
+                                    ).background(color = colorsPalette.divider)
+                                )
+                            }
+                        }
                     }
                 }
             }

@@ -7,6 +7,7 @@ package ru.weatherclock.adg.app.domain.di
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.serialization.json.Json
+import io.github.xxfast.kstore.KStore
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpCallValidator
@@ -23,22 +24,30 @@ import io.ktor.serialization.kotlinx.json.json
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
-import ru.weatherclock.adg.app.data.remote.ByteArrayKtorService
+import ru.weatherclock.adg.app.data.remote.AppHttpClient
 import ru.weatherclock.adg.app.data.remote.CalendarKtorService
 import ru.weatherclock.adg.app.data.remote.WeatherKtorService
-import ru.weatherclock.adg.app.data.remote.implementation.ByteArrayKtorServiceImpl
 import ru.weatherclock.adg.app.data.remote.implementation.CalendarKtorServiceImpl
 import ru.weatherclock.adg.app.data.remote.implementation.WeatherKtorServiceImpl
-import ru.weatherclock.adg.app.data.repository.ByteArrayKtorRepository
-import ru.weatherclock.adg.app.data.repository.CalendarRepository
-import ru.weatherclock.adg.app.data.repository.ForecastDbRepository
-import ru.weatherclock.adg.app.data.repository.ProdCalendarDbRepository
-import ru.weatherclock.adg.app.data.repository.WeatherRepository
-import ru.weatherclock.adg.app.data.repository.implementation.ByteArrayKtorRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.implementation.CalendarRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.implementation.ForecastDbRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.implementation.ProdCalendarDbRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.implementation.WeatherRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.calendar.CalendarRepository
+import ru.weatherclock.adg.app.data.repository.calendar.implementation.CalendarRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.db.forecast.ForecastDbRepository
+import ru.weatherclock.adg.app.data.repository.db.forecast.implementation.ForecastDbRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.db.prodCalendar.ProdCalendarDbRepository
+import ru.weatherclock.adg.app.data.repository.db.prodCalendar.implementation.ProdCalendarDbRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.settings.CalendarSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.MainSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.TimeSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.implementation.CalendarSettingsRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.settings.implementation.MainSettingsRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.settings.implementation.ProdCalendarSettingsRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.settings.implementation.TimeSettingsRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.settings.implementation.WeatherSettingsRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.weather.WeatherRepository
+import ru.weatherclock.adg.app.data.repository.weather.implementation.WeatherRepositoryImpl
+import ru.weatherclock.adg.app.domain.model.settings.AppSettings
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.domain.usecase.ProdCalendarUseCase
@@ -70,7 +79,7 @@ fun initKoin() = initKoin(
 fun commonModule(
     enableNetworkLogs: Boolean,
 ) =
-    platformModule() + getDataModule(enableNetworkLogs) + getUseCaseModule() + getScreenModelModule()
+    platformModule() + settingsRepoModule() + getDataModule(enableNetworkLogs) + getUseCaseModule() + getScreenModelModule()
 
 fun getScreenModelModule() = module {
     single {
@@ -89,14 +98,10 @@ fun getDataModule(
 ) = module {
     single<WeatherRepository> { WeatherRepositoryImpl(get()) }
     single<CalendarRepository> { CalendarRepositoryImpl(get()) }
-    single<ByteArrayKtorRepository> { ByteArrayKtorRepositoryImpl(get()) }
     single<ForecastDbRepository> { ForecastDbRepositoryImpl(get()) }
 
     single<WeatherKtorService> {
-        WeatherKtorServiceImpl(
-            get(),
-            baseUrl = "http://dataservice.accuweather.com"
-        )
+        WeatherKtorServiceImpl(get())
     }
 
     single<CalendarKtorService> {
@@ -104,9 +109,6 @@ fun getDataModule(
             get(),
             baseUrl = "https://production-calendar.ru/get/ru"
         )
-    }
-    single<ByteArrayKtorService> {
-        ByteArrayKtorServiceImpl(get())
     }
 
     single { createJson() }
@@ -119,14 +121,28 @@ fun getDataModule(
         )
     }
 
+    single {
+        AppHttpClient(get())
+    }
+
     single<ProdCalendarDbRepository> { ProdCalendarDbRepositoryImpl(get()) }
 
     single<Database> { createDatabase() }
 }
 
+fun settingsRepoModule() = module {
+    single<KStore<AppSettings>> { appSettingsKStore }
+    single<CalendarSettingsRepository> { CalendarSettingsRepositoryImpl(get()) }
+    single<MainSettingsRepository> { MainSettingsRepositoryImpl(get()) }
+    single<ProdCalendarSettingsRepository> { ProdCalendarSettingsRepositoryImpl(get()) }
+    single<TimeSettingsRepository> { TimeSettingsRepositoryImpl(get()) }
+    single<WeatherSettingsRepository> { WeatherSettingsRepositoryImpl(get()) }
+}
+
 fun getUseCaseModule() = module {
     single {
         ForecastUseCase(
+            get(),
             get(),
             get()
         )
@@ -139,7 +155,13 @@ fun getUseCaseModule() = module {
     }
     single { ProdCalendarUseCase(get()) }
     single {
-        SettingsUseCase(appSettings = appSettingsKStore)
+        SettingsUseCase(
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
+        )
     }
 }
 

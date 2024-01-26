@@ -1,7 +1,7 @@
-package ru.weatherclock.adg.app.data.repository.implementation
+package ru.weatherclock.adg.app.data.repository.db.forecast.implementation
 
 import kotlinx.datetime.LocalDate
-import ru.weatherclock.adg.app.data.repository.ForecastDbRepository
+import ru.weatherclock.adg.app.data.repository.db.forecast.ForecastDbRepository
 import ru.weatherclock.adg.app.domain.model.forecast.DetailType
 import ru.weatherclock.adg.db.AirAndPollen
 import ru.weatherclock.adg.db.DailyForecast
@@ -23,7 +23,7 @@ import ru.weatherclock.adg.db.TotalLiquid
 import ru.weatherclock.adg.db.Wind
 import ru.weatherclock.adg.db.WindGust
 
-class ForecastDbRepositoryImpl(private val database: Database): ForecastDbRepository() {
+class ForecastDbRepositoryImpl(private val database: Database): ForecastDbRepository {
 
     override suspend fun insertHeadline(headline: ForecastHeadline) {
         database.transaction {

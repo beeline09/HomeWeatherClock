@@ -14,6 +14,8 @@ import ru.weatherclock.adg.app.presentation.screens.settings.components.items.Bo
 import ru.weatherclock.adg.app.presentation.screens.settings.components.items.ColorsThemeSettingItem
 import ru.weatherclock.adg.app.presentation.screens.settings.components.items.HeaderSettingsItem
 import ru.weatherclock.adg.app.presentation.screens.settings.components.items.HoursSettingsItem
+import ru.weatherclock.adg.app.presentation.screens.settings.components.items.IntSettingsItem
+import ru.weatherclock.adg.app.presentation.screens.settings.components.items.StringSettingsItem
 
 @Composable
 fun LazyItemScope.getListItem(
@@ -24,9 +26,9 @@ fun LazyItemScope.getListItem(
         is SettingsHeader -> HeaderSettingsItem(item)
         is BooleanSetting -> BooleanSettingsItem(item)
         is HoursRangeSetting -> HoursSettingsItem(item)
-        is IntSetting -> {}
+        is IntSetting -> IntSettingsItem(item)
         is StringListSetting -> {}
-        is StringSetting -> {}
+        is StringSetting -> StringSettingsItem(item)
         is ColorsThemeSetting -> ColorsThemeSettingItem(item)
     }
 }

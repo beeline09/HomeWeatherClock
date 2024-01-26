@@ -1,10 +1,10 @@
-package ru.weatherclock.adg.app.data.repository
+package ru.weatherclock.adg.app.data.repository.calendar
 
 import ru.weatherclock.adg.app.data.dto.ProductionCalendarDto
 
-abstract class CalendarRepository {
+interface CalendarRepository {
 
-    abstract suspend fun getProductionCalendar(
+    suspend fun getProductionCalendar(
         period: String,
         region: Int = 0
     ): ProductionCalendarDto

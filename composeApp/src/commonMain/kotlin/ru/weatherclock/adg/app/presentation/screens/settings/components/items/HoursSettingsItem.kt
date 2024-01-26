@@ -92,7 +92,7 @@ fun LazyItemScope.HoursSettingsItem(item: HoursRangeSetting) {
                 )
             }
             if (showEndHour) {
-                val hoursEndRange: List<Int> = (0..22).toList()
+                val hoursEndRange: List<Int> = (0..23).toList()
                 val endSmallerThanStartError =
                     stringResource(MR.strings.setting_hours_error_end_smaller_than_start)
                 hoursEndRange.RadioGroupDialog(
