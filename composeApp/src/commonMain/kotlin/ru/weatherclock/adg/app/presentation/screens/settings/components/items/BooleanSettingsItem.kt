@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Switch
+import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -84,7 +85,12 @@ fun LazyItemScope.BooleanSettingsItem(item: BooleanSetting) {
             checked = item.currentValue,
             enabled = item.isEnabled,
             onCheckedChange = item.onChange,
-            modifier = Modifier.wrapContentSize(align = Alignment.Center)
+            modifier = Modifier.wrapContentSize(align = Alignment.Center),
+            colors = SwitchDefaults.colors(
+                checkedTrackColor = colorsPalette.switchChecked,
+                uncheckedTrackColor = colorsPalette.switchUnchecked,
+                checkedThumbColor = colorsPalette.switchChecked
+            )
         )
     }
 }

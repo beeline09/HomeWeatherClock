@@ -79,6 +79,20 @@
     <string name="setting_theme_day">Day</string>
     <string name="setting_theme_night">Night</string>
 
+
+    <string name="setting_hours_item_start_hour">Start hour</string>
+    <string name="setting_hours_item_end_hour">End hour</string>
+    <string name="setting_hours_dialog_title_start">Select start hour</string>
+    <string name="setting_hours_dialog_title_end">Select end hour</string>
+    <string name="dialog_button_cancel">Cancel</string>
+
+    <string
+        name="setting_hours_error_start_bigger_than_end">The start time must be less than the end time!
+    </string>
+    <string
+        name="setting_hours_error_end_smaller_than_start">The end time must be greater than the start time!
+    </string>
+
     <string name="january_f">january</string>
     <string name="february_f">february</string>
     <string name="march_f">march</string>
