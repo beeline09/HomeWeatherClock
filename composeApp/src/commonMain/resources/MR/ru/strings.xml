@@ -86,12 +86,17 @@
     <string name="setting_hours_dialog_title_start">Выберите час начала</string>
     <string name="setting_hours_dialog_title_end">Выберите час окончания</string>
     <string name="dialog_button_cancel">Отмена</string>
+    <string name="dialog_button_ok">ОК</string>
+    <string name="dialog_edittext_hint_enter_new_value">Введите значение</string>
     <string
         name="setting_hours_error_start_bigger_than_end">Время начала должно быть меньше времени окончания!
     </string>
     <string
         name="setting_hours_error_end_smaller_than_start">Время окончания должно быть больше времени начала!
     </string>
+
+    <string name="setting_prod_calendar_region_all_russia">Вся Россия</string>
+    <string name="setting_prod_calendar_dialog_select_region_title">Выберите регион РФ</string>
 
     <string name="january_f">Января</string>
     <string name="february_f">Февраля</string>

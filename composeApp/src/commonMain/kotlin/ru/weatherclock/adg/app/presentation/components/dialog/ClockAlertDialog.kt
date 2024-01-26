@@ -22,10 +22,15 @@ import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 fun ClockAlertDialog(
     title: String,
     dismissRequest: () -> Unit,
+    dismissButtonText: String = stringResource(MR.strings.dialog_button_cancel),
+    positiveButtonText: String = stringResource(MR.strings.dialog_button_ok),
+    onPositiveClick: (() -> Unit)? = null,
+    positiveButtonEnabled: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorsPalette = LocalCustomColorsPalette.current
-    androidx.compose.material3.AlertDialog(containerColor = colorsPalette.alertDialogBackground,
+    androidx.compose.material3.AlertDialog(
+        containerColor = colorsPalette.alertDialogBackground,
         shape = RoundedCornerShape(size = 22.dp),
         modifier = Modifier.safeContentPadding().padding(all = 25.dp),
         properties = DialogProperties(
@@ -34,14 +39,25 @@ fun ClockAlertDialog(
             usePlatformDefaultWidth = true
         ),
         onDismissRequest = dismissRequest,
-        confirmButton = {},
+        confirmButton = {
+            if (onPositiveClick != null) {
+                Text(
+                    text = positiveButtonText,
+                    modifier = Modifier.clickable(
+                        enabled = positiveButtonEnabled,
+                        onClick = onPositiveClick
+                    ).padding(all = 8.dp),
+                    color = colorsPalette.alertDialogPositiveButton.copy(alpha = if (positiveButtonEnabled) 1f else 0.5f)
+                )
+            }
+        },
         dismissButton = {
             Text(
-                text = stringResource(MR.strings.dialog_button_cancel),
+                text = dismissButtonText,
                 modifier = Modifier.clickable {
                     dismissRequest()
                 }.padding(all = 8.dp),
-                color = colorsPalette.clockText
+                color = colorsPalette.alertDialogDismissButton
             )
         },
         title = {

@@ -1,5 +1,7 @@
 package ru.weatherclock.adg.app.domain.model
 
+import ru.weatherclock.adg.app.presentation.components.util.padStart
+
 object RussiaRegions {}
 
 val russiaRegions: Map<String, RegionSet>
@@ -301,9 +303,11 @@ private fun regionSetOf(vararg elements: Int): RegionSet =
 private infix fun String.to(that: Int): Pair<String, RegionSet> = this to regionSetOf(that)
 
 private fun toRegionString(number: Int): String {
-    if (number < 10) return number.toString().padStart(
-        2,
-        '0'
-    )
+    if (number < 10) return number.padStart(2)
     return number.toString()
+}
+
+fun Int.toRegion(): String {
+    if (this < 10) return padStart(2)
+    return toString()
 }

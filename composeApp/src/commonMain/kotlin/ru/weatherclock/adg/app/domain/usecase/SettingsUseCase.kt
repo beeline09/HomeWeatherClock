@@ -1,10 +1,15 @@
 package ru.weatherclock.adg.app.domain.usecase
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
-import io.github.xxfast.kstore.KStore
-import ru.weatherclock.adg.app.domain.model.settings.AppSettings
+import kotlinx.coroutines.launch
+import ru.weatherclock.adg.app.data.repository.settings.CalendarSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.MainSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.TimeSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
 import ru.weatherclock.adg.app.domain.model.settings.BaseSettingItem
 import ru.weatherclock.adg.app.domain.model.settings.BooleanSetting
 import ru.weatherclock.adg.app.domain.model.settings.ColorsThemeSetting
@@ -15,12 +20,24 @@ import ru.weatherclock.adg.app.domain.model.settings.SettingsHeader
 import ru.weatherclock.adg.app.domain.model.settings.StringListSetting
 import ru.weatherclock.adg.app.domain.model.settings.StringSetting
 import ru.weatherclock.adg.app.domain.model.settings.orDefault
-import ru.weatherclock.adg.platformSpecific.safeUpdate
+import ru.weatherclock.adg.platformSpecific.ioDispatcher
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
+class SettingsUseCase(
+    private val timeRepo: TimeSettingsRepository,
+    private val calendarRepo: CalendarSettingsRepository,
+    private val prodCalendarRepo: ProdCalendarSettingsRepository,
+    private val weatherRepo: WeatherSettingsRepository,
+    private val mainSettingsRepo: MainSettingsRepository,
+) {
 
-    fun getSettingsFlow(): Flow<List<BaseSettingItem>> = appSettings.updates.mapLatest {
+    private fun safeUpdate(callback: suspend CoroutineScope.() -> Unit) {
+        CoroutineScope(ioDispatcher).launch {
+            this.callback()
+        }
+    }
+
+    fun getSettingsFlow(): Flow<List<BaseSettingItem>> = mainSettingsRepo.config.mapLatest {
         val settings = it.orDefault()
         val timeConfig = settings.timeConfig
         val weatherConfig = settings.weatherConfig
@@ -29,27 +46,21 @@ class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
         mutableListOf<BaseSettingItem>().apply {
             add(SettingsHeader(settingsKey = SettingKey.HeaderTheme))
             add(
-                ColorsThemeSetting(
-                    settingsKey = SettingKey.Theme,
+                ColorsThemeSetting(settingsKey = SettingKey.Theme,
                     currentValue = settings.colorTheme,
                     onChange = {
-                        appSettings.safeUpdate {
-                            copy(colorTheme = it)
+                        safeUpdate {
+                            mainSettingsRepo.setColorTheme(it)
                         }
-                    }
-                )
+                    })
             )
             add(SettingsHeader(settingsKey = SettingKey.HeaderWeatherConfig))
             add(
                 BooleanSetting(settingsKey = SettingKey.WeatherEnabled,
                     currentValue = weatherConfig.weatherEnabled,
                     onChange = {
-                        appSettings.safeUpdate {
-                            copy(
-                                weatherConfig = weatherConfig.copy(
-                                    weatherEnabled = it
-                                )
-                            )
+                        safeUpdate {
+                            weatherRepo.setWeatherEnabled(it)
                         }
                     })
             )
@@ -58,10 +69,8 @@ class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
                     isEnabled = weatherConfig.weatherEnabled,
                     currentValue = weatherConfig.weatherApiKeys,
                     onChange = {
-                        appSettings.safeUpdate {
-                            copy(
-                                weatherConfig = weatherConfig.copy(weatherApiKeys = it)
-                            )
+                        safeUpdate {
+                            weatherRepo.setApiKeys(it)
                         }
                     })
             )
@@ -71,10 +80,8 @@ class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
                     isEnabled = weatherConfig.weatherEnabled,
                     onChange = { s ->
                         if (s.isNotBlank()) {
-                            appSettings.safeUpdate {
-                                copy(
-                                    weatherConfig = weatherConfig.copy(weatherCityKey = s)
-                                )
+                            safeUpdate {
+                                weatherRepo.setCityKey(s)
                             }
                         }
                     })
@@ -85,10 +92,8 @@ class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
                     isEnabled = weatherConfig.weatherEnabled,
                     onChange = { s ->
                         if (s.isNotBlank()) {
-                            appSettings.safeUpdate {
-                                copy(
-                                    weatherConfig = weatherConfig.copy(weatherLanguage = s)
-                                )
+                            safeUpdate {
+                                weatherRepo.setWeatherLanguage(s)
                             }
                         }
                     })
@@ -98,10 +103,8 @@ class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
                 BooleanSetting(settingsKey = SettingKey.DotsFlashEnabled,
                     currentValue = timeConfig.dotsFlashEnabled,
                     onChange = {
-                        appSettings.safeUpdate {
-                            copy(
-                                timeConfig = timeConfig.copy(dotsFlashEnabled = it)
-                            )
+                        safeUpdate {
+                            timeRepo.setDotsFlashEnabled(it)
                         }
                     })
             )
@@ -110,10 +113,8 @@ class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
                     isEnabled = timeConfig.dotsFlashEnabled,
                     currentValue = timeConfig.dotsFlashAnimated,
                     onChange = {
-                        appSettings.safeUpdate {
-                            copy(
-                                timeConfig = timeConfig.copy(dotsFlashAnimated = it)
-                            )
+                        safeUpdate {
+                            timeRepo.setDotsAnimated(it)
                         }
                     })
             )
@@ -121,10 +122,8 @@ class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
                 BooleanSetting(settingsKey = SettingKey.HourlyBeepEnabled,
                     currentValue = timeConfig.hourlyBeepEnabled,
                     onChange = {
-                        appSettings.safeUpdate {
-                            copy(
-                                timeConfig = timeConfig.copy(hourlyBeepEnabled = it)
-                            )
+                        safeUpdate {
+                            timeRepo.setHourlyBeepEnabled(it)
                         }
                     })
             )
@@ -133,13 +132,9 @@ class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
                     settingsKey = SettingKey.HourlyBeepHoursRange,
                     currentValue = timeConfig.hourlyBeepStartHour to timeConfig.hourlyBeepEndHour,
                     onChange = {
-                        appSettings.safeUpdate {
-                            copy(
-                                timeConfig = timeConfig.copy(
-                                    hourlyBeepStartHour = it.first,
-                                    hourlyBeepEndHour = it.second
-                                )
-                            )
+                        safeUpdate {
+                            timeRepo.setHourlyBeepStartHour(it.first)
+                            timeRepo.setHourlyBeepEndHour(it.second)
                         }
                     })
             )
@@ -148,8 +143,8 @@ class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
                 BooleanSetting(settingsKey = SettingKey.TextCalendarEnabled,
                     currentValue = calendarConfig.textCalendarEnabled,
                     onChange = {
-                        appSettings.safeUpdate {
-                            copy(calendarConfig = calendarConfig.copy(textCalendarEnabled = it))
+                        safeUpdate {
+                            calendarRepo.setTextCalendarEnabled(it)
                         }
                     })
             )
@@ -157,8 +152,8 @@ class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
                 BooleanSetting(settingsKey = SettingKey.GridCalendarEnabled,
                     currentValue = calendarConfig.gridCalendarEnabled,
                     onChange = {
-                        appSettings.safeUpdate {
-                            copy(calendarConfig = calendarConfig.copy(gridCalendarEnabled = it))
+                        safeUpdate {
+                            calendarRepo.setGridCalendarEnabled(it)
                         }
                     })
             )
@@ -167,8 +162,8 @@ class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
                 BooleanSetting(settingsKey = SettingKey.ProdCalendarIsRussia,
                     currentValue = prodCalendarConfig.isRussia,
                     onChange = {
-                        appSettings.safeUpdate {
-                            copy(calendarConfig = calendarConfig.copy(prodCalendarConfig = prodCalendarConfig.copy(isRussia = it)))
+                        safeUpdate {
+                            prodCalendarRepo.setIsRussia(it)
                         }
                     })
             )
@@ -177,17 +172,18 @@ class SettingsUseCase(private val appSettings: KStore<AppSettings>) {
                     isEnabled = prodCalendarConfig.isRussia,
                     currentValue = prodCalendarConfig.russiaRegion,
                     onChange = {
-                        appSettings.safeUpdate {
-                            copy(calendarConfig = calendarConfig.copy(prodCalendarConfig = prodCalendarConfig.copy(russiaRegion = it)))
+                        safeUpdate {
+                            prodCalendarRepo.setRussianRegionNumber(it)
                         }
                     })
             )
             add(
                 BooleanSetting(settingsKey = SettingKey.ProdCalendarDayDescriptionEnabled,
-                    currentValue = prodCalendarConfig.isRussia,
+                    currentValue = prodCalendarConfig.dayDescriptionEnabled,
+                    isEnabled = prodCalendarConfig.isRussia,
                     onChange = {
-                        appSettings.safeUpdate {
-                            copy(calendarConfig = calendarConfig.copy(prodCalendarConfig = prodCalendarConfig.copy(dayDescriptionEnabled = it)))
+                        safeUpdate {
+                            prodCalendarRepo.setDayDescriptionEnabled(it)
                         }
                     })
             )

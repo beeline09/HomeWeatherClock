@@ -1,6 +1,6 @@
 package ru.weatherclock.adg.app.domain.usecase
 
-import ru.weatherclock.adg.app.data.repository.ProdCalendarDbRepository
+import ru.weatherclock.adg.app.data.repository.db.prodCalendar.ProdCalendarDbRepository
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.asDbModel
 import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel
