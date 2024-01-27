@@ -104,7 +104,7 @@ internal fun AppTheme(
 ) {
     val isDarkState = remember { mutableStateOf(systemIsDark) }
     val settings by appSettingsKStore.updates.collectAsState(AppSettings())
-    val isDark = when (settings.orDefault().colorTheme) {
+    val isDark = when (settings.orDefault().uiConfig.colorTheme) {
         ColorTheme.Day -> false
         ColorTheme.Night -> isDarkThemeSupported
         ColorTheme.System -> isDarkThemeSupported && systemIsDark

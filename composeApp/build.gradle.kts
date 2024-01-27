@@ -5,12 +5,10 @@ plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.compose)
     alias(libs.plugins.android.application)
-//    alias(libs.plugins.libres)
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.sqlDelight)
     alias(libs.plugins.mokoResources)
-//    kotlin("native.cocoapods")
 }
 
 apply(from = "${rootProject.projectDir}/composeApp/constants.gradle.kts")
@@ -46,10 +44,6 @@ kotlin {
         it.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
-//            export(libs.moko.resources)
-            // Make AppleSettings visible from Swift
-//            export(libs.multiplatform.settings)
-//            export(libs.moko.graphics)
         }
     }
 
@@ -62,7 +56,6 @@ kotlin {
                 implementation(compose.materialIconsExtended)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
-//                api(libs.libres)
                 implementation(libs.kermit)
                 implementation(libs.bundles.voyager.common)
                 implementation(libs.composeImageLoader)

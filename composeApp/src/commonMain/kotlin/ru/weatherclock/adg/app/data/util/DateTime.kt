@@ -1,5 +1,6 @@
 package ru.weatherclock.adg.app.data.util
 
+import kotlin.math.abs
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -20,23 +21,21 @@ fun Long.epochSecondsToLocalDate(): LocalDate {
 }
 
 fun LocalDateTime.atStartOfDay(): LocalDateTime {
-    return LocalDateTime.now().date
-        .atTime(
-            0,
-            0,
-            0,
-            0
-        )
+    return LocalDateTime.now().date.atTime(
+        0,
+        0,
+        0,
+        0
+    )
 }
 
 fun LocalDateTime.atEndOfDay(): LocalDateTime {
-    return LocalDateTime.now().date
-        .atTime(
-            23,
-            59,
-            59,
-            0
-        )
+    return LocalDateTime.now().date.atTime(
+        23,
+        59,
+        59,
+        0
+    )
 }
 
 fun LocalDateTime.atStartOfSecond(): LocalDateTime {
@@ -87,42 +86,36 @@ fun LocalDateTime.timeStr(withDots: Boolean = true) = buildString {
 }
 
 fun LocalDateTime.hourStr(withLeadingZero: Boolean = true) = buildString {
-    append(
-        hour.toString().let {
-            if (withLeadingZero) {
-                it.padStart(
-                    2,
-                    '0'
-                )
-            } else it
-        }
-    )
+    append(hour.toString().let {
+        if (withLeadingZero) {
+            it.padStart(
+                2,
+                '0'
+            )
+        } else it
+    })
 }
 
 fun LocalDateTime.minuteStr(withLeadingZero: Boolean = true) = buildString {
-    append(
-        minute.toString().let {
-            if (withLeadingZero) {
-                it.padStart(
-                    2,
-                    '0'
-                )
-            } else it
-        }
-    )
+    append(minute.toString().let {
+        if (withLeadingZero) {
+            it.padStart(
+                2,
+                '0'
+            )
+        } else it
+    })
 }
 
 fun LocalDateTime.secondStr(withLeadingZero: Boolean = true) = buildString {
-    append(
-        second.toString().let {
-            if (withLeadingZero) {
-                it.padStart(
-                    2,
-                    '0'
-                )
-            } else it
-        }
-    )
+    append(second.toString().let {
+        if (withLeadingZero) {
+            it.padStart(
+                2,
+                '0'
+            )
+        } else it
+    })
 }
 
 fun LocalDateTime.isEqualsBySecond(other: LocalDateTime): Boolean {
@@ -143,10 +136,20 @@ fun LocalDateTime.isEqualsByMinute(other: LocalDateTime): Boolean {
 }
 
 fun LocalDateTime.isEqualsByHour(other: LocalDateTime): Boolean {
+    return isEqualsByHour(
+        other,
+        0
+    )
+}
+
+fun LocalDateTime.isEqualsByHour(
+    other: LocalDateTime,
+    countsOfHour: Int
+): Boolean {
     if (year != other.year) return false
     if (monthNumber != other.monthNumber) return false
     if (dayOfMonth != other.dayOfMonth) return false
-    return hour == other.hour
+    return abs(hour - other.hour) <= countsOfHour
 }
 
 fun LocalDateTime.isEqualsByDayOfMonth(other: LocalDateTime): Boolean {
@@ -162,4 +165,98 @@ fun LocalDateTime.isEqualsByMonthNumber(other: LocalDateTime): Boolean {
 
 fun LocalDateTime.isEqualsByYear(other: LocalDateTime): Boolean {
     return year == other.year
+}
+
+fun LocalDate.isEqualsByDayOfMonth(other: LocalDate): Boolean {
+    if (year != other.year) return false
+    if (monthNumber != other.monthNumber) return false
+    return dayOfMonth == other.dayOfMonth
+}
+
+fun LocalDate.isEqualsByMonthNumber(other: LocalDate): Boolean {
+    if (year != other.year) return false
+    return monthNumber == other.monthNumber
+}
+
+fun LocalDate.isEqualsByYear(other: LocalDate): Boolean {
+    return year == other.year
+}
+
+fun LocalDate.toDbFormat(): Long {
+    return "$year${monthNumber.padStart(2)}${dayOfMonth.padStart(2)}".toLong()
+}
+
+fun Long.fromDbToLocalDate(): LocalDate {
+    val str = toString()
+    if (str.length != 8) error("Parsed length must be 8!!!")
+    val year = str.substring(
+        0,
+        4
+    ).toInt()
+    val month = str.substring(
+        4,
+        6
+    ).toInt()
+    val day = str.substring(
+        6,
+        8
+    ).toInt()
+    return LocalDate(
+        year = year,
+        monthNumber = month,
+        dayOfMonth = day
+    )
+}
+
+fun LocalDateTime.toDbFormat(): Long {
+    val year = year.toString()
+    val month = monthNumber.padStart(2)
+    val day = dayOfMonth.padStart(2)
+    val hour = hour.padStart(2)
+    val minute = minute.padStart(2)
+    val second = second.padStart(2)
+    return "$year$month$day$hour$minute$second".toLong()
+}
+
+fun Long.fromDbToLocalDateTime(): LocalDateTime {
+    val str = toString()
+    if (str.length != 14) error("Parsed length must be 14!!!")
+    val year = str.substring(
+        0,
+        4
+    ).toInt()
+    val month = str.substring(
+        4,
+        6
+    ).toInt()
+    val day = str.substring(
+        6,
+        8
+    ).toInt()
+    val hour = str
+        .substring(
+            8,
+            10
+        )
+        .toInt()
+    val minute = str
+        .substring(
+            10,
+            12
+        )
+        .toInt()
+    val second = str
+        .substring(
+            12,
+            14
+        )
+        .toInt()
+    return LocalDateTime(
+        year = year,
+        monthNumber = month,
+        dayOfMonth = day,
+        hour = hour,
+        minute = minute,
+        second = second,
+    )
 }

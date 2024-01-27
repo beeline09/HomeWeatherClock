@@ -45,7 +45,10 @@ fun ClockAlertDialog(
                     text = positiveButtonText,
                     modifier = Modifier.clickable(
                         enabled = positiveButtonEnabled,
-                        onClick = onPositiveClick
+                        onClick = {
+                            dismissRequest()
+                            onPositiveClick()
+                        }
                     ).padding(all = 8.dp),
                     color = colorsPalette.alertDialogPositiveButton.copy(alpha = if (positiveButtonEnabled) 1f else 0.5f)
                 )

@@ -1,6 +1,8 @@
 package ru.weatherclock.adg.app.domain.model.forecast
 
 import kotlinx.datetime.LocalDate
+import ru.weatherclock.adg.app.data.util.fromDbToLocalDate
+import ru.weatherclock.adg.app.data.util.toDbFormat
 
 data class DailyForecast(
     val date: LocalDate,
@@ -58,9 +60,7 @@ data class DailyForecast(
 
 fun DailyForecast.asDbModel(forecastKey: String): ru.weatherclock.adg.db.DailyForecast {
     return ru.weatherclock.adg.db.DailyForecast(
-        year = date.year,
-        month = date.monthNumber,
-        day_of_month = date.dayOfMonth,
+        date = date.toDbFormat(),
         hours_of_sun = hoursOfSun,
         forecast_key = forecastKey,
         pid = -1L
@@ -79,11 +79,7 @@ fun ru.weatherclock.adg.db.DailyForecast.asDomainModel(
     moon: Moon?,
 ): DailyForecast {
     return DailyForecast(
-        date = LocalDate(
-            year,
-            month,
-            day_of_month
-        ),
+        date = date.fromDbToLocalDate(),
         hoursOfSun = hours_of_sun,
         airAndPollen = airAndPollen,
         temperature = temperature,

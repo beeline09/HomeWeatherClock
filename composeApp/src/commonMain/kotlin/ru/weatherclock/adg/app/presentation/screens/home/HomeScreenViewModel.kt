@@ -18,10 +18,12 @@ import ru.weatherclock.adg.app.data.util.hourStr
 import ru.weatherclock.adg.app.data.util.isEqualsByDayOfMonth
 import ru.weatherclock.adg.app.data.util.isEqualsByHour
 import ru.weatherclock.adg.app.data.util.isEqualsByMinute
+import ru.weatherclock.adg.app.data.util.isEqualsByMonthNumber
 import ru.weatherclock.adg.app.data.util.minuteStr
 import ru.weatherclock.adg.app.domain.model.forecast.Severity
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
+import ru.weatherclock.adg.app.domain.usecase.SettingsUseCase
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.tickerFlow
 import ru.weatherclock.adg.app.presentation.components.viewModel.ViewModelState
@@ -30,6 +32,7 @@ import ru.weatherclock.adg.app.presentation.components.viewModel.ViewModelState
 class HomeScreenViewModel(
     private val forecastUseCase: ForecastUseCase,
     private val calendarUseCase: CalendarUseCase,
+    private val settingsUseCase: SettingsUseCase,
 ): ViewModelState<HomeScreenState, HomeScreenIntent>(initialState = HomeScreenState()) {
 
     private var oneSecondTickJob: Job? = null
@@ -42,32 +45,29 @@ class HomeScreenViewModel(
         }
     }
 
-    //TODO вернуться сюда, чтобы правильно указывать регион!!!
-    private suspend fun refreshCalendarData(region: Int) = safeScope.launch {
-        val yearDays = calendarUseCase.getProdCalendarForThisYear(region)
+    private suspend fun refreshCalendarData() = safeScope.launch {
+        val yearDays = calendarUseCase.getProdCalendar()
         val currentDayTime = LocalDateTime.now()
         val calendarDay = currentDayTime.date
-        val currentMonthDays = yearDays.filter { prodCalendarDay ->
-            prodCalendarDay.date.year == calendarDay.year && prodCalendarDay.date.monthNumber == calendarDay.monthNumber
+        val prodCalendarDaysForCurrentMonth = yearDays.filter { prodCalendarDay ->
+            prodCalendarDay.date.isEqualsByMonthNumber(calendarDay)
         }
-        val currentDayProdCalendar = currentMonthDays.firstOrNull {
-            it.date == calendarDay
+        val currentDayProdCalendar = prodCalendarDaysForCurrentMonth.firstOrNull {
+            it.date.isEqualsByDayOfMonth(calendarDay)
         }
         setState {
             copy(
-                prodCalendarDaysForCurrentMonth = currentMonthDays,
+                prodCalendarDaysForCurrentMonth = prodCalendarDaysForCurrentMonth,
                 currentProdDay = currentDayProdCalendar,
                 dateTime = currentDayTime,
             )
         }
     }
 
-    //TODO вернуться сюда и разобраться с forecastKey!!!
     private suspend fun refreshWeatherData(currentDateTime: LocalDateTime) = safeScope.launch {
         val forecast = forecastUseCase.getForPeriod(
             startDate = currentDateTime.atStartOfDay().date,
-            endDate = currentDateTime.atEndOfDay().date.plus(DatePeriod(days = 5)),
-            forecastKey = "291658"
+            endDate = currentDateTime.atEndOfDay().date.plus(DatePeriod(days = 5))
         )
         setState {
             copy(
@@ -99,41 +99,44 @@ class HomeScreenViewModel(
 
     fun onLaunch() {
         oneSecondTickJob?.cancel()
-        oneSecondTickJob = tickerFlow(period = 1.seconds)
-            .map { LocalDateTime.now() }
-            .onStart {
-                val currentTime = LocalDateTime.now()
-                oneMinuteTime = currentTime
-                refreshCalendarData(1)
-                oneHourTime = currentTime
-                refreshWeatherData(currentTime)
+        oneSecondTickJob = tickerFlow(period = 1.seconds).map { LocalDateTime.now() }.onStart {
+            val currentTime = LocalDateTime.now()
+            oneMinuteTime = currentTime
+            refreshCalendarData()
+            oneHourTime = currentTime
+            refreshWeatherData(currentTime)
+        }.onEach {
+            setState {
+                copy(
+                    dotsShowed = !dotsShowed,
+                    hour = it.hourStr(),
+                    minute = it.minuteStr()
+                )
             }
-            .onEach {
-                setState {
-                    copy(
-                        dotsShowed = !dotsShowed,
-                        hour = it.hourStr(),
-                        minute = it.minuteStr()
-                    )
-                }
-                val s = state.value
-                val condition1 =
-                    s.prodCalendarDaysForCurrentMonth.isEmpty() && !it.isEqualsByMinute(oneMinuteTime)
-                val condition2 =
-                    s.prodCalendarDaysForCurrentMonth.isNotEmpty() && !it.isEqualsByDayOfMonth(oneMinuteTime)
-                if (condition1 || condition2) {
-                    oneMinuteTime = it
-                    refreshCalendarData(1)
-                }
-                if (!it.isEqualsByHour(oneHourTime)) {
+            val s = state.value
+            val condition1 =
+                s.prodCalendarDaysForCurrentMonth.isEmpty() && !it.isEqualsByMinute(oneMinuteTime)
+            val condition2 =
+                s.prodCalendarDaysForCurrentMonth.isNotEmpty() && !it.isEqualsByDayOfMonth(oneMinuteTime)
+            if (condition1 || condition2) {
+                oneMinuteTime = it
+                refreshCalendarData()
+            }
+
+            if (!it.isEqualsByHour(oneHourTime)) {
+                if (settingsUseCase.isHourlyBeepAllowed(currentHour = it.hour)) {
                     setState {
                         copy(hourlyBeepIncrement = hourlyBeepIncrement + 1L)
                     }
-                    oneHourTime = it
-                    refreshWeatherData(it)
+                } else {
+                    setState {
+                        copy(hourlyBeepIncrement = 0)
+                    }
                 }
+                oneHourTime = it
+                refreshWeatherData(it)
             }
-            .launchIn(safeScope)
+        }.launchIn(safeScope)
     }
 
     override fun dispose() {

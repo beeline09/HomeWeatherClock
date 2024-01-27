@@ -2,15 +2,16 @@ package ru.weatherclock.adg.app.data.repository.calendar.implementation
 
 import ru.weatherclock.adg.app.data.dto.ProductionCalendarDto
 import ru.weatherclock.adg.app.data.remote.CalendarKtorService
-import ru.weatherclock.adg.app.data.repository.calendar.CalendarRepository
+import ru.weatherclock.adg.app.data.repository.calendar.CalendarRemoteRepository
 
-class CalendarRepositoryImpl(private val ktorService: CalendarKtorService): CalendarRepository {
+class CalendarRemoteRepositoryImpl(private val ktorService: CalendarKtorService):
+    CalendarRemoteRepository {
 
     override suspend fun getProductionCalendar(
-        period: String,
+        year: Int,
         region: Int
     ): ProductionCalendarDto = ktorService.getProductionCalendar(
-        period,
+        year,
         region
     )
 }

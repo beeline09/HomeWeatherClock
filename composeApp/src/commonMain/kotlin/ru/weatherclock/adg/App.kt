@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import co.touchlab.kermit.Logger
-import dev.icerock.moko.resources.compose.stringResource
 import io.kamel.core.config.KamelConfig
 import io.kamel.image.config.LocalKamelConfig
 import ru.weatherclock.adg.app.domain.model.settings.AppSettings
@@ -81,7 +80,7 @@ internal fun App(
         }
 
         val initialScreen = if (showSettings) {
-            showToast(text = stringResource(MR.strings.on_start_config_weather))
+//            showToast(text = stringResource(MR.strings.on_start_config_weather))
             SettingsTab
         } else {
             HomeTab

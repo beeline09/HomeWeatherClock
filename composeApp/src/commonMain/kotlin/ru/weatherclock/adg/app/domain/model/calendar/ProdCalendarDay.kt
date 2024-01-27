@@ -1,6 +1,8 @@
 package ru.weatherclock.adg.app.domain.model.calendar
 
 import kotlinx.datetime.LocalDate
+import ru.weatherclock.adg.app.data.util.fromDbToLocalDate
+import ru.weatherclock.adg.app.data.util.toDbFormat
 import ru.weatherclock.adg.db.ProdCalendar
 
 data class ProdCalendarDay(
@@ -8,11 +10,11 @@ data class ProdCalendarDay(
     val type: DayType,
     val note: String,
     val weekDay: String = "",
-    val workingHours: Int = 0
+    val workingHours: Int = 0,
+    val region: Int = 0,
 )
 
-sealed class DayType {
-    data object WorkingDay: DayType()
+sealed class DayType { data object WorkingDay: DayType()
     data object Weekend: DayType()
     data class NationalHoliday(val typeText: String): DayType()
     data class RegionalHoliday(val typeText: String): DayType()
@@ -38,28 +40,26 @@ fun DayType.toDbData(): Pair<Int, String> = when (this) {
     DayType.WorkingDay -> 1 to ""
 }
 
-fun ProdCalendarDay.asDbModel(): ProdCalendar {
+fun ProdCalendarDay.asDbModel(region: Int): ProdCalendar {
     val typeData = type.toDbData()
     return ProdCalendar(
-        year = date.year,
-        month = date.monthNumber,
-        day_of_month = date.dayOfMonth,
+        date = date.toDbFormat(),
         type_id = typeData.first,
         type_text = typeData.second,
         note = note,
         week_day = weekDay,
-        working_hours = workingHours.toLong()
+        working_hours = workingHours,
+        region = region
     )
 }
 
 fun ProdCalendar.asDomainModel(): ProdCalendarDay = ProdCalendarDay(
-    date = LocalDate(
-        year = year,
-        monthNumber = month,
-        dayOfMonth = day_of_month
-    ),
-    type = type_id.toInt().toDayType(type_text.orEmpty()),
-    note = note.orEmpty()
+    date = date.fromDbToLocalDate(),
+    type = type_id.toDayType(type_text.orEmpty()),
+    note = note.orEmpty(),
+    region = region,
+    weekDay = week_day.orEmpty(),
+    workingHours = working_hours ?: 0
 )
 
 val DayType.typeText: String?

@@ -9,7 +9,7 @@ import ru.weatherclock.adg.app.domain.model.settings.SettingKey
 fun SettingKey.getName(): String = when (this) {
     SettingKey.WeatherEnabled -> stringResource(MR.strings.setting_title_weather_enabled)
     SettingKey.WeatherApiKeys -> stringResource(MR.strings.setting_title_weather_api_keys)
-    SettingKey.WeatherCityKey -> stringResource(MR.strings.setting_title_weather_city_key)
+    SettingKey.WeatherCityKey1, SettingKey.WeatherCityKey2 -> stringResource(MR.strings.setting_title_weather_city_key)
     SettingKey.WeatherLanguage -> stringResource(MR.strings.setting_title_weather_language)
     SettingKey.TextCalendarEnabled -> stringResource(MR.strings.setting_title_text_calendar_enabled)
     SettingKey.GridCalendarEnabled -> stringResource(MR.strings.setting_title_grid_calendar_enabled)
@@ -26,4 +26,9 @@ fun SettingKey.getName(): String = when (this) {
     SettingKey.HeaderProdCalendarConfig -> stringResource(MR.strings.setting_title_header_prod_calendar_config)
     SettingKey.HeaderTheme -> stringResource(MR.strings.setting_title_header_theme)
     SettingKey.Theme -> stringResource(MR.strings.setting_title_theme)
+    SettingKey.HideElementsByTime -> stringResource(MR.strings.setting_title_hide_elements_by_time)
+    SettingKey.HideElementsByTimeRange -> stringResource(MR.strings.setting_title_hide_elements_by_hours_range)
+    SettingKey.HideWeatherByTime -> stringResource(MR.strings.setting_title_hide_weather_by_time)
+    SettingKey.HideTextCalendarByTime -> stringResource(MR.strings.setting_title_hide_text_calendar_by_time)
+    SettingKey.HideGridCalendarByTime -> stringResource(MR.strings.setting_title_hide_grid_calendar_by_time)
 }

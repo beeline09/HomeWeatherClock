@@ -31,7 +31,6 @@ import ru.weatherclock.adg.app.presentation.components.radiobutton.RadioGroupDia
 import ru.weatherclock.adg.app.presentation.components.util.padStart
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getDescription
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getName
-import ru.weatherclock.adg.showToast
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @Suppress("UnusedReceiverParameter")
@@ -70,47 +69,32 @@ fun LazyItemScope.HoursSettingsItem(item: HoursRangeSetting) {
             var showStartHour by remember { mutableStateOf(false) }
             var showEndHour by remember { mutableStateOf(false) }
             val converter: (Int) -> String = { "${it.padStart(2)}:00" }
-            if (showStartHour) {
-                val hoursStartRange: List<Int> = (0..22).toList()
-                val startBiggerEndError =
-                    stringResource(MR.strings.setting_hours_error_start_bigger_than_end)
-                hoursStartRange.RadioGroupDialog(
-                    title = stringResource(MR.strings.setting_hours_dialog_title_start),
+            val hoursRange: List<Int> = (0..23).toList()
+            if (showStartHour && item.isEnabled) {
+                hoursRange.RadioGroupDialog(title = stringResource(MR.strings.setting_hours_dialog_title_start),
                     converter = converter,
                     dismissRequest = {
                         showStartHour = false
                         it?.let { selectedHour ->
                             val endHour = item.currentValue.second
-                            if (selectedHour >= endHour) showToast(text = startBiggerEndError)
-                            else item.onChange.invoke(it to endHour)
+                            item.onChange.invoke(selectedHour to endHour)
                         }
                     },
-                    isChecked = {
-                        item.currentValue.first == it
-                    },
-                    isEnabled = item.isEnabled
-                )
+                    isChecked = { item.currentValue.first == it },
+                    isEnabled = { item.currentValue.second != it })
             }
-            if (showEndHour) {
-                val hoursEndRange: List<Int> = (0..23).toList()
-                val endSmallerThanStartError =
-                    stringResource(MR.strings.setting_hours_error_end_smaller_than_start)
-                hoursEndRange.RadioGroupDialog(
-                    title = stringResource(MR.strings.setting_hours_dialog_title_end),
+            if (showEndHour && item.isEnabled) {
+                hoursRange.RadioGroupDialog(title = stringResource(MR.strings.setting_hours_dialog_title_end),
                     converter = converter,
                     dismissRequest = {
                         showEndHour = false
                         it?.let { selectedHour ->
                             val startHour = item.currentValue.first
-                            if (selectedHour <= startHour) showToast(text = endSmallerThanStartError)
-                            else item.onChange.invoke(startHour to selectedHour)
+                            item.onChange.invoke(startHour to selectedHour)
                         }
                     },
-                    isChecked = {
-                        item.currentValue.second == it
-                    },
-                    isEnabled = item.isEnabled
-                )
+                    isChecked = { item.currentValue.second == it },
+                    isEnabled = { item.currentValue.first != it })
             }
             HourButton(
                 item = item,

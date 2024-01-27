@@ -2,6 +2,7 @@ package ru.weatherclock.adg.app.data.repository.db.forecast.implementation
 
 import kotlinx.datetime.LocalDate
 import ru.weatherclock.adg.app.data.repository.db.forecast.ForecastDbRepository
+import ru.weatherclock.adg.app.data.util.toDbFormat
 import ru.weatherclock.adg.app.domain.model.forecast.DetailType
 import ru.weatherclock.adg.db.AirAndPollen
 import ru.weatherclock.adg.db.DailyForecast
@@ -30,12 +31,8 @@ class ForecastDbRepositoryImpl(private val database: Database): ForecastDbReposi
             database.forecastHeadlineQueries.insert(
                 pid = if (headline.pid >= 0L) headline.pid else null,
                 forecast_key = headline.forecast_key,
-                start_year = headline.start_year,
-                start_month = headline.start_month,
-                start_day_of_month = headline.start_day_of_month,
-                end_year = headline.end_year,
-                end_month = headline.end_month,
-                end_day_of_month = headline.end_day_of_month,
+                start_date = headline.start_date,
+                end_date = headline.end_date,
                 category = headline.category,
                 severity = headline.severity,
                 text = headline.text
@@ -58,9 +55,7 @@ class ForecastDbRepositoryImpl(private val database: Database): ForecastDbReposi
     private fun DailyForecast.insertForecast(): Long {
         database.dayliForecastQueries.insert(
             pid = pid.takeIf { it >= 0L },
-            year = year,
-            month = month,
-            day_of_month = day_of_month,
+            date = date,
             hours_of_sun = hours_of_sun,
             forecast_key = forecast_key
         )
@@ -359,18 +354,8 @@ class ForecastDbRepositoryImpl(private val database: Database): ForecastDbReposi
                 pid = moon.pid.takeIf { it >= 0L },
                 forecast_pid = forecastPid,
                 age = moon.age,
-                set_day_of_month = moon.set_day_of_month,
-                set_second = moon.set_second,
-                set_minute = moon.set_minute,
-                set_hour = moon.set_hour,
-                set_month = moon.set_month,
-                set_year = moon.set_year,
-                rise_second = moon.rise_second,
-                rise_minute = moon.rise_minute,
-                rise_hour = moon.rise_hour,
-                rise_day_of_month = moon.rise_day_of_month,
-                rise_month = moon.rise_month,
-                rise_year = moon.rise_year,
+                set_date_time = moon.set_date_time,
+                rise_date_time = moon.rise_date_time,
                 phase = moon.phase
             )
             database.moonQueries.lastPid().executeAsOne().MAX ?: 0L
@@ -385,18 +370,8 @@ class ForecastDbRepositoryImpl(private val database: Database): ForecastDbReposi
             database.sunQueries.insert(
                 pid = sun.pid.takeIf { it >= 0L },
                 forecast_pid = forecastPid,
-                set_day_of_month = sun.set_day_of_month,
-                set_second = sun.set_second,
-                set_minute = sun.set_minute,
-                set_hour = sun.set_hour,
-                set_month = sun.set_month,
-                set_year = sun.set_year,
-                rise_second = sun.rise_second,
-                rise_minute = sun.rise_minute,
-                rise_hour = sun.rise_hour,
-                rise_day_of_month = sun.rise_day_of_month,
-                rise_month = sun.rise_month,
-                rise_year = sun.rise_year,
+                set_date_time = sun.set_date_time,
+                rise_date_time = sun.rise_date_time
             )
             database.sunQueries.lastPid().executeAsOne().MAX ?: 0L
         }
@@ -409,12 +384,8 @@ class ForecastDbRepositoryImpl(private val database: Database): ForecastDbReposi
     ): ForecastHeadline? {
         return database.transactionWithResult {
             database.forecastHeadlineQueries.selectByDateRange(
-                start_year = startDate.year,
-                start_month = startDate.monthNumber,
-                start_day_of_month = startDate.dayOfMonth,
-                end_year = endDate.year,
-                end_month = endDate.monthNumber,
-                end_day_of_month = endDate.dayOfMonth,
+                start_date = startDate.toDbFormat(),
+                end_date = endDate.toDbFormat(),
                 forecast_key = forecastKey
             ).executeAsOneOrNull()
         }
@@ -426,12 +397,8 @@ class ForecastDbRepositoryImpl(private val database: Database): ForecastDbReposi
         endDate: LocalDate
     ): List<DailyForecast> = database.transactionWithResult {
         database.dayliForecastQueries.selectByDateRange(
-            year = startDate.year,
-            month = startDate.monthNumber,
-            day_of_month = startDate.dayOfMonth,
-            year_ = endDate.year,
-            month_ = endDate.monthNumber,
-            day_of_month_ = endDate.dayOfMonth,
+            date = startDate.toDbFormat(),
+            date_ = endDate.toDbFormat(),
             forecast_key = forecastKey
         ).executeAsList()
     }
@@ -511,29 +478,24 @@ class ForecastDbRepositoryImpl(private val database: Database): ForecastDbReposi
                 .executeAsOneOrNull()
         }
 
-    override suspend fun getSnow(byDetailPid: Long): Snow? =
-        database.transactionWithResult {
-            database.snowQueries.getByDetailPid(detail_pid = byDetailPid).executeAsOneOrNull()
-        }
+    override suspend fun getSnow(byDetailPid: Long): Snow? = database.transactionWithResult {
+        database.snowQueries.getByDetailPid(detail_pid = byDetailPid).executeAsOneOrNull()
+    }
 
-    override suspend fun getRain(byDetailPid: Long): Rain? =
-        database.transactionWithResult {
-            database.rainQueries.getByDetailPid(detail_pid = byDetailPid).executeAsOneOrNull()
-        }
+    override suspend fun getRain(byDetailPid: Long): Rain? = database.transactionWithResult {
+        database.rainQueries.getByDetailPid(detail_pid = byDetailPid).executeAsOneOrNull()
+    }
 
-    override suspend fun getIce(byDetailPid: Long): Ice? =
-        database.transactionWithResult {
-            database.iceQueries.getByDetailPid(detail_pid = byDetailPid).executeAsOneOrNull()
-        }
+    override suspend fun getIce(byDetailPid: Long): Ice? = database.transactionWithResult {
+        database.iceQueries.getByDetailPid(detail_pid = byDetailPid).executeAsOneOrNull()
+    }
 
-    override suspend fun getMoon(byForecastPid: Long): Moon? =
-        database.transactionWithResult {
-            database.moonQueries.getByForecastPid(forecast_pid = byForecastPid).executeAsOneOrNull()
-        }
+    override suspend fun getMoon(byForecastPid: Long): Moon? = database.transactionWithResult {
+        database.moonQueries.getByForecastPid(forecast_pid = byForecastPid).executeAsOneOrNull()
+    }
 
-    override suspend fun getSun(byForecastPid: Long): Sun? =
-        database.transactionWithResult {
-            database.sunQueries.getByForecastPid(forecast_pid = byForecastPid).executeAsOneOrNull()
-        }
+    override suspend fun getSun(byForecastPid: Long): Sun? = database.transactionWithResult {
+        database.sunQueries.getByForecastPid(forecast_pid = byForecastPid).executeAsOneOrNull()
+    }
 
 }

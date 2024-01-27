@@ -42,7 +42,9 @@ fun LazyItemScope.StringSettingsItem(item: StringSetting) {
     if (showEditDialog) {
         var text by remember { mutableStateOf(item.currentValue) }
         ClockAlertDialog(title = title,
-            onPositiveClick = {},
+            onPositiveClick = {
+                item.onChange.invoke(text)
+            },
             positiveButtonEnabled = text.isNotBlank(),
             dismissRequest = {
                 showEditDialog = false

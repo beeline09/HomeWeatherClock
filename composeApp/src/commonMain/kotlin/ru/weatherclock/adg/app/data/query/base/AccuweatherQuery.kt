@@ -19,12 +19,7 @@ abstract class AccuweatherQuery(
         append(language)
         if (query.isNotBlank()) {
             append("&")
-            append(
-                query.replaceFirst(
-                    "&",
-                    ""
-                )
-            )
+            append(query)
         }
     }
 
