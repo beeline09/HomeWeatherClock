@@ -5,7 +5,6 @@ import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import org.koin.core.module.Module
 import ru.weatherclock.adg.db.AirAndPollen
-import ru.weatherclock.adg.db.DailyForecast
 import ru.weatherclock.adg.db.Database
 import ru.weatherclock.adg.db.DegreeDaySummary
 import ru.weatherclock.adg.db.Evapotranspiration
@@ -19,7 +18,6 @@ import ru.weatherclock.adg.db.RealFeelTemperature
 import ru.weatherclock.adg.db.RealFeelTemperatureShade
 import ru.weatherclock.adg.db.Snow
 import ru.weatherclock.adg.db.SolarIrradiance
-import ru.weatherclock.adg.db.Sun
 import ru.weatherclock.adg.db.Temperature
 import ru.weatherclock.adg.db.TotalLiquid
 import ru.weatherclock.adg.db.Wind
@@ -37,26 +35,14 @@ fun createDatabase(): Database {
     return Database(
         driver = createDriver(),
         ProdCalendarAdapter = ProdCalendar.Adapter(
-            day_of_monthAdapter = intAdapter,
-            monthAdapter = intAdapter,
-            yearAdapter = intAdapter,
-            type_idAdapter = intAdapter
+            type_idAdapter = intAdapter,
+            regionAdapter = intAdapter,
+            working_hoursAdapter = intAdapter
         ),
         ForecastHeadlineAdapter = ForecastHeadline.Adapter(
             intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter
         ),
         AirAndPollenAdapter = AirAndPollen.Adapter(
-            intAdapter,
-            intAdapter
-        ),
-        DailyForecastAdapter = DailyForecast.Adapter(
-            intAdapter,
             intAdapter,
             intAdapter
         ),
@@ -90,35 +76,7 @@ fun createDatabase(): Database {
             intAdapter,
             intAdapter
         ),
-        MoonAdapter = Moon.Adapter(
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter
-        ),
-        SunAdapter = Sun.Adapter(
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-            intAdapter,
-        ),
+        MoonAdapter = Moon.Adapter(intAdapter),
         WindAdapter = Wind.Adapter(intAdapter),
         WindGustAdapter = WindGust.Adapter(intAdapter),
         TotalLiquidAdapter = TotalLiquid.Adapter(intAdapter)

@@ -8,7 +8,8 @@ import ru.weatherclock.adg.app.domain.model.settings.SettingKey
 @Composable
 fun SettingKey.getDescription(): String = when (this) {
     SettingKey.WeatherApiKeys -> stringResource(MR.strings.setting_description_weather_api_keys)
-    SettingKey.WeatherCityKey -> stringResource(MR.strings.setting_description_weather_city_key)
+    SettingKey.WeatherCityKey1 -> stringResource(MR.strings.setting_description_weather_city_key_1)
+    SettingKey.WeatherCityKey2 -> stringResource(MR.strings.setting_description_weather_city_key_2)
     SettingKey.WeatherLanguage -> stringResource(MR.strings.setting_description_weather_language)
     SettingKey.TextCalendarEnabled -> stringResource(MR.strings.setting_description_text_calendar_enabled)
     SettingKey.GridCalendarEnabled -> stringResource(MR.strings.setting_description_grid_calendar_enabled)
@@ -18,5 +19,6 @@ fun SettingKey.getDescription(): String = when (this) {
     SettingKey.DotsFlashAnimated -> stringResource(MR.strings.setting_description_dots_flash_animated)
     SettingKey.HourlyBeepEnabled -> stringResource(MR.strings.setting_description_hourly_beep_enabled)
     SettingKey.HourlyBeepHoursRange -> stringResource(MR.strings.setting_description_hourly_beep_hours_range)
+    SettingKey.HideElementsByTime -> stringResource(MR.strings.setting_description_hide_elements_by_time)
     else -> ""
 }

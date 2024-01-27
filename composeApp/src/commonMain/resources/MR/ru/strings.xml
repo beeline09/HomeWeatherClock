@@ -21,9 +21,32 @@
     <string name="setting_title_weather_enabled">Отображать погоду</string>
     <string name="setting_title_weather_api_keys">API ключи погоды</string>
     <string name="setting_title_weather_city_key">Код населенного пункта</string>
-    <string name="setting_title_weather_language">Язык прогноза погоды</string>
+    <string name="setting_title_weather_language">Язык прогноза погоды и поисковых запросов</string>
     <string name="setting_title_text_calendar_enabled">Отображать текстовый календарь</string>
     <string name="setting_title_grid_calendar_enabled">Отображать табличный календарь</string>
+
+
+    <string name="setting_title_hide_elements_by_time">Скрывать элементы по времени</string>
+    <string
+        name="setting_description_hide_elements_by_time">Скрытие некоторых элементов так же помогает бороться с проблемой выгорания дисплея, когда статичные элементы долго находятся в одном месте. Отключение некоторых элементов когда они вам не нужны, например, когда вы спите, позитивно повлияет на срок службы дисплея.
+    </string>
+    <string
+        name="setting_title_hide_elements_by_hours_range">Интервал часов между которыми скрывть элементы
+    </string>
+    <string name="setting_title_hide_weather_by_time">Скрывать погоду по времени</string>
+    <string
+        name="setting_title_hide_text_calendar_by_time">Скрывать текстовый календарь по времени
+    </string>
+    <string
+        name="setting_title_hide_grid_calendar_by_time">Скрывать табличный календарь по времени
+    </string>
+
+
+    <string name="weather_api_language_ru">Русский</string>
+    <string name="weather_api_language_en">Английский</string>
+    <string name="weather_api_language_system">Системный</string>
+
+
     <string
         name="setting_title_prod_calendar_is_russia">Производственный календарь (только для России!)
     </string>
@@ -48,10 +71,13 @@
     <string
         name="setting_description_weather_api_keys">Приложение использует сервера accuweather для отображения погоды. Чтобы иметь доступ к API, необходимо получить ключ на приложение на сайте https://developer.accuweather.com/user/me/apps\n\nВы можете ввести несколько API-Key для избежания блокировок со стороны API, т.к. максимальное число запросов в сутки - 50.
     </string>
-    <string name="setting_description_weather_city_key">Нажмите, чтобы выбрать населенный пункт
+    <string name="setting_description_weather_city_key_1">Нажмите, чтобы выбрать населенный пункт
     </string>
     <string
-        name="setting_description_weather_language">По умолчанию - язык локали системы. Необходимо строго указывать в определенном формате. Например, для англоговорящего человека в США это будет en-us, а для русского - ru-ru
+        name="setting_description_weather_city_key_2">Населенный пункт можно выбрать только, если есть хотя бы один ключ API
+    </string>
+    <string
+        name="setting_description_weather_language">По умолчанию - язык локали системы. Так же влияет на строку поиска населенного пункта
     </string>
     <string
         name="setting_description_text_calendar_enabled">Сверху вниз первым будет отображен день большими цифрами, затем месяц, затем год
@@ -97,6 +123,8 @@
 
     <string name="setting_prod_calendar_region_all_russia">Вся Россия</string>
     <string name="setting_prod_calendar_dialog_select_region_title">Выберите регион РФ</string>
+
+    <string name="dialog_api_keys_add_button">Добавить</string>
 
     <string name="january_f">Января</string>
     <string name="february_f">Февраля</string>

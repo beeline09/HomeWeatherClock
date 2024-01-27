@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.mapLatest
 import io.github.xxfast.kstore.KStore
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
 import ru.weatherclock.adg.app.domain.model.settings.AppSettings
+import ru.weatherclock.adg.app.domain.model.settings.WeatherApiLanguage
 import ru.weatherclock.adg.app.domain.model.settings.WeatherConfig
 import ru.weatherclock.adg.app.domain.model.settings.orDefault
 
@@ -49,12 +50,12 @@ class WeatherSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>
         saveConfig { copy(weatherCityKey = cityKey) }
     }
 
-    override suspend fun getWeatherLanguage(): String {
-        return getConfig().weatherLanguage
+    override suspend fun getWeatherLanguage(): WeatherApiLanguage {
+        return getConfig().weatherApiLanguage
     }
 
-    override suspend fun setWeatherLanguage(language: String) {
-        saveConfig { copy(weatherLanguage = language) }
+    override suspend fun setWeatherLanguage(language: WeatherApiLanguage) {
+        saveConfig { copy(weatherApiLanguage = language) }
     }
 
 }

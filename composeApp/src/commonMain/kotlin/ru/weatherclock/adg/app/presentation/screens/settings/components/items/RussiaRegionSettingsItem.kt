@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,48 +22,62 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.icerock.moko.resources.compose.stringResource
 import ru.weatherclock.adg.MR
-import ru.weatherclock.adg.app.domain.model.settings.StringSetting
-import ru.weatherclock.adg.app.presentation.components.dialog.ClockAlertDialog
+import ru.weatherclock.adg.app.domain.model.russiaRegions
+import ru.weatherclock.adg.app.domain.model.settings.RussiaRegionSetting
+import ru.weatherclock.adg.app.domain.model.toRegion
+import ru.weatherclock.adg.app.presentation.components.radiobutton.RadioGroupDialog
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getDescription
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getName
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @Suppress("UnusedReceiverParameter")
 @Composable
-fun LazyItemScope.StringSettingsItem(item: StringSetting) {
-    var showEditDialog by remember { mutableStateOf(false) }
+fun LazyItemScope.RussiaRegionSettingsItem(item: RussiaRegionSetting) {
+    var showRegionsDialog by remember { mutableStateOf(false) }
     val description = item.settingsKey.getDescription()
     val alpha = if (item.isEnabled) 1f else ContentAlpha.disabled
     val colorsPalette = LocalCustomColorsPalette.current
+    val allRegionsStr = stringResource(MR.strings.setting_prod_calendar_region_all_russia)
     val title = item.settingsKey.getName()
-
-    if (showEditDialog) {
-        var text by remember { mutableStateOf(item.currentValue) }
-        ClockAlertDialog(title = title,
-            onPositiveClick = {
-                item.onChange.invoke(text)
-            },
-            positiveButtonEnabled = text.isNotBlank(),
-            dismissRequest = {
-                showEditDialog = false
-            }) {
-            OutlinedTextField(
-                value = text,
-                enabled = item.isEnabled,
-                onValueChange = { text = it },
-                label = {
-                    Text(
-                        text = stringResource(MR.strings.dialog_edittext_hint_enter_new_value),
-                        color = colorsPalette.toolbarColor
-                    )
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    textColor = colorsPalette.clockText,
-                    disabledTextColor = colorsPalette.clockText.copy(alpha = 0.5f),
-
-                    )
-            )
+    val titleStr = buildString {
+        append(title)
+        append(": ")
+        if (item.currentValue <= 0) {
+            append(allRegionsStr)
+        } else {
+            val regionMap = russiaRegions.entries.firstOrNull {
+                it.value.contains(item.currentValue.toRegion())
+            }
+            append(regionMap?.key.orEmpty())
         }
+    }
+
+    if (showRegionsDialog && item.isEnabled) {
+        russiaRegions.keys
+            .toList()
+            .RadioGroupDialog(title = stringResource(MR.strings.setting_prod_calendar_dialog_select_region_title),
+                converter = {
+                    val numbers = russiaRegions[it]?.sorted()?.joinToString(separator = ", ")
+                    if (numbers?.toIntOrNull() == 0) allRegionsStr
+                    else buildString {
+                        append(it)
+                        if (!numbers.isNullOrBlank()) {
+                            append(" (")
+                            append(numbers)
+                            append(")")
+                        }
+                    }
+                },
+                dismissRequest = {
+                    showRegionsDialog = false
+                    val selectedRegionNumber =
+                        russiaRegions[it]?.sorted()?.firstOrNull()?.toIntOrNull() ?: 0
+                    item.onChange.invoke(selectedRegionNumber)
+                },
+                isEnabled = { true },
+                isChecked = {
+                    russiaRegions[it]?.contains(item.currentValue.toRegion()) == true
+                })
     }
 
     Column(
@@ -74,10 +86,10 @@ fun LazyItemScope.StringSettingsItem(item: StringSetting) {
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.CenterVertically)
             .clickable(enabled = item.isEnabled) {
-                showEditDialog = true
+                showRegionsDialog = true
             },
     ) {
-        Text(text = title,
+        Text(text = titleStr,
             color = colorsPalette.clockText,
             fontSize = 18.sp,
             style = MaterialTheme.typography.bodySmall,

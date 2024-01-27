@@ -21,11 +21,27 @@
     <string name="setting_title_weather_enabled">Show weather</string>
     <string name="setting_title_weather_api_keys">Accuweather API-Key</string>
     <string name="setting_title_weather_city_key">Location code</string>
-    <string name="setting_title_weather_language">Weather language</string>
+    <string name="setting_title_weather_language">Weather and search city queries language</string>
     <string name="setting_title_text_calendar_enabled">Show text calendar</string>
     <string name="setting_title_grid_calendar_enabled">Show table calendar</string>
+
+
+    <string name="setting_title_hide_elements_by_time">Hide UI elements by time</string>
     <string
-        name="setting_title_prod_calendar_is_russia">Show production calendar (only for Russia!)
+        name="setting_description_hide_elements_by_time">Hiding some elements also helps with problem of display burn-in, when static elements remain in one place for a long time. Turning off certain elements when you don't need them, such as when you're sleeping, will have a positive effect on the lifespan of your display.
+    </string>
+    <string name="setting_title_hide_elements_by_hours_range">Time range for hide UI elements
+    </string>
+    <string name="setting_title_hide_weather_by_time">Hide weather by time</string>
+    <string name="setting_title_hide_text_calendar_by_time">Hide text calendar by time</string>
+    <string name="setting_title_hide_grid_calendar_by_time">Hide grid calendar by time</string>
+
+    <string name="weather_api_language_ru">Russian</string>
+    <string name="weather_api_language_en">English</string>
+    <string name="weather_api_language_system">System default</string>
+
+
+    <string name="setting_title_prod_calendar_is_russia">Show production calendar (only for Russia!)
     </string>
     <string name="setting_title_prod_calendar_russia_region">Region of the Russian Federation
     </string>
@@ -47,9 +63,12 @@
     <string
         name="setting_description_weather_api_keys">The application uses the accuweather server to display the weather. To have access to the API, you need to obtain a key for the application on the website https://developer.accuweather.com/user/me/apps \n\nYou can enter several API Keys to avoid blocking from the API, because the maximum number of requests per day is 50.
     </string>
-    <string name="setting_description_weather_city_key">Click to select a location</string>
+    <string name="setting_description_weather_city_key_1">Click to select a location</string>
     <string
-        name="setting_description_weather_language">The default is the system locale. It must be strictly specified in a specific format. For example, for an English-speaking person in the USA it will be en-us, and for a Russian speaker it will be ru-ru
+        name="setting_description_weather_city_key_2">A locality can only be selected if there is at least one API key
+    </string>
+    <string
+        name="setting_description_weather_language">The default is the system locale. Also affects the search string of the locality
     </string>
     <string
         name="setting_description_text_calendar_enabled">From top to bottom, the day will be displayed first in large numbers, then the month, then the year
@@ -97,6 +116,8 @@
 
     <string name="setting_prod_calendar_region_all_russia">All Russia</string>
     <string name="setting_prod_calendar_dialog_select_region_title">Select region of Russia</string>
+
+    <string name="dialog_api_keys_add_button">Add new</string>
 
     <string name="january_f">january</string>
     <string name="february_f">february</string>

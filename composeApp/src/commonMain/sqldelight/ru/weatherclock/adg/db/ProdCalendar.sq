@@ -1,25 +1,26 @@
 import kotlin.Int;
 
 CREATE TABLE IF NOT EXISTS ProdCalendar (
-	year	        Integer AS Int NOT NULL DEFAULT 2000,
-    month	        Integer AS Int NOT NULL DEFAULT 1,
-    day_of_month    Integer AS Int NOT NULL DEFAULT 1,
+	date	        Integer NOT NULL,
 	type_id	        INTEGER AS Int NOT NULL DEFAULT 1,
 	type_text	    TEXT,
 	note	        TEXT,
 	week_day	    TEXT,
-	working_hours	INTEGER DEFAULT 0
+	working_hours	INTEGER AS Int DEFAULT 0,
+	region          INTEGER AS Int NOT NULL DEFAULT 0
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS prod_calendar_date ON ProdCalendar (
-	year	        ASC,
-	month	        ASC,
-	day_of_month	ASC
+	date	        ASC,
+	region          ASC
 );
 
 selectAll:
 SELECT *
 FROM ProdCalendar;
+
+getByYearAndRegion:
+SELECT * FROM ProdCalendar WHERE SUBSTR(date, 0, 5) = ? AND region = ?;
 
 insert:
 REPLACE INTO ProdCalendar

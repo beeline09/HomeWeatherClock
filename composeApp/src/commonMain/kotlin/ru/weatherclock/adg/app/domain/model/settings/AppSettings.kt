@@ -8,7 +8,7 @@ data class AppSettings(
     val weatherConfig: WeatherConfig = WeatherConfig(),
     val calendarConfig: CalendarConfig = CalendarConfig(),
     val timeConfig: TimeConfig = TimeConfig(),
-    val colorTheme: ColorTheme = ColorTheme.System
+    val uiConfig: UiConfig = UiConfig()
 )
 
 @Serializable
@@ -23,9 +23,12 @@ data class TimeConfig(
 @Serializable
 data class WeatherConfig(
     val weatherEnabled: Boolean = true,
-    val weatherApiKeys: List<String> = emptyList(),
-    val weatherCityKey: String = "",
-    val weatherLanguage: String = systemLocale,
+    val weatherApiKeys: List<String> = listOf(
+        "GSWo67YCWgJ6raZqsluqkuhxsl2zJAOK",
+        "JZz9kz4ElQp8VVKLiF3KVSpDtyllS7CC"
+    ),
+    val weatherCityKey: String = "291658",
+    val weatherApiLanguage: WeatherApiLanguage = WeatherApiLanguage.System,
 )
 
 @Serializable
@@ -50,6 +53,25 @@ enum class ColorTheme {
     Night,
     System
 }
+
+@Serializable
+enum class WeatherApiLanguage(val code: String) {
+
+    Russian("ru-ru"),
+    English("en-us"),
+    System(systemLocale)
+}
+
+@Serializable
+data class UiConfig(
+    val colorTheme: ColorTheme = ColorTheme.System,
+    val isHideElementsByTimeRange: Boolean = false,
+    val hideStartHour: Int = 23,
+    val hideEndHour: Int = 8,
+    val isWeatherHidden: Boolean = false,
+    val isTextCalendarHidden: Boolean = true,
+    val isGridCalendarHidden: Boolean = true,
+)
 
 fun AppSettings?.orDefault(): AppSettings {
     if (this == null) return AppSettings()

@@ -5,8 +5,17 @@ import ru.weatherclock.adg.db.ProdCalendar
 
 interface ProdCalendarDbRepository {
 
-    suspend fun getProductionDays(): List<ProdCalendar>
-    fun getProductionDaysFlow(): Flow<List<ProdCalendar>>
+    suspend fun getAllProductionDays(): List<ProdCalendar>
+    fun getAllProductionDaysFlow(): Flow<List<ProdCalendar>>
     suspend fun insert(day: ProdCalendar)
     suspend fun insert(days: List<ProdCalendar>)
+    suspend fun getByRegionAndYear(
+        region: Int,
+        year: Int
+    ): List<ProdCalendar>
+
+    fun getByRegionAndYearFlow(
+        region: Int,
+        year: Int
+    ): Flow<List<ProdCalendar>>
 }

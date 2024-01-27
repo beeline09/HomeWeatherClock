@@ -109,8 +109,10 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     }
     val playerState = rememberPlayerState()
     LaunchedEffect(state.hourlyBeepIncrement) {
-        val player = AudioPlayer(playerState)
-        player.play(MR.files.casiohour.fileName().rawResource())
+        if (state.hourlyBeepIncrement > 0) {
+            val player = AudioPlayer(playerState)
+            player.play(MR.files.casiohour.fileName().rawResource())
+        }
     }
 
     LaunchedEffect(Unit) {

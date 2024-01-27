@@ -1,9 +1,15 @@
 package ru.weatherclock.adg.app.domain.model.settings
 
 enum class SettingKey {
+    HideElementsByTime,
+    HideElementsByTimeRange,
+    HideWeatherByTime,
+    HideTextCalendarByTime,
+    HideGridCalendarByTime,
     WeatherEnabled,
     WeatherApiKeys,
-    WeatherCityKey,
+    WeatherCityKey1,
+    WeatherCityKey2,
     WeatherLanguage,
     TextCalendarEnabled,
     GridCalendarEnabled,

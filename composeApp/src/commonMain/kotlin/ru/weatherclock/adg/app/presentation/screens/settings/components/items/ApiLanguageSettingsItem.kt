@@ -22,10 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.icerock.moko.resources.compose.stringResource
 import ru.weatherclock.adg.MR
-import ru.weatherclock.adg.app.domain.model.russiaRegions
-import ru.weatherclock.adg.app.domain.model.settings.IntSetting
-import ru.weatherclock.adg.app.domain.model.settings.SettingKey
-import ru.weatherclock.adg.app.domain.model.toRegion
+import ru.weatherclock.adg.app.domain.model.settings.WeatherApiLanguage
+import ru.weatherclock.adg.app.domain.model.settings.WeatherApiLanguageSetting
 import ru.weatherclock.adg.app.presentation.components.radiobutton.RadioGroupDialog
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getDescription
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getName
@@ -33,58 +31,35 @@ import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @Suppress("UnusedReceiverParameter")
 @Composable
-fun LazyItemScope.IntSettingsItem(item: IntSetting) {
-    var showRegionsDialog by remember { mutableStateOf(false) }
+fun LazyItemScope.ApiLanguageSettingsItem(item: WeatherApiLanguageSetting) {
+    var showDialog by remember { mutableStateOf(false) }
     val description = item.settingsKey.getDescription()
     val alpha = if (item.isEnabled) 1f else ContentAlpha.disabled
     val colorsPalette = LocalCustomColorsPalette.current
-    val allRegionsStr = stringResource(MR.strings.setting_prod_calendar_region_all_russia)
-    val title = item.settingsKey.getName()
-    val titleStr = buildString {
-        append(title)
-        when (item.settingsKey) {
-            SettingKey.ProdCalendarRussiaRegion -> {
-                append(": ")
-                if (item.currentValue <= 0) {
-                    append(allRegionsStr)
-                } else {
-                    val regionMap = russiaRegions.entries.firstOrNull {
-                        it.value.contains(item.currentValue.toRegion())
-                    }
-                    append(regionMap?.key.orEmpty())
-                }
-            }
 
-            else -> error("Пока не реализовано...")
-        }
+    val items = WeatherApiLanguage.entries.map {
+        it to it.getName(withCode = it == WeatherApiLanguage.System)
     }
 
-    if (showRegionsDialog) {
-        russiaRegions.keys
-            .toList()
-            .RadioGroupDialog(title = stringResource(MR.strings.setting_prod_calendar_dialog_select_region_title),
-                converter = {
-                    val numbers = russiaRegions[it]?.sorted()?.joinToString(separator = ", ")
-                    if (numbers?.toIntOrNull() == 0) allRegionsStr
-                    else buildString {
-                        append(it)
-                        if (!numbers.isNullOrBlank()) {
-                            append(" (")
-                            append(numbers)
-                            append(")")
-                        }
-                    }
-                },
-                dismissRequest = {
-                    showRegionsDialog = false
-                    val selectedRegionNumber =
-                        russiaRegions[it]?.sorted()?.firstOrNull()?.toIntOrNull() ?: 0
-                    item.onChange.invoke(selectedRegionNumber)
-                },
-                isEnabled = item.isEnabled,
-                isChecked = {
-                    russiaRegions[it]?.contains(item.currentValue.toRegion()) == true
-                })
+    val titleStr = buildString {
+        append(item.settingsKey.getName())
+        append(": ")
+        append(item.currentValue.getName(withCode = false))
+    }
+
+    if (showDialog && item.isEnabled) {
+        items.RadioGroupDialog(title = item.settingsKey.getName(),
+            converter = { it.second },
+            dismissRequest = {
+                showDialog = false
+                it?.let { pair ->
+                    item.onChange.invoke(pair.first)
+                }
+            },
+            isEnabled = { true },
+            isChecked = {
+                item.currentValue == it.first
+            })
     }
 
     Column(
@@ -93,13 +68,7 @@ fun LazyItemScope.IntSettingsItem(item: IntSetting) {
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.CenterVertically)
             .clickable(enabled = item.isEnabled) {
-                when (item.settingsKey) {
-                    SettingKey.ProdCalendarRussiaRegion -> {
-                        showRegionsDialog = true
-                    }
-
-                    else -> error("Пока не реализовано...")
-                }
+                showDialog = true
             },
     ) {
         Text(text = titleStr,
@@ -136,5 +105,19 @@ fun LazyItemScope.IntSettingsItem(item: IntSetting) {
             )
         }
 
+    }
+}
+
+@Composable
+private fun WeatherApiLanguage.getName(withCode: Boolean): String = buildString {
+    val name = when (this@getName) {
+        WeatherApiLanguage.Russian -> stringResource(MR.strings.weather_api_language_ru)
+        WeatherApiLanguage.English -> stringResource(MR.strings.weather_api_language_en)
+        WeatherApiLanguage.System -> stringResource(MR.strings.weather_api_language_system)
+    }
+    append(name)
+    if (withCode) {
+        append(": ")
+        append(code)
     }
 }

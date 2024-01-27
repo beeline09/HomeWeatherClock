@@ -1,10 +1,12 @@
 package ru.weatherclock.adg.app.domain.usecase
 
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import ru.weatherclock.adg.app.data.dto.asDomainModel
 import ru.weatherclock.adg.app.data.repository.db.forecast.ForecastDbRepository
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
 import ru.weatherclock.adg.app.data.repository.weather.WeatherRepository
+import ru.weatherclock.adg.app.data.util.isEqualsByHour
 import ru.weatherclock.adg.app.domain.model.Forecast
 import ru.weatherclock.adg.app.domain.model.forecast.Detail
 import ru.weatherclock.adg.app.domain.model.forecast.DetailType
@@ -21,6 +23,7 @@ import ru.weatherclock.adg.app.domain.model.forecast.asDbRealFeelTemperature
 import ru.weatherclock.adg.app.domain.model.forecast.asDbRealFeelTemperatureShade
 import ru.weatherclock.adg.app.domain.model.forecast.asDbTemperature
 import ru.weatherclock.adg.app.domain.model.forecast.asDomainModel
+import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.db.DailyForecast
 import ru.weatherclock.adg.db.ForecastDetail
 
@@ -30,29 +33,40 @@ class ForecastUseCase(
     private val weatherSettings: WeatherSettingsRepository,
 ) {
 
+    private var lastUpdateForecast: LocalDateTime? = null
+
     suspend fun getForPeriod(
-        forecastKey: String,
         startDate: LocalDate,
         endDate: LocalDate
     ): Forecast? {
+        val forecastKey = weatherSettings.getCityKey()
         val forecast = getForecastInternal(
             forecastKey,
             startDate,
             endDate
         )
 
-        val apiKeys = listOf(
-            "GSWo67YCWgJ6raZqsluqkuhxsl2zJAOK",
-            "JZz9kz4ElQp8VVKLiF3KVSpDtyllS7CC"
-        )
-
-        val result = if (forecast == null || forecast.dailyForecasts.size < 5) {
+        //Логика обновления данных такая:
+        //Если в БД пусто и больше часа ничего не загружалось, либо это в первый раз
+        //Если в БД не пусто и прошло больше 2 часов с последнего обновления
+        val currentTime = LocalDateTime.now()
+        //Для обновления раз в два часа
+        val us1 = lastUpdateForecast?.isEqualsByHour(
+            currentTime,
+            1
+        ) != true
+        //Если в БД пусто и данные не запрашивались больше часа
+        val us3 =
+            forecast?.dailyForecasts.isNullOrEmpty() && lastUpdateForecast?.isEqualsByHour(currentTime) != true
+        val result = if (us3 || us1) {
             val response = try {
                 repository.getWeatherForecast(
-                    cityKey = weatherSettings.getCityKey(),
+                    cityKey = forecastKey,
                     apiKeys = weatherSettings.getApiKeys(),
-                    language = weatherSettings.getWeatherLanguage()
-                ).asDomainModel()
+                    language = weatherSettings.getWeatherLanguage().code
+                ).asDomainModel().also {
+                    lastUpdateForecast = currentTime
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 return forecast
