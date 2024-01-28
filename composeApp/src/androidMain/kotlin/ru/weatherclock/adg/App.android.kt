@@ -18,6 +18,7 @@ import io.kamel.core.config.KamelConfig
 import io.kamel.core.config.takeFrom
 import io.kamel.image.config.Default
 import io.kamel.image.config.resourcesFetcher
+import org.koin.android.BuildConfig
 import ru.weatherclock.adg.app.domain.di.initKoin
 import ru.weatherclock.adg.platformSpecific.appStorage
 
@@ -33,7 +34,7 @@ class AndroidApp : Application() {
         INSTANCE = this
         appStorage = filesDir.path
 
-        initKoin(enableNetworkLogs = true) {
+        initKoin(enableNetworkLogs = BuildConfig.DEBUG) {
             //  androidLogger()
             // androidContext(this@App)
         }

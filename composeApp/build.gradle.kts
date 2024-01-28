@@ -54,8 +54,7 @@ kotlin {
                 implementation(compose.material3)
                 api(compose.material)
                 implementation(compose.materialIconsExtended)
-                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
-                implementation(compose.components.resources)
+                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class) implementation(compose.components.resources)
                 implementation(libs.kermit)
                 implementation(libs.bundles.voyager.common)
                 implementation(libs.composeImageLoader)
@@ -184,15 +183,6 @@ android {
             excludes += "META-INF/*"
         }
     }
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = true
-            multiDexEnabled = true
-        }
-        getByName("debug") {
-            multiDexEnabled = true
-        }
-    }
 
     dependencies {
         //Нужно для работы kotlinx.datetime на версии Android ниже 7
@@ -271,8 +261,7 @@ buildConfig {
         "APP_PACKAGE_NAME",
         "\"${appPackageName}\""
     )
-    buildConfigField(
-        "String",
+    buildConfigField("String",
         "APP_VERSION",
         provider { "\"${appVersionName}\"" })
     buildConfigField(

@@ -11,9 +11,6 @@ import androidx.compose.material.SnackbarResult
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,12 +19,7 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import co.touchlab.kermit.Logger
 import io.kamel.core.config.KamelConfig
 import io.kamel.image.config.LocalKamelConfig
-import ru.weatherclock.adg.app.domain.model.settings.AppSettings
-import ru.weatherclock.adg.app.domain.model.settings.isAvailableToShow
-import ru.weatherclock.adg.app.domain.model.settings.orDefault
 import ru.weatherclock.adg.app.presentation.tabs.HomeTab
-import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
-import ru.weatherclock.adg.platformSpecific.appSettingsKStore
 import ru.weatherclock.adg.theme.AppTheme
 
 private var showToast: ((text: String, actionLabel: String, onActionClick: () -> Unit) -> Unit)? =
@@ -58,13 +50,6 @@ internal fun App(
 
         val scaffoldState = rememberScaffoldState()
         val coroutineScope = rememberCoroutineScope()
-        val appSettings by appSettingsKStore.updates.collectAsState(AppSettings())
-        val settings = appSettings.orDefault()
-        var showSettings = false
-
-        LaunchedEffect(Unit) {
-            showSettings = !appSettingsKStore.get().orDefault().weatherConfig.isAvailableToShow()
-        }
 
         showToast = { text, action, onClick ->
             coroutineScope.launch {
@@ -79,13 +64,6 @@ internal fun App(
             }
         }
 
-        val initialScreen = if (showSettings) {
-//            showToast(text = stringResource(MR.strings.on_start_config_weather))
-            SettingsTab
-        } else {
-            HomeTab
-        }
-
         Scaffold(
             modifier = Modifier.fillMaxWidth().fillMaxHeight().background(color = Color.Black),
             scaffoldState = scaffoldState,
@@ -94,7 +72,7 @@ internal fun App(
             Box(
                 modifier = Modifier.fillMaxWidth().fillMaxHeight().background(color = Color.Black)
             ) {
-                Navigator(screen = initialScreen,
+                Navigator(screen = HomeTab,
                     onBackPressed = {
                         Logger.d("Pop screen #${(it as Tab).key}")
                         true

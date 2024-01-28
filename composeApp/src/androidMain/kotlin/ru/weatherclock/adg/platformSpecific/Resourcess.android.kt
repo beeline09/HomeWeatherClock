@@ -12,7 +12,8 @@ import ru.weatherclock.adg.app.presentation.components.player.ResourceWrapper
 
 actual fun FileResource.fileName(): String {
     val resources: Resources = AndroidApp.INSTANCE.resources
-    return resources.getString(rawResId).substringAfterLast("/")
+    val resId = rawResId
+    return resources.getString(resId).substringAfterLast("/")
 }
 
 @OptIn(ExperimentalResourceApi::class)
