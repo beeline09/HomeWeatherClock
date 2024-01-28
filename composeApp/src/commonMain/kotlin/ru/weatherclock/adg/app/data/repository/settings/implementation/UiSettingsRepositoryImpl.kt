@@ -38,14 +38,6 @@ class UiSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>): Ui
         saveConfig { copy(colorTheme = theme) }
     }
 
-    override suspend fun isElementsHideByTime(): Boolean {
-        return getConfig().isHideElementsByTimeRange
-    }
-
-    override suspend fun setElementsHideByTime(enabled: Boolean) {
-        saveConfig { copy(isHideElementsByTimeRange = enabled) }
-    }
-
     override suspend fun getElementsHideStartHour(): Int {
         return getConfig().hideStartHour
     }

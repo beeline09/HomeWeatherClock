@@ -37,6 +37,7 @@ class HomeScreenViewModel(
 
     private var oneSecondTickJob: Job? = null
     private var settingsJob: Job? = null
+    private var allSettingsJob: Job? = null
 
     override fun intent(intent: HomeScreenIntent) {
         when (intent) {
@@ -46,21 +47,31 @@ class HomeScreenViewModel(
     }
 
     private suspend fun refreshCalendarData() = safeScope.launch {
-        val yearDays = calendarUseCase.getProdCalendar()
         val currentDayTime = LocalDateTime.now()
-        val calendarDay = currentDayTime.date
-        val prodCalendarDaysForCurrentMonth = yearDays.filter { prodCalendarDay ->
-            prodCalendarDay.date.isEqualsByMonthNumber(calendarDay)
-        }
-        val currentDayProdCalendar = prodCalendarDaysForCurrentMonth.firstOrNull {
-            it.date.isEqualsByDayOfMonth(calendarDay)
-        }
-        setState {
-            copy(
-                prodCalendarDaysForCurrentMonth = prodCalendarDaysForCurrentMonth,
-                currentProdDay = currentDayProdCalendar,
-                dateTime = currentDayTime,
-            )
+        if (calendarUseCase.isProdCalendarEnabled()) {
+            val yearDays = calendarUseCase.getProdCalendar()
+            val calendarDay = currentDayTime.date
+            val prodCalendarDaysForCurrentMonth = yearDays.filter { prodCalendarDay ->
+                prodCalendarDay.date.isEqualsByMonthNumber(calendarDay)
+            }
+            val currentDayProdCalendar = prodCalendarDaysForCurrentMonth.firstOrNull {
+                it.date.isEqualsByDayOfMonth(calendarDay)
+            }
+            setState {
+                copy(
+                    prodCalendarDaysForCurrentMonth = prodCalendarDaysForCurrentMonth,
+                    currentProdDay = currentDayProdCalendar,
+                    dateTime = currentDayTime,
+                )
+            }
+        } else {
+            setState {
+                copy(
+                    prodCalendarDaysForCurrentMonth = emptyList(),
+                    currentProdDay = null,
+                    dateTime = currentDayTime
+                )
+            }
         }
     }
 
@@ -98,6 +109,14 @@ class HomeScreenViewModel(
     private var oneHourTime: LocalDateTime = LocalDateTime.now()
 
     fun onLaunch() {
+        allSettingsJob?.cancel()
+        allSettingsJob = settingsUseCase.getAllSettingsFlow().onEach {
+            setState {
+                copy(
+                    appSettings = it
+                )
+            }
+        }.launchIn(safeScope)
         oneSecondTickJob?.cancel()
         oneSecondTickJob = tickerFlow(period = 1.seconds).map { LocalDateTime.now() }.onStart {
             val currentTime = LocalDateTime.now()
@@ -140,6 +159,8 @@ class HomeScreenViewModel(
     }
 
     override fun dispose() {
+        settingsJob?.cancel()
+        allSettingsJob?.cancel()
         oneSecondTickJob?.cancel()
     }
 }

@@ -30,7 +30,8 @@
     <string
         name="setting_description_hide_elements_by_time">Hiding some elements also helps with problem of display burn-in, when static elements remain in one place for a long time. Turning off certain elements when you don't need them, such as when you're sleeping, will have a positive effect on the lifespan of your display.
     </string>
-    <string name="setting_title_hide_elements_by_hours_range">Time range for hide UI elements
+    <string
+        name="setting_title_hide_elements_by_hours_range">Time range for hide selected UI elements
     </string>
     <string name="setting_title_hide_weather_by_time">Hide weather by time</string>
     <string name="setting_title_hide_text_calendar_by_time">Hide text calendar by time</string>

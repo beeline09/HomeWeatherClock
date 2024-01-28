@@ -2,6 +2,7 @@ package ru.weatherclock.adg.app.presentation.components.calendar
 
 import kotlinx.datetime.LocalDateTime
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -24,7 +25,7 @@ import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateIn
 
 @Composable
 @Suppress("FunctionName")
-fun Calendar(
+fun RowScope.Calendar(
     dateTime: LocalDateTime,
     dateHolder: DateInput,
     prodCalendarDays: List<ProdCalendarDay>,
@@ -35,6 +36,7 @@ fun Calendar(
         Modifier
             .wrapContentHeight(align = Alignment.CenterVertically)
             .wrapContentWidth(align = Alignment.CenterHorizontally)
+            .align(Alignment.CenterVertically)
 //            .aspectRatio(1f)
     ) {
         weekHeader()

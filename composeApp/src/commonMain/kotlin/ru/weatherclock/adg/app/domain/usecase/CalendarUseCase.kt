@@ -40,6 +40,10 @@ class CalendarUseCase(
         prodCalendarDbRepository.insert(days = days.map { it.asDbModel(region = region) })
     }
 
+    suspend fun isProdCalendarEnabled(): Boolean {
+        return prodCalendarSettingsRepository.isRussia()
+    }
+
     private suspend fun getProductionCalendarForPeriodRemote(
         year: Int,
         region: Int
