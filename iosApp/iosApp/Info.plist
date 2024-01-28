@@ -2,8 +2,30 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+  	<dict>
+    <key>accuweather.com</key>
+    <dict>
+      <!--Include to allow subdomains-->
+      <key>NSIncludesSubdomains</key>
+      <true/>
+      <!--Include to allow HTTP requests-->
+      <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+      <true/>
+      <!--Include to specify minimum TLS version-->
+      <key>NSTemporaryExceptionMinimumTLSVersion</key>
+      <string>TLSv1.1</string>
+    </dict>
+  </dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>ATSApplicationFontsPath</key>
 	<string>Fonts</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>ds_digi_bold.ttf</string>
@@ -11,6 +33,5 @@
 		<string>ds_digi_italic_bold.ttf</string>
 		<string>ds_digi_regular.ttf</string>
 	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key><true/>
 </dict>
 </plist>

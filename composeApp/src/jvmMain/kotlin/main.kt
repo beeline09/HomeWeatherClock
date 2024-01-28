@@ -34,7 +34,7 @@ fun main() = application {
     Window(
         title = stringResource(MR.strings.app_window_name),
         state = rememberWindowState(
-            width = 900.dp,
+            width = 1000.dp,
             height = 700.dp,
             position = WindowPosition(
                 Alignment.Center
