@@ -11,7 +11,7 @@ abstract class AccuweatherQuery(
 
     final override fun buildUrl(): String = buildString {
         val query = queryParams()
-        append("http://dataservice.accuweather.com/")
+        append("https://dataservice.accuweather.com/")
         append(accuweatherService())
         append("?apikey=")
         append(apiKey)
