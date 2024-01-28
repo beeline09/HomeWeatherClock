@@ -16,6 +16,7 @@ enum class SettingKey {
     ProdCalendarIsRussia,
     ProdCalendarRussiaRegion,
     ProdCalendarDayDescriptionEnabled,
+    HoursWithLeadingZero,
     DotsFlashEnabled,
     DotsFlashAnimated,
     HourlyBeepEnabled,

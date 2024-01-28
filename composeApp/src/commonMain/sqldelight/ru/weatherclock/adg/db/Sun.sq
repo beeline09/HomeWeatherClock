@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS Sun (
     pid	                        INTEGER PRIMARY KEY AUTOINCREMENT,
 	forecast_pid	            INTEGER NOT NULL,
-	set_date_time	            INTEGER NOT NULL,
-	rise_date_time	            INTEGER NOT NULL,
+	set_date_time	            INTEGER,
+	rise_date_time	            INTEGER,
 	FOREIGN KEY(forecast_pid) REFERENCES DailyForecast(pid) ON DELETE CASCADE
 );
 

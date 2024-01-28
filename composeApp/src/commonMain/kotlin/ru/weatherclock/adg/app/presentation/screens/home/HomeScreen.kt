@@ -1,6 +1,7 @@
 package ru.weatherclock.adg.app.presentation.screens.home
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.datetime.LocalDateTime
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
@@ -63,12 +64,14 @@ import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.CalendarCallbackData
 import ru.weatherclock.adg.app.presentation.components.calendar.color
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateInput
+import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.calendar.stringForToast
 import ru.weatherclock.adg.app.presentation.components.calendar.toMessageDateString
 import ru.weatherclock.adg.app.presentation.components.player.AudioPlayer
 import ru.weatherclock.adg.app.presentation.components.player.rememberPlayerState
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.app.presentation.components.util.getColor
+import ru.weatherclock.adg.app.presentation.components.util.padStart
 import ru.weatherclock.adg.app.presentation.components.weather.WeatherCell
 import ru.weatherclock.adg.app.presentation.screens.home.components.TextCalendar
 import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
@@ -119,7 +122,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
             colorPalette.clockText
         }
     }
-    val isHourInRangeForHide = uiConfig.isHourInRangeForHide
+    val isHourInRangeForHide = uiConfig.isHourInRangeForHide(LocalDateTime.now().hour)
     val weatherVisible =
         (!isHourInRangeForHide || !uiConfig.isWeatherHidden) && weatherConfig.weatherEnabled
     val textCalendarVisible =
@@ -191,11 +194,15 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                     AutoSizeText(
                         color = colorPalette.clockText,
                         text = buildAnnotatedString {
-                            append(state.hour)
+                            if (timeConfig.hourWithLeadingZero) {
+                                append(state.hour.padStart(2))
+                            } else {
+                                append(state.hour.toString())
+                            }
                             withStyle(SpanStyle(color = dotsColor)) {
                                 append(":")
                             }
-                            append(state.minute)
+                            append(state.minute.padStart(2))
                         },
                         maxLines = 1,
                         modifier = Modifier.fillMaxSize(),

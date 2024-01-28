@@ -24,4 +24,7 @@ interface TimeSettingsRepository {
     suspend fun setHourlyBeepStartHour(hour: Int)
     suspend fun setHourlyBeepEndHour(hour: Int)
 
+    suspend fun isHourWithLeadingZero(): Boolean
+    suspend fun setHourWithLeadingZero(withLeadingZero: Boolean)
+
 }

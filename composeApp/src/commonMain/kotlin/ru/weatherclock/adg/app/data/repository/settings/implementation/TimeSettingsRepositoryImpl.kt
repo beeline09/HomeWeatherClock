@@ -66,4 +66,12 @@ class TimeSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>):
     override suspend fun setHourlyBeepEndHour(hour: Int) {
         saveConfig { copy(hourlyBeepEndHour = hour) }
     }
+
+    override suspend fun isHourWithLeadingZero(): Boolean {
+        return getConfig().hourWithLeadingZero
+    }
+
+    override suspend fun setHourWithLeadingZero(withLeadingZero: Boolean) {
+        saveConfig { copy(hourWithLeadingZero = withLeadingZero) }
+    }
 }

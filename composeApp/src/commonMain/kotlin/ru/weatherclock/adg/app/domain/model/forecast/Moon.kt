@@ -8,12 +8,12 @@ data class Moon(
     /**
      * Восход
      */
-    val rise: LocalDateTime,
+    val rise: LocalDateTime?,
 
     /**
      * Закат
      */
-    val set: LocalDateTime,
+    val set: LocalDateTime?,
 
     /**
      * Фаза
@@ -29,8 +29,8 @@ data class Moon(
 fun Moon.asDbModel(forecastPid: Long): ru.weatherclock.adg.db.Moon {
     return ru.weatherclock.adg.db.Moon(
         forecast_pid = forecastPid,
-        rise_date_time = rise.toDbFormat(),
-        set_date_time = set.toDbFormat(),
+        rise_date_time = rise?.toDbFormat(),
+        set_date_time = set?.toDbFormat(),
         phase = phase,
         age = age,
         pid = -1L
@@ -39,8 +39,8 @@ fun Moon.asDbModel(forecastPid: Long): ru.weatherclock.adg.db.Moon {
 
 fun ru.weatherclock.adg.db.Moon.asDomainModel(): Moon {
     return Moon(
-        rise = rise_date_time.fromDbToLocalDateTime(),
-        set = set_date_time.fromDbToLocalDateTime(),
+        rise = rise_date_time?.fromDbToLocalDateTime(),
+        set = set_date_time?.fromDbToLocalDateTime(),
         phase = phase.orEmpty(),
         age = age
     )

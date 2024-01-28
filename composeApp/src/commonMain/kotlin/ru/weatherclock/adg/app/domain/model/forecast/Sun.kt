@@ -8,26 +8,26 @@ data class Sun(
     /**
      * Восход
      */
-    val rise: LocalDateTime,
+    val rise: LocalDateTime?,
 
     /**
      * Закат
      */
-    val set: LocalDateTime
+    val set: LocalDateTime?
 )
 
 fun Sun.asDbModel(forecastPid: Long): ru.weatherclock.adg.db.Sun {
     return ru.weatherclock.adg.db.Sun(
         forecast_pid = forecastPid,
-        rise_date_time = rise.toDbFormat(),
-        set_date_time = set.toDbFormat(),
+        rise_date_time = rise?.toDbFormat(),
+        set_date_time = set?.toDbFormat(),
         pid = -1L
     )
 }
 
 fun ru.weatherclock.adg.db.Sun.asDomainModel(): Sun {
     return Sun(
-        rise = rise_date_time.fromDbToLocalDateTime(),
-        set = set_date_time.fromDbToLocalDateTime()
+        rise = rise_date_time?.fromDbToLocalDateTime(),
+        set = set_date_time?.fromDbToLocalDateTime()
     )
 }

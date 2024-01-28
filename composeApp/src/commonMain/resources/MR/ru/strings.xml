@@ -1,18 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--    <string name="january">Январь</string>-->
-    <!--    <string name="february">Февраль</string>-->
-    <!--    <string name="march">Март</string>-->
-    <!--    <string name="april">Апрель</string>-->
-    <!--    <string name="may">Май</string>-->
-    <!--    <string name="june">Июнь</string>-->
-    <!--    <string name="jule">Июль</string>-->
-    <!--    <string name="august">Август</string>-->
-    <!--    <string name="september">Сентябрь</string>-->
-    <!--    <string name="october">Октябрь</string>-->
-    <!--    <string name="november">Ноябрь</string>-->
-    <!--    <string name="december">Декабрь</string>-->
-
     <string name="app_window_name">Настенные часы с погодой и календарём</string>
     <string name="settings_toolbar">Настройки</string>
     <string name="home_toolbar">Часы</string>
@@ -48,11 +35,15 @@
 
 
     <string
-        name="setting_title_prod_calendar_is_russia">Производственный календарь (только для России!)
+        name="setting_title_prod_calendar_is_russia">Производственный календарь (только для России)
     </string>
     <string name="setting_title_prod_calendar_russia_region">Регион РФ</string>
     <string
         name="setting_title_prod_calendar_day_description_enabled">Отображать название текущего праздника
+    </string>
+    <string name="setting_title_hours_with_leading_zero">Час с лидирующим нулём</string>
+    <string
+        name="setting_description_hours_with_leading_zero">Если включено, часы меньше 10 будут отображаться с нулём. Например: 08.
     </string>
     <string name="setting_title_dots_flash_enabled">Включить мигание точками секунд</string>
     <string name="setting_title_dots_flash_animated">Анимировать мигание точек секунд</string>

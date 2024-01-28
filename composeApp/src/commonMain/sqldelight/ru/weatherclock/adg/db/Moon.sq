@@ -3,8 +3,8 @@ import kotlin.Int;
 CREATE TABLE IF NOT EXISTS Moon (
     pid	                INTEGER PRIMARY KEY AUTOINCREMENT,
 	forecast_pid	    INTEGER NOT NULL,
-	set_date_time	    INTEGER NOT NULL,
-	rise_date_time	    INTEGER NOT NULL,
+	set_date_time	    INTEGER,
+	rise_date_time	    INTEGER,
 	phase               TEXT,
 	age                 INTEGER AS Int NOT NULL ,
 	FOREIGN KEY(forecast_pid) REFERENCES DailyForecast(pid) ON DELETE CASCADE
