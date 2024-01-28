@@ -12,13 +12,13 @@ data class MoonDto(
      * Восход
      */
     @SerialName("EpochRise")
-    val rise: Long = UNSPECIFIED_DATE,
+    val rise: Long? = UNSPECIFIED_DATE,
 
     /**
      * Закат
      */
     @SerialName("EpochSet")
-    val set: Long = UNSPECIFIED_DATE,
+    val set: Long? = UNSPECIFIED_DATE,
 
     /**
      * Фаза
@@ -34,8 +34,8 @@ data class MoonDto(
 )
 
 fun MoonDto.asDomainModel(): Moon = Moon(
-    rise = rise.epochSecondsToLocalDateTime(),
-    set = set.epochSecondsToLocalDateTime(),
+    rise = rise?.epochSecondsToLocalDateTime(),
+    set = set?.epochSecondsToLocalDateTime(),
     phase = phase,
     age = age
 )

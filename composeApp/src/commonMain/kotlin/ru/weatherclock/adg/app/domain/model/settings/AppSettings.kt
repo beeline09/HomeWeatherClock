@@ -1,9 +1,7 @@
 package ru.weatherclock.adg.app.domain.model.settings
 
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 import ru.weatherclock.adg.app.data.util.isInHours
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.platformSpecific.systemLocale
 
 @Serializable
@@ -18,6 +16,7 @@ data class AppSettings(
 data class TimeConfig(
     val dotsFlashEnabled: Boolean = true,
     val dotsFlashAnimated: Boolean = true,
+    val hourWithLeadingZero: Boolean = true,
     val hourlyBeepEnabled: Boolean = true,
     val hourlyBeepStartHour: Int = 9,
     val hourlyBeepEndHour: Int = 22,
@@ -76,8 +75,7 @@ data class UiConfig(
 )
 
 fun AppSettings?.orDefault(): AppSettings {
-    if (this == null) return AppSettings()
-    return this
+    return this ?: AppSettings()
 }
 
 fun WeatherConfig.isAvailableToShow(): Boolean {
@@ -93,7 +91,7 @@ fun ProdCalendarConfig.isAvailableToShow(): Boolean {
 val UiConfig.isHideElementsByTimeEnabled: Boolean
     get() = isTextCalendarHidden || isGridCalendarHidden || isWeatherHidden
 
-val UiConfig.isHourInRangeForHide: Boolean
-    get() = isHideElementsByTimeEnabled && LocalDateTime.now().hour.isInHours(
+fun UiConfig.isHourInRangeForHide(hour: Int): Boolean =
+    isHideElementsByTimeEnabled && hour.isInHours(
         hideStartHour to hideEndHour
     )

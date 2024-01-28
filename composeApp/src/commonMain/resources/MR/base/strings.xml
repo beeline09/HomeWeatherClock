@@ -1,17 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--    <string name="january">january</string>-->
-    <!--    <string name="february">february</string>-->
-    <!--    <string name="march">march</string>-->
-    <!--    <string name="april">april</string>-->
-    <!--    <string name="may">may</string>-->
-    <!--    <string name="june">june</string>-->
-    <!--    <string name="jule">jule</string>-->
-    <!--    <string name="august">august</string>-->
-    <!--    <string name="september">september</string>-->
-    <!--    <string name="october">october</string>-->
-    <!--    <string name="november">november</string>-->
-    <!--    <string name="december">december</string>-->
 
     <string name="app_window_name">Home clock with weather and calendar</string>
     <string name="settings_toolbar">Settings</string>
@@ -42,12 +30,16 @@
     <string name="weather_api_language_system">System default</string>
 
 
-    <string name="setting_title_prod_calendar_is_russia">Show production calendar (only for Russia!)
+    <string name="setting_title_prod_calendar_is_russia">Show production calendar (only for Russia)
     </string>
     <string name="setting_title_prod_calendar_russia_region">Region of the Russian Federation
     </string>
     <string
         name="setting_title_prod_calendar_day_description_enabled">Display the name of the current holiday
+    </string>
+    <string name="setting_title_hours_with_leading_zero">Hours with leading zero</string>
+    <string
+        name="setting_description_hours_with_leading_zero">If enabled, hours less than 10 will be displayed with a zero. For example: 08.
     </string>
     <string name="setting_title_dots_flash_enabled">Enable blinking seconds dots</string>
     <string name="setting_title_dots_flash_animated">Animate seconds dots blinking</string>

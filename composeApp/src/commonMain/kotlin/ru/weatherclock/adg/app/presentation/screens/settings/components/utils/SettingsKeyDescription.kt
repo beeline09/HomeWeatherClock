@@ -19,5 +19,6 @@ fun SettingKey.getDescription(): String = when (this) {
     SettingKey.DotsFlashAnimated -> stringResource(MR.strings.setting_description_dots_flash_animated)
     SettingKey.HourlyBeepEnabled -> stringResource(MR.strings.setting_description_hourly_beep_enabled)
     SettingKey.HideElementsByTime -> stringResource(MR.strings.setting_description_hide_elements_by_time)
+    SettingKey.HoursWithLeadingZero -> stringResource(MR.strings.setting_description_hours_with_leading_zero)
     else -> ""
 }

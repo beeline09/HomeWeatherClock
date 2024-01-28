@@ -50,6 +50,7 @@ class ForecastUseCase(
         //Если в БД пусто и больше часа ничего не загружалось, либо это в первый раз
         //Если в БД не пусто и прошло больше 2 часов с последнего обновления
         val currentTime = LocalDateTime.now()
+        val us0 = lastUpdateForecast == null && (forecast?.dailyForecasts?.size ?: 0) < 5
         //Для обновления раз в два часа
         val us1 = lastUpdateForecast?.isEqualsByHour(
             currentTime,
@@ -58,7 +59,7 @@ class ForecastUseCase(
         //Если в БД пусто и данные не запрашивались больше часа
         val us3 =
             forecast?.dailyForecasts.isNullOrEmpty() && lastUpdateForecast?.isEqualsByHour(currentTime) != true
-        val result = if (us3 || us1) {
+        val result = if (us0 || us3 || us1) {
             val response = try {
                 repository.getWeatherForecast(
                     cityKey = forecastKey,

@@ -14,12 +14,10 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.plus
 import ru.weatherclock.adg.app.data.util.atEndOfDay
 import ru.weatherclock.adg.app.data.util.atStartOfDay
-import ru.weatherclock.adg.app.data.util.hourStr
 import ru.weatherclock.adg.app.data.util.isEqualsByDayOfMonth
 import ru.weatherclock.adg.app.data.util.isEqualsByHour
 import ru.weatherclock.adg.app.data.util.isEqualsByMinute
 import ru.weatherclock.adg.app.data.util.isEqualsByMonthNumber
-import ru.weatherclock.adg.app.data.util.minuteStr
 import ru.weatherclock.adg.app.domain.model.forecast.Severity
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
@@ -128,8 +126,8 @@ class HomeScreenViewModel(
             setState {
                 copy(
                     dotsShowed = !dotsShowed,
-                    hour = it.hourStr(),
-                    minute = it.minuteStr()
+                    hour = it.hour,
+                    minute = it.minute
                 )
             }
             val s = state.value

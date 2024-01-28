@@ -147,6 +147,13 @@ class SettingsUseCase(
                 )
                 add(SettingsHeader(settingsKey = SettingKey.HeaderTimeConfig))
                 add(
+                    BooleanSetting(settingsKey = SettingKey.HoursWithLeadingZero,
+                        currentValue = timeConfig.hourWithLeadingZero,
+                        onChange = {
+                            safeUpdate { timeRepo.setHourWithLeadingZero(withLeadingZero = it) }
+                        })
+                )
+                add(
                     BooleanSetting(settingsKey = SettingKey.DotsFlashEnabled,
                         currentValue = timeConfig.dotsFlashEnabled,
                         onChange = {
