@@ -6,7 +6,6 @@ import ru.weatherclock.adg.app.domain.model.settings.BaseSettingItem
 import ru.weatherclock.adg.app.domain.model.settings.BooleanSetting
 import ru.weatherclock.adg.app.domain.model.settings.ColorsThemeSetting
 import ru.weatherclock.adg.app.domain.model.settings.HoursRangeSetting
-import ru.weatherclock.adg.app.domain.model.settings.IntSetting
 import ru.weatherclock.adg.app.domain.model.settings.RussiaRegionSetting
 import ru.weatherclock.adg.app.domain.model.settings.SettingsHeader
 import ru.weatherclock.adg.app.domain.model.settings.StringListSetting
@@ -22,15 +21,11 @@ import ru.weatherclock.adg.app.presentation.screens.settings.components.items.Ru
 import ru.weatherclock.adg.app.presentation.screens.settings.components.items.StringSettingsItem
 
 @Composable
-fun LazyItemScope.getListItem(
-    index: Int,
-    item: BaseSettingItem
-) {
+fun LazyItemScope.SettingsListItem(item: BaseSettingItem) {
     when (item) {
         is SettingsHeader -> HeaderSettingsItem(item)
         is BooleanSetting -> BooleanSettingsItem(item)
         is HoursRangeSetting -> HoursSettingsItem(item)
-        is IntSetting -> {}
         is StringListSetting -> ListStringSettingsItem(item)
         is StringSetting -> StringSettingsItem(item)
         is ColorsThemeSetting -> ColorsThemeSettingItem(item)

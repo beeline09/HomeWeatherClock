@@ -35,11 +35,13 @@ import ru.weatherclock.adg.app.data.repository.db.forecast.ForecastDbRepository
 import ru.weatherclock.adg.app.data.repository.db.forecast.implementation.ForecastDbRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.ProdCalendarDbRepository
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.implementation.ProdCalendarDbRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.settings.AllSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.CalendarSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.TimeSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.UiSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.implementation.AllSettingsRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.settings.implementation.CalendarSettingsRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.settings.implementation.ProdCalendarSettingsRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.settings.implementation.TimeSettingsRepositoryImpl
@@ -132,6 +134,7 @@ fun settingsRepoModule() = module {
     single<ProdCalendarSettingsRepository> { ProdCalendarSettingsRepositoryImpl(get()) }
     single<TimeSettingsRepository> { TimeSettingsRepositoryImpl(get()) }
     single<WeatherSettingsRepository> { WeatherSettingsRepositoryImpl(get()) }
+    single<AllSettingsRepository> { AllSettingsRepositoryImpl(get()) }
 }
 
 fun getUseCaseModule() = module {
@@ -151,11 +154,11 @@ fun getUseCaseModule() = module {
     }
     single {
         SettingsUseCase(
-            get(),
-            get(),
-            get(),
-            get(),
-            get()
+            timeRepo = get(),
+            calendarRepo = get(),
+            prodCalendarRepo = get(),
+            weatherRepo = get(),
+            mainSettingsRepo = get(),
         )
     }
 }

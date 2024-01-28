@@ -25,8 +25,8 @@ import org.koin.compose.koinInject
 import ru.weatherclock.adg.MR
 import ru.weatherclock.adg.app.domain.model.settings.BaseSettingItem
 import ru.weatherclock.adg.app.domain.model.settings.SettingKey
+import ru.weatherclock.adg.app.presentation.screens.settings.components.SettingsListItem
 import ru.weatherclock.adg.app.presentation.screens.settings.components.backIcon
-import ru.weatherclock.adg.app.presentation.screens.settings.components.getListItem
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @Composable
@@ -61,10 +61,7 @@ fun SettingsScreen(screenModel: SettingsScreenViewModel = koinInject()) {
                 ) {
                     itemsIndexed(items = settings,
                         key = { _, item -> item.settingsKey }) { index, item: BaseSettingItem ->
-                        getListItem(
-                            index,
-                            item
-                        )
+                        SettingsListItem(item)
                         if (index < settings.lastIndex && index > 0 && item.settingsKey !in SettingKey.headers) {
                             val nextItem = settings[index + 1]
                             if (nextItem.settingsKey !in SettingKey.headers) {

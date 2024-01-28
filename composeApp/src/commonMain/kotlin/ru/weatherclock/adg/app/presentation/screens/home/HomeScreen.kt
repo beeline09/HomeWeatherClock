@@ -58,8 +58,7 @@ import org.koin.compose.koinInject
 import ru.weatherclock.adg.MR
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.stringForCalendar
-import ru.weatherclock.adg.app.domain.model.settings.AppSettings
-import ru.weatherclock.adg.app.domain.model.settings.orDefault
+import ru.weatherclock.adg.app.domain.model.settings.isHourInRangeForHide
 import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.CalendarCallbackData
 import ru.weatherclock.adg.app.presentation.components.calendar.color
@@ -73,7 +72,6 @@ import ru.weatherclock.adg.app.presentation.components.util.getColor
 import ru.weatherclock.adg.app.presentation.components.weather.WeatherCell
 import ru.weatherclock.adg.app.presentation.screens.home.components.TextCalendar
 import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
-import ru.weatherclock.adg.platformSpecific.appSettingsKStore
 import ru.weatherclock.adg.platformSpecific.fileName
 import ru.weatherclock.adg.platformSpecific.rawResource
 import ru.weatherclock.adg.showToast
@@ -85,10 +83,15 @@ import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 )
 @Composable
 fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
-    val colorsPalette = LocalCustomColorsPalette.current
+    val navigator = LocalNavigator.currentOrThrow
+    val colorPalette = LocalCustomColorsPalette.current
     val state by screenModel.state.collectAsState()
-    val appSettings by appSettingsKStore.updates.collectAsState(AppSettings())
-    val settings = appSettings.orDefault()
+    val settings = state.appSettings
+    val timeConfig = settings.timeConfig
+    val uiConfig = settings.uiConfig
+    val weatherConfig = settings.weatherConfig
+    val calendarConfig = settings.calendarConfig
+    val prodCalendarConfig = calendarConfig.prodCalendarConfig
     val forecast5Days = state.forecast5Days
     val headline = state.headline
     val dateTime = state.dateTime
@@ -96,17 +99,34 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val prodCalendarDays: List<ProdCalendarDay> = state.prodCalendarDaysForCurrentMonth
     val currentProdCalendarDay = state.currentProdDay
     val currentProdCalendarDayStr = state.currentProdDay?.stringForCalendar()
-    var dotsColor = colorsPalette.clockText
-    if (settings.timeConfig.dotsFlashAnimated) {
-        val dotsColorAnimated: Color by animateColorAsState(
-            if (state.dotsShowed) colorsPalette.clockText else colorsPalette.background,
-            animationSpec = tween(
-                400,
-                easing = LinearEasing
+    val dotsColor = when {
+        timeConfig.dotsFlashEnabled && timeConfig.dotsFlashAnimated -> {
+            val dotsColorAnimated: Color by animateColorAsState(
+                if (state.dotsShowed) colorPalette.clockText else colorPalette.background,
+                animationSpec = tween(
+                    400,
+                    easing = LinearEasing
+                )
             )
-        )
-        dotsColor = dotsColorAnimated
+            dotsColorAnimated
+        }
+
+        timeConfig.dotsFlashEnabled -> {
+            if (state.dotsShowed) colorPalette.clockText else colorPalette.background
+        }
+
+        else -> {
+            colorPalette.clockText
+        }
     }
+    val isHourInRangeForHide = uiConfig.isHourInRangeForHide
+    val weatherVisible =
+        (!isHourInRangeForHide || !uiConfig.isWeatherHidden) && weatherConfig.weatherEnabled
+    val textCalendarVisible =
+        (!isHourInRangeForHide || !uiConfig.isTextCalendarHidden) && calendarConfig.textCalendarEnabled
+    val gridCalendarVisible =
+        (!isHourInRangeForHide || !uiConfig.isGridCalendarHidden) && calendarConfig.gridCalendarEnabled
+
     val playerState = rememberPlayerState()
     LaunchedEffect(state.hourlyBeepIncrement) {
         if (state.hourlyBeepIncrement > 0) {
@@ -117,9 +137,6 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
 
     LaunchedEffect(Unit) {
         screenModel.onLaunch()
-    }
-
-    LaunchedEffect(Unit) {
         screenModel.catch {
             showToast(text = it.message.orEmpty())
         }
@@ -131,9 +148,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
         )
     }
 
-    val navigator = LocalNavigator.currentOrThrow
 
-    val colorPalette = LocalCustomColorsPalette.current
 
     if (dateSelected.first) {
         val data = dateSelected.second
@@ -214,7 +229,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         }
                     }
                 }
-                if (!headline.isNullOrBlank()) {
+                if (!headline.isNullOrBlank() && weatherVisible) {
                     AutoSizeText(
                         color = state.headlineSeverity.getColor(),
                         text = headline,
@@ -232,60 +247,69 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                 }
             }
 
-            Column(modifier = Modifier.aspectRatio(0.4f).align(Alignment.CenterVertically)) {
-                TextCalendar(
-                    modifier = Modifier
-                        .weight(0.5f)
-                        .wrapContentWidth()
-                        .fillMaxHeight()
-                        .padding(horizontal = 5.dp),
-                    dayOfMonth = date.dayOfMonth,
-                    month = date.monthNumber,
-                    year = date.year,
-                    currentProdCalendarDay
-                )
-                if (!currentProdCalendarDayStr.isNullOrBlank()) {
-                    AutoSizeText(
-                        text = currentProdCalendarDayStr,
-                        maxLines = 1,
-                        maxTextSize = 22.sp,
-                        minTextSize = 6.sp,
-                        alignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .padding(horizontal = 5.dp),
-                        color = currentProdCalendarDay?.color() ?: colorPalette.dateDay
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                } else {
-                    Spacer(modifier = Modifier.height(5.dp))
-                }
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .wrapContentWidth()
-                        .weight(0.3f)
-                        .align(Alignment.CenterHorizontally)
-                        .padding(horizontal = 5.dp),
-                ) {
-                    Calendar(
-                        dateTime = dateTime,
-                        dateHolder = DateInput.SingleDate(),
-                        onDateSelected = { s, p ->
-                            dateSelected = true to CalendarCallbackData(
-                                selectedDate = s,
-                                prodCalendarDay = p
+            if (textCalendarVisible || gridCalendarVisible) {
+                Column(modifier = Modifier.aspectRatio(0.4f).align(Alignment.CenterVertically)) {
+                    if (textCalendarVisible) {
+                        TextCalendar(
+                            modifier = Modifier
+                                .weight(0.5f)
+                                .wrapContentWidth()
+                                .fillMaxHeight()
+                                .padding(horizontal = 5.dp),
+                            dayOfMonth = date.dayOfMonth,
+                            month = date.monthNumber,
+                            year = date.year,
+                            currentProdCalendarDay
+                        )
+                    }
+                    if ((textCalendarVisible || gridCalendarVisible) && prodCalendarConfig.dayDescriptionEnabled) {
+                        if (!currentProdCalendarDayStr.isNullOrBlank()) {
+                            AutoSizeText(
+                                text = currentProdCalendarDayStr,
+                                maxLines = 1,
+                                maxTextSize = 22.sp,
+                                minTextSize = 6.sp,
+                                alignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentHeight()
+                                    .padding(horizontal = 5.dp),
+                                color = currentProdCalendarDay?.color() ?: colorPalette.dateDay
                             )
-                        },
-                        prodCalendarDays = prodCalendarDays
-                    )
-                }
+                            Spacer(modifier = Modifier.height(10.dp))
+                        } else {
+                            Spacer(modifier = Modifier.height(5.dp))
+                        }
+                    }
+                    if (gridCalendarVisible) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .wrapContentWidth()
+                                .weight(0.3f)
+                                .align(Alignment.CenterHorizontally)
+                                .padding(horizontal = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Calendar(
+                                dateTime = dateTime,
+                                dateHolder = DateInput.SingleDate(),
+                                onDateSelected = { s, p ->
+                                    dateSelected = true to CalendarCallbackData(
+                                        selectedDate = s,
+                                        prodCalendarDay = p
+                                    )
+                                },
+                                prodCalendarDays = prodCalendarDays
+                            )
+                        }
+                    }
 //                Spacer(Modifier.height(5.dp))
+                }
             }
         }
 
-        if (forecast5Days.isNotEmpty()) {
+        if (forecast5Days.isNotEmpty() && weatherVisible) {
             Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(colorPalette.divider))
             Row(modifier = Modifier.fillMaxSize().weight(0.3f)) {
                 forecast5Days.forEachIndexed { index, dailyForecast ->

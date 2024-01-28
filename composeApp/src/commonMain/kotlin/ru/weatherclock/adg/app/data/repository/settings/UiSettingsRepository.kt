@@ -15,9 +15,6 @@ interface UiSettingsRepository {
     suspend fun getColorTheme(): ColorTheme
     suspend fun setColorTheme(theme: ColorTheme)
 
-    suspend fun isElementsHideByTime(): Boolean
-    suspend fun setElementsHideByTime(enabled: Boolean)
-
     suspend fun getElementsHideStartHour(): Int
     suspend fun setElementsHideStartHour(hour: Int)
 

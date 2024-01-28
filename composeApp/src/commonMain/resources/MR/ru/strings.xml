@@ -31,7 +31,7 @@
         name="setting_description_hide_elements_by_time">Скрытие некоторых элементов так же помогает бороться с проблемой выгорания дисплея, когда статичные элементы долго находятся в одном месте. Отключение некоторых элементов когда они вам не нужны, например, когда вы спите, позитивно повлияет на срок службы дисплея.
     </string>
     <string
-        name="setting_title_hide_elements_by_hours_range">Интервал часов между которыми скрывть элементы
+        name="setting_title_hide_elements_by_hours_range">Интервал часов между которыми скрывать выбранные элементы
     </string>
     <string name="setting_title_hide_weather_by_time">Скрывать погоду по времени</string>
     <string

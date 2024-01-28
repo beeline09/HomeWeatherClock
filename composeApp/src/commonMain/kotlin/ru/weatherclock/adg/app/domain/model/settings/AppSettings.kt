@@ -1,6 +1,9 @@
 package ru.weatherclock.adg.app.domain.model.settings
 
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
+import ru.weatherclock.adg.app.data.util.isInHours
+import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.platformSpecific.systemLocale
 
 @Serializable
@@ -65,7 +68,6 @@ enum class WeatherApiLanguage(val code: String) {
 @Serializable
 data class UiConfig(
     val colorTheme: ColorTheme = ColorTheme.System,
-    val isHideElementsByTimeRange: Boolean = false,
     val hideStartHour: Int = 23,
     val hideEndHour: Int = 8,
     val isWeatherHidden: Boolean = false,
@@ -87,3 +89,11 @@ fun WeatherConfig.isAvailableToShow(): Boolean {
 fun ProdCalendarConfig.isAvailableToShow(): Boolean {
     return isRussia && russiaRegion > 0
 }
+
+val UiConfig.isHideElementsByTimeEnabled: Boolean
+    get() = isTextCalendarHidden || isGridCalendarHidden || isWeatherHidden
+
+val UiConfig.isHourInRangeForHide: Boolean
+    get() = isHideElementsByTimeEnabled && LocalDateTime.now().hour.isInHours(
+        hideStartHour to hideEndHour
+    )

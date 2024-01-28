@@ -6,6 +6,7 @@ import ru.weatherclock.adg.app.data.util.hourStr
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.forecast.DailyForecast
 import ru.weatherclock.adg.app.domain.model.forecast.Severity
+import ru.weatherclock.adg.app.domain.model.settings.AppSettings
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.viewModel.State
 
@@ -21,4 +22,5 @@ data class HomeScreenState(
     val headlineSeverity: Severity = Severity.UNKNOWN,
     val settingsButtonShowed: Boolean = false,
     val hourlyBeepIncrement: Long = 0,
+    val appSettings: AppSettings = AppSettings()
 ): State
