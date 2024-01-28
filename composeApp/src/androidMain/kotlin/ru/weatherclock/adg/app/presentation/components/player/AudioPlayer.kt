@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalResourceApi::class)
-
 package ru.weatherclock.adg.app.presentation.components.player
 
 import android.media.MediaPlayer

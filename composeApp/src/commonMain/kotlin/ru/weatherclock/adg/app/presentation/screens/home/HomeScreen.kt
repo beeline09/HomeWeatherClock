@@ -143,6 +143,8 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
         screenModel.catch {
             showToast(text = it.message.orEmpty())
         }
+        val player = AudioPlayer(playerState)
+        player.play(MR.files.casiohour.fileName().rawResource())
     }
 
     var dateSelected by remember {
