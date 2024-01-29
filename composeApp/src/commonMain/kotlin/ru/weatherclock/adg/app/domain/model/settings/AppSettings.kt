@@ -1,6 +1,12 @@
 package ru.weatherclock.adg.app.domain.model.settings
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import ru.weatherclock.adg.app.data.util.isInHours
 import ru.weatherclock.adg.platformSpecific.systemLocale
 
@@ -48,7 +54,28 @@ data class ProdCalendarConfig(
     val dayDescriptionEnabled: Boolean = true,
 )
 
-@Serializable
+object ColorThemeSerializer: KSerializer<ColorTheme> {
+
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
+        "ColorTheme",
+        PrimitiveKind.STRING
+    )
+
+    override fun serialize(
+        encoder: Encoder,
+        value: ColorTheme
+    ) {
+        val string = value.name
+        encoder.encodeString(string)
+    }
+
+    override fun deserialize(decoder: Decoder): ColorTheme {
+        val string = decoder.decodeString()
+        return ColorTheme.valueOf(string)
+    }
+}
+
+@Serializable(with = ColorThemeSerializer::class)
 enum class ColorTheme {
 
     Day,
@@ -56,7 +83,28 @@ enum class ColorTheme {
     System
 }
 
-@Serializable
+object WeatherApiLanguageSerializer: KSerializer<WeatherApiLanguage> {
+
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
+        "WeatherApiLanguage",
+        PrimitiveKind.STRING
+    )
+
+    override fun serialize(
+        encoder: Encoder,
+        value: WeatherApiLanguage
+    ) {
+        val string = value.name
+        encoder.encodeString(string)
+    }
+
+    override fun deserialize(decoder: Decoder): WeatherApiLanguage {
+        val string = decoder.decodeString()
+        return WeatherApiLanguage.valueOf(string)
+    }
+}
+
+@Serializable(with = WeatherApiLanguageSerializer::class)
 enum class WeatherApiLanguage(val code: String) {
 
     Russian("ru-ru"),
