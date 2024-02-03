@@ -58,8 +58,8 @@ data class DailyForecast(
     }
 }
 
-fun DailyForecast.asDbModel(forecastKey: String): ru.weatherclock.adg.db.DailyForecast {
-    return ru.weatherclock.adg.db.DailyForecast(
+fun DailyForecast.asDbModel(forecastKey: String): ru.weatherclock.adg.db.Accuweather.DailyForecast {
+    return ru.weatherclock.adg.db.Accuweather.DailyForecast(
         date = date.toDbFormat(),
         hours_of_sun = hoursOfSun,
         forecast_key = forecastKey,
@@ -67,7 +67,7 @@ fun DailyForecast.asDbModel(forecastKey: String): ru.weatherclock.adg.db.DailyFo
     )
 }
 
-fun ru.weatherclock.adg.db.DailyForecast.asDomainModel(
+fun ru.weatherclock.adg.db.Accuweather.DailyForecast.asDomainModel(
     temperature: Temperature?,
     realFeelTemperature: Temperature?,
     realFeelTemperatureShade: Temperature?,

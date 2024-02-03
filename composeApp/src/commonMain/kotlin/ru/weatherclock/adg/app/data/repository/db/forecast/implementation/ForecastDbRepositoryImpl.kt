@@ -4,27 +4,27 @@ import kotlinx.datetime.LocalDate
 import ru.weatherclock.adg.app.data.repository.db.forecast.ForecastDbRepository
 import ru.weatherclock.adg.app.data.util.toDbFormat
 import ru.weatherclock.adg.app.domain.model.forecast.DetailType
-import ru.weatherclock.adg.db.AirAndPollen
-import ru.weatherclock.adg.db.DailyForecast
-import ru.weatherclock.adg.db.Database
-import ru.weatherclock.adg.db.DegreeDaySummary
-import ru.weatherclock.adg.db.Evapotranspiration
-import ru.weatherclock.adg.db.ForecastDetail
-import ru.weatherclock.adg.db.ForecastHeadline
-import ru.weatherclock.adg.db.Ice
-import ru.weatherclock.adg.db.Moon
-import ru.weatherclock.adg.db.Rain
-import ru.weatherclock.adg.db.RealFeelTemperature
-import ru.weatherclock.adg.db.RealFeelTemperatureShade
-import ru.weatherclock.adg.db.Snow
-import ru.weatherclock.adg.db.SolarIrradiance
-import ru.weatherclock.adg.db.Sun
-import ru.weatherclock.adg.db.Temperature
-import ru.weatherclock.adg.db.TotalLiquid
-import ru.weatherclock.adg.db.Wind
-import ru.weatherclock.adg.db.WindGust
+import ru.weatherclock.adg.db.Accuweather.AirAndPollen
+import ru.weatherclock.adg.db.Accuweather.DailyForecast
+import ru.weatherclock.adg.db.Accuweather.DegreeDaySummary
+import ru.weatherclock.adg.db.Accuweather.Evapotranspiration
+import ru.weatherclock.adg.db.Accuweather.ForecastDetail
+import ru.weatherclock.adg.db.Accuweather.ForecastHeadline
+import ru.weatherclock.adg.db.Accuweather.Ice
+import ru.weatherclock.adg.db.Accuweather.Moon
+import ru.weatherclock.adg.db.Accuweather.Rain
+import ru.weatherclock.adg.db.Accuweather.RealFeelTemperature
+import ru.weatherclock.adg.db.Accuweather.RealFeelTemperatureShade
+import ru.weatherclock.adg.db.Accuweather.Snow
+import ru.weatherclock.adg.db.Accuweather.SolarIrradiance
+import ru.weatherclock.adg.db.Accuweather.Sun
+import ru.weatherclock.adg.db.Accuweather.Temperature
+import ru.weatherclock.adg.db.Accuweather.TotalLiquid
+import ru.weatherclock.adg.db.Accuweather.Wind
+import ru.weatherclock.adg.db.Accuweather.WindGust
+import ru.weatherclock.adg.db.AccuweatherDb
 
-class ForecastDbRepositoryImpl(private val database: Database): ForecastDbRepository {
+class ForecastDbRepositoryImpl(private val database: AccuweatherDb): ForecastDbRepository {
 
     override suspend fun insertHeadline(headline: ForecastHeadline) {
         database.transaction {
@@ -364,7 +364,7 @@ class ForecastDbRepositoryImpl(private val database: Database): ForecastDbReposi
 
     override suspend fun insertSun(
         forecastPid: Long,
-        sun: Sun
+        sun: ru.weatherclock.adg.db.Accuweather.Sun
     ): Long {
         return database.transactionWithResult {
             database.sunQueries.insert(

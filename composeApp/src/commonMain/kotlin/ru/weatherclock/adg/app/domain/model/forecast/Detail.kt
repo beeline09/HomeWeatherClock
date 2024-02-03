@@ -1,6 +1,6 @@
 package ru.weatherclock.adg.app.domain.model.forecast
 
-import ru.weatherclock.adg.db.ForecastDetail
+import ru.weatherclock.adg.db.Accuweather.ForecastDetail
 
 data class Detail(
     /**

@@ -1,6 +1,6 @@
 package ru.weatherclock.adg.app.domain.model.forecast
 
-import ru.weatherclock.adg.db.DegreeDaySummary
+import ru.weatherclock.adg.db.Accuweather.DegreeDaySummary
 
 data class DaySummary(
     val heating: UnitInfo,

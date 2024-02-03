@@ -1,6 +1,6 @@
 package ru.weatherclock.adg.app.data.repository.calendar.implementation
 
-import ru.weatherclock.adg.app.data.dto.ProductionCalendarDto
+import ru.weatherclock.adg.app.data.dto.productionCalendar.ProductionCalendarDto
 import ru.weatherclock.adg.app.data.remote.CalendarKtorService
 import ru.weatherclock.adg.app.data.repository.calendar.CalendarRemoteRepository
 

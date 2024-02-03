@@ -1,6 +1,6 @@
 package ru.weatherclock.adg.app.data.remote
 
-import ru.weatherclock.adg.app.data.dto.ProductionCalendarDto
+import ru.weatherclock.adg.app.data.dto.productionCalendar.ProductionCalendarDto
 
 abstract class CalendarKtorService {
 

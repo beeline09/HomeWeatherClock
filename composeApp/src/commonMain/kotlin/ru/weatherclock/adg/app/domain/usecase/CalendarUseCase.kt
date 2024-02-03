@@ -1,7 +1,7 @@
 package ru.weatherclock.adg.app.domain.usecase
 
 import kotlinx.datetime.LocalDateTime
-import ru.weatherclock.adg.app.data.dto.asDomainModel
+import ru.weatherclock.adg.app.data.dto.productionCalendar.asDomainModel
 import ru.weatherclock.adg.app.data.repository.calendar.CalendarRemoteRepository
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.ProdCalendarDbRepository
 import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
