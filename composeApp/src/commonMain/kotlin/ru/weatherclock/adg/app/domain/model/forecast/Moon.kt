@@ -26,8 +26,8 @@ data class Moon(
     val age: Int
 )
 
-fun Moon.asDbModel(forecastPid: Long): ru.weatherclock.adg.db.Moon {
-    return ru.weatherclock.adg.db.Moon(
+fun Moon.asDbModel(forecastPid: Long): ru.weatherclock.adg.db.Accuweather.Moon {
+    return ru.weatherclock.adg.db.Accuweather.Moon(
         forecast_pid = forecastPid,
         rise_date_time = rise?.toDbFormat(),
         set_date_time = set?.toDbFormat(),
@@ -37,7 +37,7 @@ fun Moon.asDbModel(forecastPid: Long): ru.weatherclock.adg.db.Moon {
     )
 }
 
-fun ru.weatherclock.adg.db.Moon.asDomainModel(): Moon {
+fun ru.weatherclock.adg.db.Accuweather.Moon.asDomainModel(): Moon {
     return Moon(
         rise = rise_date_time?.fromDbToLocalDateTime(),
         set = set_date_time?.fromDbToLocalDateTime(),

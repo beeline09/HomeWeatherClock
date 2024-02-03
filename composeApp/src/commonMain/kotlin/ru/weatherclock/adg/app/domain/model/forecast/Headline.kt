@@ -3,7 +3,7 @@ package ru.weatherclock.adg.app.domain.model.forecast
 import kotlinx.datetime.LocalDate
 import ru.weatherclock.adg.app.data.util.fromDbToLocalDate
 import ru.weatherclock.adg.app.data.util.toDbFormat
-import ru.weatherclock.adg.db.ForecastHeadline
+import ru.weatherclock.adg.db.Accuweather.ForecastHeadline
 
 /**
  * Наиболее значительное погодное событие в течение следующих 5 дней.

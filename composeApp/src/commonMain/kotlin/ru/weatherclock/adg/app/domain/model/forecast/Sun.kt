@@ -16,8 +16,8 @@ data class Sun(
     val set: LocalDateTime?
 )
 
-fun Sun.asDbModel(forecastPid: Long): ru.weatherclock.adg.db.Sun {
-    return ru.weatherclock.adg.db.Sun(
+fun Sun.asDbModel(forecastPid: Long): ru.weatherclock.adg.db.Accuweather.Sun {
+    return ru.weatherclock.adg.db.Accuweather.Sun(
         forecast_pid = forecastPid,
         rise_date_time = rise?.toDbFormat(),
         set_date_time = set?.toDbFormat(),
@@ -25,7 +25,7 @@ fun Sun.asDbModel(forecastPid: Long): ru.weatherclock.adg.db.Sun {
     )
 }
 
-fun ru.weatherclock.adg.db.Sun.asDomainModel(): Sun {
+fun ru.weatherclock.adg.db.Accuweather.Sun.asDomainModel(): Sun {
     return Sun(
         rise = rise_date_time?.fromDbToLocalDateTime(),
         set = set_date_time?.fromDbToLocalDateTime()

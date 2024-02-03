@@ -12,8 +12,8 @@ data class Wind(
     val direction: Direction
 )
 
-fun Wind.asDbModelWind(detailPid: Long): ru.weatherclock.adg.db.Wind {
-    return ru.weatherclock.adg.db.Wind(
+fun Wind.asDbModelWind(detailPid: Long): ru.weatherclock.adg.db.Accuweather.Wind {
+    return ru.weatherclock.adg.db.Accuweather.Wind(
         speed_phrase = speed.phrase,
         speed_unit = speed.unit,
         speed_unit_type = speed.unitType,
@@ -26,8 +26,8 @@ fun Wind.asDbModelWind(detailPid: Long): ru.weatherclock.adg.db.Wind {
     )
 }
 
-fun Wind.asDbModelWindGust(detailPid: Long): ru.weatherclock.adg.db.WindGust {
-    return ru.weatherclock.adg.db.WindGust(
+fun Wind.asDbModelWindGust(detailPid: Long): ru.weatherclock.adg.db.Accuweather.WindGust {
+    return ru.weatherclock.adg.db.Accuweather.WindGust(
         speed_phrase = speed.phrase,
         speed_unit = speed.unit,
         speed_unit_type = speed.unitType,
@@ -40,7 +40,7 @@ fun Wind.asDbModelWindGust(detailPid: Long): ru.weatherclock.adg.db.WindGust {
     )
 }
 
-fun ru.weatherclock.adg.db.Wind.asDomainModel(): Wind {
+fun ru.weatherclock.adg.db.Accuweather.Wind.asDomainModel(): Wind {
     return Wind(
         speed = UnitInfo(
             value = speed_value,
@@ -56,7 +56,7 @@ fun ru.weatherclock.adg.db.Wind.asDomainModel(): Wind {
     )
 }
 
-fun ru.weatherclock.adg.db.WindGust.asDomainModel(): Wind {
+fun ru.weatherclock.adg.db.Accuweather.WindGust.asDomainModel(): Wind {
     return Wind(
         speed = UnitInfo(
             value = speed_value,

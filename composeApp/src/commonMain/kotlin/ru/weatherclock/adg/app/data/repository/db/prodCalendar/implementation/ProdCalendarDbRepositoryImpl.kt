@@ -4,11 +4,11 @@ import kotlinx.coroutines.flow.Flow
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.ProdCalendarDbRepository
-import ru.weatherclock.adg.db.Database
-import ru.weatherclock.adg.db.ProdCalendar
+import ru.weatherclock.adg.db.ProdCalendar.ProdCalendar
+import ru.weatherclock.adg.db.ProdCalendarDb
 import ru.weatherclock.adg.platformSpecific.ioDispatcher
 
-class ProdCalendarDbRepositoryImpl(private val database: Database): ProdCalendarDbRepository {
+class ProdCalendarDbRepositoryImpl(private val database: ProdCalendarDb): ProdCalendarDbRepository {
 
     override suspend fun getAllProductionDays(): List<ProdCalendar> {
         return database.prodCalendarQueries.selectAll().executeAsList()

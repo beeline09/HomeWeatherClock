@@ -74,6 +74,7 @@ kotlin {
                 implementation(libs.stately.common)
                 implementation(libs.kamelImageLoader)
                 implementation(libs.androidx.annotation)
+                implementation(kotlin("stdlib-common"))
             }
         }
 
@@ -277,11 +278,25 @@ buildConfig {
 }
 
 sqldelight {
+    val packName = "${appPackageName}.db"
     databases {
-        create("Database") {
+        create("ProdCalendarDb") {
             // Database configuration here.
             // https://cashapp.github.io/sqldelight
-            packageName.set("ru.weatherclock.adg.db")
+            packageName.set(packName)
+            srcDirs("src/commonMain/sqldelight/prodCalendar")
         }
+        create("AccuweatherDb") {
+            // Database configuration here.
+            // https://cashapp.github.io/sqldelight
+            packageName.set(packName)
+            srcDirs("src/commonMain/sqldelight/accuweather")
+        }
+//        create("OpenWeatherMapDb") {
+//            // Database configuration here.
+//            // https://cashapp.github.io/sqldelight
+//            packageName = "ru.weatherclock.adg.db"
+//            srcDirs("OpenWeatherMap")
+//        }
     }
 }

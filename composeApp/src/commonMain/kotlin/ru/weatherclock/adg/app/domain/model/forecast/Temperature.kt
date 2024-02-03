@@ -1,8 +1,8 @@
 package ru.weatherclock.adg.app.domain.model.forecast
 
-import ru.weatherclock.adg.db.RealFeelTemperature
-import ru.weatherclock.adg.db.RealFeelTemperatureShade
-import ru.weatherclock.adg.db.Temperature
+import ru.weatherclock.adg.db.Accuweather.RealFeelTemperature
+import ru.weatherclock.adg.db.Accuweather.RealFeelTemperatureShade
+import ru.weatherclock.adg.db.Accuweather.Temperature
 
 data class Temperature(
 

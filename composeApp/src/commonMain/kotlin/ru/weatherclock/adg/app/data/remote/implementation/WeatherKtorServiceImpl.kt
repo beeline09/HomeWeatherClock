@@ -1,11 +1,10 @@
 package ru.weatherclock.adg.app.data.remote.implementation
 
 import io.ktor.client.call.body
-import ru.weatherclock.adg.app.data.dto.ForecastDto
+import ru.weatherclock.adg.app.data.dto.accuweather.AccuweatherForecastDto
 import ru.weatherclock.adg.app.data.query.Daily5DaysForecastQuery
 import ru.weatherclock.adg.app.data.remote.AppHttpClient
 import ru.weatherclock.adg.app.data.remote.WeatherKtorService
-import ru.weatherclock.adg.app.data.remote.error.NoWeatherApiKeyException
 
 class WeatherKtorServiceImpl(private val httpClient: AppHttpClient): WeatherKtorService() {
 
@@ -13,13 +12,10 @@ class WeatherKtorServiceImpl(private val httpClient: AppHttpClient): WeatherKtor
         cityKey: String,
         apiKeys: List<String>,
         language: String
-    ): ForecastDto {
-        if (apiKeys.isEmpty()) {
-            throw NoWeatherApiKeyException()
-        }
+    ): AccuweatherForecastDto {
         return httpClient.get(
             Daily5DaysForecastQuery(
-                apiKey = apiKeys.random(),
+                apiKey = checkAndGetApikey(apiKeys = apiKeys),
                 cityKey = cityKey,
                 language = language
             )

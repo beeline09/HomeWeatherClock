@@ -4,26 +4,28 @@ import kotlinx.coroutines.CoroutineDispatcher
 import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import org.koin.core.module.Module
-import ru.weatherclock.adg.db.AirAndPollen
-import ru.weatherclock.adg.db.Database
-import ru.weatherclock.adg.db.DegreeDaySummary
-import ru.weatherclock.adg.db.Evapotranspiration
-import ru.weatherclock.adg.db.ForecastDetail
-import ru.weatherclock.adg.db.ForecastHeadline
-import ru.weatherclock.adg.db.Ice
-import ru.weatherclock.adg.db.Moon
-import ru.weatherclock.adg.db.ProdCalendar
-import ru.weatherclock.adg.db.Rain
-import ru.weatherclock.adg.db.RealFeelTemperature
-import ru.weatherclock.adg.db.RealFeelTemperatureShade
-import ru.weatherclock.adg.db.Snow
-import ru.weatherclock.adg.db.SolarIrradiance
-import ru.weatherclock.adg.db.Temperature
-import ru.weatherclock.adg.db.TotalLiquid
-import ru.weatherclock.adg.db.Wind
-import ru.weatherclock.adg.db.WindGust
+import ru.weatherclock.adg.db.Accuweather.AirAndPollen
+import ru.weatherclock.adg.db.Accuweather.DegreeDaySummary
+import ru.weatherclock.adg.db.Accuweather.Evapotranspiration
+import ru.weatherclock.adg.db.Accuweather.ForecastDetail
+import ru.weatherclock.adg.db.Accuweather.ForecastHeadline
+import ru.weatherclock.adg.db.Accuweather.Ice
+import ru.weatherclock.adg.db.Accuweather.Moon
+import ru.weatherclock.adg.db.Accuweather.Rain
+import ru.weatherclock.adg.db.Accuweather.RealFeelTemperature
+import ru.weatherclock.adg.db.Accuweather.RealFeelTemperatureShade
+import ru.weatherclock.adg.db.Accuweather.Snow
+import ru.weatherclock.adg.db.Accuweather.SolarIrradiance
+import ru.weatherclock.adg.db.Accuweather.Temperature
+import ru.weatherclock.adg.db.Accuweather.TotalLiquid
+import ru.weatherclock.adg.db.Accuweather.Wind
+import ru.weatherclock.adg.db.Accuweather.WindGust
+import ru.weatherclock.adg.db.AccuweatherDb
+import ru.weatherclock.adg.db.ProdCalendar.ProdCalendar
+import ru.weatherclock.adg.db.ProdCalendarDb
 
-expect fun createDriver(): SqlDriver
+expect fun createProdCalendarDbDriver(): SqlDriver
+expect fun createAccuweatherDbDriver(): SqlDriver
 
 private val intAdapter = object: ColumnAdapter<Int, Long> {
     override fun decode(databaseValue: Long): Int = databaseValue.toInt()
@@ -31,14 +33,9 @@ private val intAdapter = object: ColumnAdapter<Int, Long> {
     override fun encode(value: Int): Long = value.toLong()
 }
 
-fun createDatabase(): Database {
-    return Database(
-        driver = createDriver(),
-        ProdCalendarAdapter = ProdCalendar.Adapter(
-            type_idAdapter = intAdapter,
-            regionAdapter = intAdapter,
-            working_hoursAdapter = intAdapter
-        ),
+fun createAccuweatherDb(): AccuweatherDb {
+    return AccuweatherDb(
+        driver = createAccuweatherDbDriver(),
         ForecastHeadlineAdapter = ForecastHeadline.Adapter(
             intAdapter,
         ),
@@ -80,6 +77,17 @@ fun createDatabase(): Database {
         WindAdapter = Wind.Adapter(intAdapter),
         WindGustAdapter = WindGust.Adapter(intAdapter),
         TotalLiquidAdapter = TotalLiquid.Adapter(intAdapter)
+    )
+}
+
+fun createProdCalendarDb(): ProdCalendarDb {
+    return ProdCalendarDb(
+        driver = createProdCalendarDbDriver(),
+        ProdCalendarAdapter = ProdCalendar.Adapter(
+            type_idAdapter = intAdapter,
+            regionAdapter = intAdapter,
+            working_hoursAdapter = intAdapter
+        ),
     )
 }
 

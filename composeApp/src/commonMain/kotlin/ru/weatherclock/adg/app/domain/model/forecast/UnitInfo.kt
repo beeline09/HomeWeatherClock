@@ -1,11 +1,11 @@
 package ru.weatherclock.adg.app.domain.model.forecast
 
-import ru.weatherclock.adg.db.Evapotranspiration
-import ru.weatherclock.adg.db.Ice
-import ru.weatherclock.adg.db.Rain
-import ru.weatherclock.adg.db.Snow
-import ru.weatherclock.adg.db.SolarIrradiance
-import ru.weatherclock.adg.db.TotalLiquid
+import ru.weatherclock.adg.db.Accuweather.Evapotranspiration
+import ru.weatherclock.adg.db.Accuweather.Ice
+import ru.weatherclock.adg.db.Accuweather.Rain
+import ru.weatherclock.adg.db.Accuweather.Snow
+import ru.weatherclock.adg.db.Accuweather.SolarIrradiance
+import ru.weatherclock.adg.db.Accuweather.TotalLiquid
 
 /**
  * Содержит значение, единицы измерения и название значения

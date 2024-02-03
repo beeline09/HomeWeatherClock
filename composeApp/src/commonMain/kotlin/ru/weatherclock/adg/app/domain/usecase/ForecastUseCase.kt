@@ -2,7 +2,7 @@ package ru.weatherclock.adg.app.domain.usecase
 
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
-import ru.weatherclock.adg.app.data.dto.asDomainModel
+import ru.weatherclock.adg.app.data.dto.accuweather.asDomainModel
 import ru.weatherclock.adg.app.data.repository.db.forecast.ForecastDbRepository
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
 import ru.weatherclock.adg.app.data.repository.weather.WeatherRepository
@@ -24,8 +24,8 @@ import ru.weatherclock.adg.app.domain.model.forecast.asDbRealFeelTemperatureShad
 import ru.weatherclock.adg.app.domain.model.forecast.asDbTemperature
 import ru.weatherclock.adg.app.domain.model.forecast.asDomainModel
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
-import ru.weatherclock.adg.db.DailyForecast
-import ru.weatherclock.adg.db.ForecastDetail
+import ru.weatherclock.adg.db.Accuweather.DailyForecast
+import ru.weatherclock.adg.db.Accuweather.ForecastDetail
 
 class ForecastUseCase(
     private val repository: WeatherRepository,

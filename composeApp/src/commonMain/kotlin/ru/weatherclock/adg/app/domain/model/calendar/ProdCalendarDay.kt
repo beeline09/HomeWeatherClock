@@ -3,7 +3,7 @@ package ru.weatherclock.adg.app.domain.model.calendar
 import kotlinx.datetime.LocalDate
 import ru.weatherclock.adg.app.data.util.fromDbToLocalDate
 import ru.weatherclock.adg.app.data.util.toDbFormat
-import ru.weatherclock.adg.db.ProdCalendar
+import ru.weatherclock.adg.db.ProdCalendar.ProdCalendar
 
 data class ProdCalendarDay(
     val date: LocalDate,

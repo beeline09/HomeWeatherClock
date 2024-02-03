@@ -55,9 +55,11 @@ import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.domain.usecase.SettingsUseCase
 import ru.weatherclock.adg.app.presentation.screens.home.HomeScreenViewModel
 import ru.weatherclock.adg.app.presentation.screens.settings.SettingsScreenViewModel
-import ru.weatherclock.adg.db.Database
+import ru.weatherclock.adg.db.AccuweatherDb
+import ru.weatherclock.adg.db.ProdCalendarDb
 import ru.weatherclock.adg.platformSpecific.appSettingsKStore
-import ru.weatherclock.adg.platformSpecific.createDatabase
+import ru.weatherclock.adg.platformSpecific.createAccuweatherDb
+import ru.weatherclock.adg.platformSpecific.createProdCalendarDb
 import ru.weatherclock.adg.platformSpecific.platformModule
 
 fun initKoin(
@@ -124,7 +126,8 @@ fun getDataModule(
 
     single<ProdCalendarDbRepository> { ProdCalendarDbRepositoryImpl(get()) }
 
-    single<Database> { createDatabase() }
+    single<ProdCalendarDb> { createProdCalendarDb() }
+    single<AccuweatherDb> { createAccuweatherDb() }
 }
 
 fun settingsRepoModule() = module {

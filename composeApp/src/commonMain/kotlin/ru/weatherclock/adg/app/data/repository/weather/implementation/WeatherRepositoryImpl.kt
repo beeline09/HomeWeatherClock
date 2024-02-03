@@ -1,6 +1,6 @@
 package ru.weatherclock.adg.app.data.repository.weather.implementation
 
-import ru.weatherclock.adg.app.data.dto.ForecastDto
+import ru.weatherclock.adg.app.data.dto.accuweather.AccuweatherForecastDto
 import ru.weatherclock.adg.app.data.remote.WeatherKtorService
 import ru.weatherclock.adg.app.data.repository.weather.WeatherRepository
 
@@ -10,7 +10,7 @@ class WeatherRepositoryImpl(private val ktorService: WeatherKtorService): Weathe
         cityKey: String,
         apiKeys: List<String>,
         language: String
-    ): ForecastDto = ktorService.getWeatherForecast(
+    ): AccuweatherForecastDto = ktorService.getWeatherForecast(
         cityKey,
         apiKeys,
         language
