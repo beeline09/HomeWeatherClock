@@ -8,7 +8,7 @@ import platform.Foundation.NSApplicationSupportDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
-import ru.weatherclock.adg.app.domain.model.settings.AppSettings
+import ru.weatherclock.adg.app.data.dto.AppSettings
 
 actual val appSettingsKStore: KStore<AppSettings> by lazy {
     storeOf(

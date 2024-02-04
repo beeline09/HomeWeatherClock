@@ -4,11 +4,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
 import io.github.xxfast.kstore.KStore
+import ru.weatherclock.adg.app.data.WeatherUnits
+import ru.weatherclock.adg.app.data.dto.AppSettings
+import ru.weatherclock.adg.app.data.dto.WeatherApiLanguage
+import ru.weatherclock.adg.app.data.dto.WeatherConfig
+import ru.weatherclock.adg.app.data.dto.WeatherConfigData
+import ru.weatherclock.adg.app.data.dto.orDefault
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
-import ru.weatherclock.adg.app.domain.model.settings.AppSettings
-import ru.weatherclock.adg.app.domain.model.settings.WeatherApiLanguage
-import ru.weatherclock.adg.app.domain.model.settings.WeatherConfig
-import ru.weatherclock.adg.app.domain.model.settings.orDefault
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class WeatherSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>):
@@ -35,27 +37,128 @@ class WeatherSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>
     }
 
     override suspend fun getApiKeys(): List<String> {
-        return getConfig().weatherApiKeys
+        return getConfig().weatherConfig.weatherApiKeys
     }
 
     override suspend fun setApiKeys(apiKeys: List<String>) {
-        saveConfig { copy(weatherApiKeys = apiKeys) }
+        saveConfig {
+            when (weatherConfig) {
+                is WeatherConfigData.Accuweather -> copy(
+                    weatherConfig = weatherConfig.copy(weatherApiKeys = apiKeys)
+                )
+
+                is WeatherConfigData.OpenWeatherMap -> copy(
+                    weatherConfig = weatherConfig.copy(weatherApiKeys = apiKeys)
+                )
+            }
+        }
     }
 
     override suspend fun getCityKey(): String {
-        return getConfig().weatherCityKey
+        return when (val c = getConfig().weatherConfig) {
+            is WeatherConfigData.Accuweather -> c.cityKey
+            is WeatherConfigData.OpenWeatherMap -> ""
+        }
     }
 
     override suspend fun setCityKey(cityKey: String) {
-        saveConfig { copy(weatherCityKey = cityKey) }
+        saveConfig {
+            when (weatherConfig) {
+                is WeatherConfigData.Accuweather -> copy(
+                    weatherConfig = weatherConfig.copy(
+                        cityKey = cityKey
+                    )
+                )
+
+                is WeatherConfigData.OpenWeatherMap -> this
+            }
+        }
     }
 
     override suspend fun getWeatherLanguage(): WeatherApiLanguage {
-        return getConfig().weatherApiLanguage
+        return getConfig().weatherConfig.weatherApiLanguage
     }
 
     override suspend fun setWeatherLanguage(language: WeatherApiLanguage) {
-        saveConfig { copy(weatherApiLanguage = language) }
+        saveConfig {
+            when (weatherConfig) {
+                is WeatherConfigData.Accuweather -> copy(
+                    weatherConfig = weatherConfig.copy(
+                        weatherApiLanguage = language
+                    )
+                )
+
+                is WeatherConfigData.OpenWeatherMap -> copy(
+                    weatherConfig = weatherConfig.copy(
+                        weatherApiLanguage = language
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun getLatitude(): Double {
+        return when (val c = getConfig().weatherConfig) {
+            is WeatherConfigData.Accuweather -> 0.0
+            is WeatherConfigData.OpenWeatherMap -> c.latitude
+        }
+    }
+
+    override suspend fun setLatitude(lat: Double) {
+        saveConfig {
+            when (weatherConfig) {
+                is WeatherConfigData.Accuweather -> this
+
+                is WeatherConfigData.OpenWeatherMap -> copy(
+                    weatherConfig = weatherConfig.copy(
+                        latitude = lat
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun getLongitude(): Double {
+        return when (val c = getConfig().weatherConfig) {
+            is WeatherConfigData.Accuweather -> 0.0
+            is WeatherConfigData.OpenWeatherMap -> c.longitude
+        }
+    }
+
+    override suspend fun setLongitude(lon: Double) {
+        saveConfig {
+            when (weatherConfig) {
+                is WeatherConfigData.Accuweather -> this
+
+                is WeatherConfigData.OpenWeatherMap -> copy(
+                    weatherConfig = weatherConfig.copy(
+                        longitude = lon
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun getUnitType(): WeatherUnits {
+        return getConfig().weatherConfig.units
+    }
+
+    override suspend fun setUnitType(type: WeatherUnits) {
+        saveConfig {
+            when (weatherConfig) {
+                is WeatherConfigData.Accuweather -> copy(
+                    weatherConfig = weatherConfig.copy(
+                        units = type
+                    )
+                )
+
+                is WeatherConfigData.OpenWeatherMap -> copy(
+                    weatherConfig = weatherConfig.copy(
+                        units = type
+                    )
+                )
+            }
+        }
     }
 
 }

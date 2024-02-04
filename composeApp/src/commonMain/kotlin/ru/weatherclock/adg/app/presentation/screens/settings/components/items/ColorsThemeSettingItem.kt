@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.weatherclock.adg.app.domain.model.settings.ColorTheme
+import ru.weatherclock.adg.app.data.dto.ColorTheme
 import ru.weatherclock.adg.app.domain.model.settings.ColorsThemeSetting
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getName
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette

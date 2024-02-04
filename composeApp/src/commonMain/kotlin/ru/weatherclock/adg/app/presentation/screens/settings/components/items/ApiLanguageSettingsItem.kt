@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.icerock.moko.resources.compose.stringResource
 import ru.weatherclock.adg.MR
-import ru.weatherclock.adg.app.domain.model.settings.WeatherApiLanguage
+import ru.weatherclock.adg.app.data.dto.WeatherApiLanguage
 import ru.weatherclock.adg.app.domain.model.settings.WeatherApiLanguageSetting
 import ru.weatherclock.adg.app.presentation.components.radiobutton.RadioGroupDialog
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getDescription

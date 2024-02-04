@@ -57,9 +57,9 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.koinInject
 import ru.weatherclock.adg.MR
+import ru.weatherclock.adg.app.data.dto.isHourInRangeForHide
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.stringForCalendar
-import ru.weatherclock.adg.app.domain.model.settings.isHourInRangeForHide
 import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.CalendarCallbackData
 import ru.weatherclock.adg.app.presentation.components.calendar.color
@@ -324,7 +324,10 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                 forecast5Days.forEachIndexed { index, dailyForecast ->
                     Box(modifier = Modifier.fillMaxSize().weight(1f)) {
                         Column(modifier = Modifier.fillMaxSize()) {
-                            WeatherCell(dailyForecast)
+                            WeatherCell(
+                                forecast = dailyForecast,
+                                weatherConfigData = weatherConfig.weatherConfig
+                            )
                         }
                     }
                     //Vertical divider avoiding the last cell in each row

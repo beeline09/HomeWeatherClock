@@ -1,6 +1,6 @@
 package ru.weatherclock.adg.app.data.repository.settings
 
-import ru.weatherclock.adg.app.domain.model.settings.AppSettings
+import ru.weatherclock.adg.app.data.dto.AppSettings
 
 interface AllSettingsRepository {
 

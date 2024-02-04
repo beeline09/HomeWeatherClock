@@ -4,11 +4,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
 import io.github.xxfast.kstore.KStore
+import ru.weatherclock.adg.app.data.dto.AppSettings
+import ru.weatherclock.adg.app.data.dto.ColorTheme
+import ru.weatherclock.adg.app.data.dto.UiConfig
+import ru.weatherclock.adg.app.data.dto.orDefault
 import ru.weatherclock.adg.app.data.repository.settings.UiSettingsRepository
-import ru.weatherclock.adg.app.domain.model.settings.AppSettings
-import ru.weatherclock.adg.app.domain.model.settings.ColorTheme
-import ru.weatherclock.adg.app.domain.model.settings.UiConfig
-import ru.weatherclock.adg.app.domain.model.settings.orDefault
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class UiSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>): UiSettingsRepository {

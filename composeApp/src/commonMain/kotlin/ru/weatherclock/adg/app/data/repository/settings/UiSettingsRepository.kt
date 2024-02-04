@@ -1,9 +1,9 @@
 package ru.weatherclock.adg.app.data.repository.settings
 
 import kotlinx.coroutines.flow.Flow
-import ru.weatherclock.adg.app.domain.model.settings.AppSettings
-import ru.weatherclock.adg.app.domain.model.settings.ColorTheme
-import ru.weatherclock.adg.app.domain.model.settings.UiConfig
+import ru.weatherclock.adg.app.data.dto.AppSettings
+import ru.weatherclock.adg.app.data.dto.ColorTheme
+import ru.weatherclock.adg.app.data.dto.UiConfig
 
 interface UiSettingsRepository {
 

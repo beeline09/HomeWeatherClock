@@ -16,9 +16,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
-import ru.weatherclock.adg.app.domain.model.settings.AppSettings
-import ru.weatherclock.adg.app.domain.model.settings.ColorTheme
-import ru.weatherclock.adg.app.domain.model.settings.orDefault
+import ru.weatherclock.adg.app.data.dto.AppSettings
+import ru.weatherclock.adg.app.data.dto.ColorTheme
+import ru.weatherclock.adg.app.data.dto.orDefault
 import ru.weatherclock.adg.platformSpecific.appSettingsKStore
 import ru.weatherclock.adg.platformSpecific.getTypography
 

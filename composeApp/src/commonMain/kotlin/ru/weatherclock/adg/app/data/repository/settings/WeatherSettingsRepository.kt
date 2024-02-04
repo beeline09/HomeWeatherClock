@@ -1,8 +1,9 @@
 package ru.weatherclock.adg.app.data.repository.settings
 
 import kotlinx.coroutines.flow.Flow
-import ru.weatherclock.adg.app.domain.model.settings.WeatherApiLanguage
-import ru.weatherclock.adg.app.domain.model.settings.WeatherConfig
+import ru.weatherclock.adg.app.data.WeatherUnits
+import ru.weatherclock.adg.app.data.dto.WeatherApiLanguage
+import ru.weatherclock.adg.app.data.dto.WeatherConfig
 
 interface WeatherSettingsRepository {
 
@@ -22,5 +23,14 @@ interface WeatherSettingsRepository {
 
     suspend fun getWeatherLanguage(): WeatherApiLanguage
     suspend fun setWeatherLanguage(language: WeatherApiLanguage)
+
+    suspend fun getLatitude(): Double
+    suspend fun setLatitude(lat: Double)
+
+    suspend fun getLongitude(): Double
+    suspend fun setLongitude(lon: Double)
+
+    suspend fun getUnitType(): WeatherUnits
+    suspend fun setUnitType(type: WeatherUnits)
 
 }

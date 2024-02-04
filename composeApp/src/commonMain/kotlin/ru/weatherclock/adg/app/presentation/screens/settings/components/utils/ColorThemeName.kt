@@ -3,7 +3,7 @@ package ru.weatherclock.adg.app.presentation.screens.settings.components.utils
 import androidx.compose.runtime.Composable
 import dev.icerock.moko.resources.compose.stringResource
 import ru.weatherclock.adg.MR
-import ru.weatherclock.adg.app.domain.model.settings.ColorTheme
+import ru.weatherclock.adg.app.data.dto.ColorTheme
 
 @Composable
 fun ColorTheme.getName(): String = when (this) {

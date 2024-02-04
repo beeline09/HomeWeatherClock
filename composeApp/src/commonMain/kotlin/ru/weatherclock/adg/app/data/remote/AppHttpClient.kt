@@ -6,7 +6,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.url
 import io.ktor.client.statement.HttpResponse
-import ru.weatherclock.adg.app.data.query.base.ApiQuery
+import ru.weatherclock.adg.app.data.remote.query.base.ApiQuery
 
 class AppHttpClient(private val httpClient: HttpClient) {
 
