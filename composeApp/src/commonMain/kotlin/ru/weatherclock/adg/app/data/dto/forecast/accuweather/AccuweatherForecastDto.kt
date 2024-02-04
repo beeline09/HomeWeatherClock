@@ -3,8 +3,8 @@ package ru.weatherclock.adg.app.data.dto.forecast.accuweather
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import ru.weatherclock.adg.app.data.dto.forecast.ForecastDto
-import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.DailyForecastDto
-import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.HeadlineDto
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.DailyForecastDto
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.HeadlineDto
 
 @Serializable
 data class AccuweatherForecastDto(

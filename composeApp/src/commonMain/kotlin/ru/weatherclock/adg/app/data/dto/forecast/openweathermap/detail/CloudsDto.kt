@@ -1,4 +1,4 @@
-package ru.weatherclock.adg.app.data.dto.forecast.openweathermap.forecast
+package ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

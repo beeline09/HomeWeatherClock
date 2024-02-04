@@ -6,7 +6,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.forecast.PartOfDay
+import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail.PartOfDay
 
 object PartOfDaySerializer: KSerializer<PartOfDay> {
 
