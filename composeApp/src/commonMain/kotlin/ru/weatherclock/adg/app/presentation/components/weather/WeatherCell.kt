@@ -51,7 +51,7 @@ fun ColumnScope.WeatherCell(
                 .weight(1f)
         ) {
             AutoSizeText(
-                text = forecast.max.temperature.toTemperature(unitType = weatherConfigData.units),
+                text = forecast.min.temperature.toTemperature(unitType = weatherConfigData.units),
                 maxTextSize = 85.sp,
                 minTextSize = 5.sp,
                 stepGranularityTextSize = 1.sp,

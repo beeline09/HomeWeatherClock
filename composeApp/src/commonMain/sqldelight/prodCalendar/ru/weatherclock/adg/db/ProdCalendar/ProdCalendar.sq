@@ -20,7 +20,7 @@ SELECT *
 FROM ProdCalendar;
 
 getByYearAndRegion:
-SELECT * FROM ProdCalendar WHERE SUBSTR(date, 0, 5) = ? AND region = ?;
+SELECT * FROM ProdCalendar WHERE SUBSTR(date, 0, 5) LIKE ? AND region = ?;
 
 insert:
 REPLACE INTO ProdCalendar
