@@ -1,7 +1,7 @@
 package ru.weatherclock.adg.app.data.repository.settings
 
 import kotlinx.coroutines.flow.Flow
-import ru.weatherclock.adg.app.domain.model.settings.TimeConfig
+import ru.weatherclock.adg.app.data.dto.TimeConfig
 
 interface TimeSettingsRepository {
 

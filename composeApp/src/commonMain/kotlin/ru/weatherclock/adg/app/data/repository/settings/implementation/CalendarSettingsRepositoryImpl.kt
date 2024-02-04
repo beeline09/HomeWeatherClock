@@ -4,10 +4,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
 import io.github.xxfast.kstore.KStore
+import ru.weatherclock.adg.app.data.dto.AppSettings
+import ru.weatherclock.adg.app.data.dto.CalendarConfig
+import ru.weatherclock.adg.app.data.dto.orDefault
 import ru.weatherclock.adg.app.data.repository.settings.CalendarSettingsRepository
-import ru.weatherclock.adg.app.domain.model.settings.AppSettings
-import ru.weatherclock.adg.app.domain.model.settings.CalendarConfig
-import ru.weatherclock.adg.app.domain.model.settings.orDefault
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CalendarSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>):

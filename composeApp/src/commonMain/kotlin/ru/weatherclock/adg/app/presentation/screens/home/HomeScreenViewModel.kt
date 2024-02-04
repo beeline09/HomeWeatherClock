@@ -80,9 +80,9 @@ class HomeScreenViewModel(
         )
         setState {
             copy(
-                forecast5Days = forecast?.dailyForecasts.orEmpty(),
-                headline = forecast?.headline?.text,
-                headlineSeverity = forecast?.headline?.severity ?: Severity.UNKNOWN
+                forecast5Days = forecast?.dailyForecast.orEmpty(),
+                headline = forecast?.headline,
+                headlineSeverity = forecast?.severity ?: Severity.UNKNOWN
             )
         }
     }

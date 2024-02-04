@@ -2,46 +2,88 @@ package ru.weatherclock.adg.app.domain.usecase
 
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
-import ru.weatherclock.adg.app.data.dto.accuweather.asDomainModel
-import ru.weatherclock.adg.app.data.repository.db.forecast.ForecastDbRepository
+import ru.weatherclock.adg.app.data.dto.WeatherConfigData
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.AccuweatherForecastDto
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.DetailDto
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asAccuweatherDbModel
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asAccuweatherDbModelEvapotranspiration
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asAccuweatherDbModelIce
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asAccuweatherDbModelRain
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asAccuweatherDbModelSnow
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asAccuweatherDbModelSolarIrradiance
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asAccuweatherDbModelTotalLiquid
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asAccuweatherDbModelWind
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asAccuweatherDbModelWindGust
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asAccuweatherDbRealFeelTemperature
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asAccuweatherDbRealFeelTemperatureShade
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asAccuweatherDbTemperature
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.asDomainModel
+import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.OpenWeatherMapForecastDto
+import ru.weatherclock.adg.app.data.repository.db.forecast.AccuweatherDbRepository
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
-import ru.weatherclock.adg.app.data.repository.weather.WeatherRepository
+import ru.weatherclock.adg.app.data.repository.weather.implementation.AccuweatherForecastRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.weather.implementation.OpenWeatherMapForecastRepositoryImpl
 import ru.weatherclock.adg.app.data.util.isEqualsByHour
-import ru.weatherclock.adg.app.domain.model.Forecast
-import ru.weatherclock.adg.app.domain.model.forecast.Detail
 import ru.weatherclock.adg.app.domain.model.forecast.DetailType
-import ru.weatherclock.adg.app.domain.model.forecast.asDbModel
-import ru.weatherclock.adg.app.domain.model.forecast.asDbModelEvapotranspiration
-import ru.weatherclock.adg.app.domain.model.forecast.asDbModelIce
-import ru.weatherclock.adg.app.domain.model.forecast.asDbModelRain
-import ru.weatherclock.adg.app.domain.model.forecast.asDbModelSnow
-import ru.weatherclock.adg.app.domain.model.forecast.asDbModelSolarIrradiance
-import ru.weatherclock.adg.app.domain.model.forecast.asDbModelTotalLiquid
-import ru.weatherclock.adg.app.domain.model.forecast.asDbModelWind
-import ru.weatherclock.adg.app.domain.model.forecast.asDbModelWindGust
-import ru.weatherclock.adg.app.domain.model.forecast.asDbRealFeelTemperature
-import ru.weatherclock.adg.app.domain.model.forecast.asDbRealFeelTemperatureShade
-import ru.weatherclock.adg.app.domain.model.forecast.asDbTemperature
+import ru.weatherclock.adg.app.domain.model.forecast.Forecast
+import ru.weatherclock.adg.app.domain.model.forecast.Severity
 import ru.weatherclock.adg.app.domain.model.forecast.asDomainModel
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
-import ru.weatherclock.adg.db.Accuweather.DailyForecast
-import ru.weatherclock.adg.db.Accuweather.ForecastDetail
 
 class ForecastUseCase(
-    private val repository: WeatherRepository,
-    private val forecastDbRepository: ForecastDbRepository,
+    private val accuweatherRepository: AccuweatherForecastRepositoryImpl,
+    private val openWeatherMapRepository: OpenWeatherMapForecastRepositoryImpl,
+    private val accuweatherDbRepository: AccuweatherDbRepository,
     private val weatherSettings: WeatherSettingsRepository,
 ) {
 
     private var lastUpdateForecast: LocalDateTime? = null
 
+    private suspend fun getAccuweatherForecast(): AccuweatherForecastDto {
+        return accuweatherRepository.getWeatherForecast(
+            cityKey = weatherSettings.getCityKey(),
+            language = weatherSettings.getWeatherLanguage().code,
+            apiKeys = weatherSettings.getApiKeys()
+        )
+    }
+
+    private suspend fun getOpenWeatherMapForecast(): OpenWeatherMapForecastDto {
+        return openWeatherMapRepository.getWeatherForecast(
+            latitude = weatherSettings.getLatitude(),
+            longitude = weatherSettings.getLongitude(),
+            language = weatherSettings.getWeatherLanguage().code,
+            apiKeys = weatherSettings.getApiKeys(),
+            units = weatherSettings.getUnitType()
+        )
+    }
+
+    private suspend fun getForecastRemote(): Forecast {
+        return when (weatherSettings.getConfig().weatherConfig) {
+            is WeatherConfigData.Accuweather -> {
+                getAccuweatherForecast().let {
+                    it.saveToDb(weatherSettings.getCityKey())
+                    it.asDomainModel()
+                }
+            }
+
+            is WeatherConfigData.OpenWeatherMap -> {
+                getOpenWeatherMapForecast().let {
+                    it.saveToDb(
+                        lat = weatherSettings.getLatitude(),
+                        lon = weatherSettings.getLongitude()
+                    )
+                    it.asDomainModel()
+                }
+            }
+        }
+    }
+
     suspend fun getForPeriod(
         startDate: LocalDate,
         endDate: LocalDate
     ): Forecast? {
-        val forecastKey = weatherSettings.getCityKey()
-        val forecast = getForecastInternal(
-            forecastKey,
+
+        val forecastInternal = getForecastInternal(
             startDate,
             endDate
         )
@@ -50,7 +92,7 @@ class ForecastUseCase(
         //Если в БД пусто и больше часа ничего не загружалось, либо это в первый раз
         //Если в БД не пусто и прошло больше 2 часов с последнего обновления
         val currentTime = LocalDateTime.now()
-        val us0 = lastUpdateForecast == null && (forecast?.dailyForecasts?.size ?: 0) < 5
+        val us0 = lastUpdateForecast == null && (forecastInternal?.dailyForecast?.size ?: 0) < 5
         //Для обновления раз в два часа
         val us1 = lastUpdateForecast?.isEqualsByHour(
             currentTime,
@@ -58,81 +100,70 @@ class ForecastUseCase(
         ) != true
         //Если в БД пусто и данные не запрашивались больше часа
         val us3 =
-            forecast?.dailyForecasts.isNullOrEmpty() && lastUpdateForecast?.isEqualsByHour(currentTime) != true
+            forecastInternal?.dailyForecast.isNullOrEmpty() && lastUpdateForecast?.isEqualsByHour(currentTime) != true
         val result = if (us0 || us3 || us1) {
-            val response = try {
-                repository.getWeatherForecast(
-                    cityKey = forecastKey,
-                    apiKeys = weatherSettings.getApiKeys(),
-                    language = weatherSettings.getWeatherLanguage().code
-                ).asDomainModel().also {
+            return try {
+                getForecastRemote().also {
                     lastUpdateForecast = currentTime
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                return forecast
+                return forecastInternal
             }
-            if (response.headline != null || response.dailyForecasts.isNotEmpty()) {
-                response.saveToDb(forecastKey = forecastKey)
-            }
-            getForecastInternal(
-                forecastKey,
-                startDate,
-                endDate
-            )
-        } else forecast
+        } else forecastInternal
         return result
     }
 
-    private suspend fun Forecast.saveToDb(forecastKey: String) {
+    private suspend fun AccuweatherForecastDto.saveToDb(forecastKey: String) {
         headline
-            ?.asDbModel(forecastKey)
-            ?.let { forecastDbRepository.insertHeadline(it) }
+            ?.asAccuweatherDbModel(forecastKey)
+            ?.let { accuweatherDbRepository.insertHeadline(it) }
         for (f in dailyForecasts) {
             val forecastPid =
-                forecastDbRepository.insertDailyForecast(dailyForecast = f.asDbModel(forecastKey))
+                accuweatherDbRepository.insertDailyForecast(dailyForecast = f.asAccuweatherDbModel(forecastKey))
             if (forecastPid >= 0L) {
-                f.sun?.asDbModel(forecastPid = forecastPid)
+                f.sun?.asAccuweatherDbModel(forecastPid = forecastPid)?.let {
+                    accuweatherDbRepository.insertSun(
+                        forecastPid = forecastPid,
+                        sun = it
+                    )
+                }
+                f.moon?.asAccuweatherDbModel(forecastPid = forecastPid)?.let {
+                    accuweatherDbRepository.insertMoon(
+                        forecastPid = forecastPid,
+                        it
+                    )
+                }
+                f.temperature?.asAccuweatherDbTemperature(forecastPid = forecastPid)?.let {
+                    accuweatherDbRepository.insertTemperature(
+                        forecastPid = forecastPid,
+                        it
+                    )
+                }
+                f.realFeelTemperature
+                    ?.asAccuweatherDbRealFeelTemperature(forecastPid = forecastPid)
                     ?.let {
-                        forecastDbRepository.insertSun(
-                            forecastPid = forecastPid,
-                            sun = it
-                        )
-                    }
-                f.moon?.asDbModel(forecastPid = forecastPid)?.let {
-                    forecastDbRepository.insertMoon(
-                        forecastPid = forecastPid,
-                        it
-                    )
-                }
-                f.temperature?.asDbTemperature(forecastPid = forecastPid)?.let {
-                    forecastDbRepository.insertTemperature(
-                        forecastPid = forecastPid,
-                        it
-                    )
-                }
-                f.realFeelTemperature?.asDbRealFeelTemperature(forecastPid = forecastPid)?.let {
-                    forecastDbRepository.insertRealFeelTemperature(
-                        forecastPid = forecastPid,
-                        it
-                    )
-                }
-                f.realFeelTemperatureShade
-                    ?.asDbRealFeelTemperatureShade(forecastPid = forecastPid)
-                    ?.let {
-                        forecastDbRepository.insertRealFeelTemperatureShade(
+                        accuweatherDbRepository.insertRealFeelTemperature(
                             forecastPid = forecastPid,
                             it
                         )
                     }
-                f.degreeDaySummary?.asDbModel(forecastPid = forecastPid)?.let {
-                    forecastDbRepository.insertDegreeDaySummary(
+                f.realFeelTemperatureShade
+                    ?.asAccuweatherDbRealFeelTemperatureShade(forecastPid = forecastPid)
+                    ?.let {
+                        accuweatherDbRepository.insertRealFeelTemperatureShade(
+                            forecastPid = forecastPid,
+                            it
+                        )
+                    }
+                f.degreeDaySummary?.asAccuweatherDbModel(forecastPid = forecastPid)?.let {
+                    accuweatherDbRepository.insertDegreeDaySummary(
                         forecastPid = forecastPid,
                         it
                     )
                 }
                 f.airAndPollen?.let {
-                    forecastDbRepository.insertAirAndPollen(airAndPollens = it.map { it.asDbModel(forecastPid = forecastPid) })
+                    accuweatherDbRepository.insertAirAndPollen(airAndPollens = it.map { it.asAccuweatherDbModel(forecastPid = forecastPid) })
                 }
                 f.day?.apply {
                     insertDayDetailInternal(
@@ -150,62 +181,65 @@ class ForecastUseCase(
         }
     }
 
-    private suspend fun Detail.insertDayDetailInternal(
+    private suspend fun DetailDto.insertDayDetailInternal(
         forecastPid: Long,
         type: DetailType
     ): Long {
-        val detailPid = forecastDbRepository.insertDetail(
+        val detailPid = accuweatherDbRepository.insertDetail(
             forecastPid = forecastPid,
             type = type,
-            forecastDetail = asDbModel(forecastPid = forecastPid)
+            forecastDetail = asAccuweatherDbModel(
+                forecastPid = forecastPid,
+                isNight = type == DetailType.NIGHT
+            )
         )
         if (detailPid >= 0L) {
             wind?.let { wind ->
-                forecastDbRepository.insertWind(
+                accuweatherDbRepository.insertWind(
                     detailPid = detailPid,
-                    wind.asDbModelWind(detailPid = detailPid)
+                    wind.asAccuweatherDbModelWind(detailPid = detailPid)
                 )
             }
             windGust?.let { windGust ->
-                forecastDbRepository.insertWindGust(
+                accuweatherDbRepository.insertWindGust(
                     detailPid = detailPid,
-                    windGust.asDbModelWindGust(detailPid = detailPid)
+                    windGust.asAccuweatherDbModelWindGust(detailPid = detailPid)
                 )
             }
             totalLiquid?.let { totalLiquid ->
-                forecastDbRepository.insertTotalLiquid(
+                accuweatherDbRepository.insertTotalLiquid(
                     detailPid = detailPid,
-                    totalLiquid.asDbModelTotalLiquid(detailPid = detailPid)
+                    totalLiquid.asAccuweatherDbModelTotalLiquid(detailPid = detailPid)
                 )
             }
             rain?.let { rain ->
-                forecastDbRepository.insertRain(
+                accuweatherDbRepository.insertRain(
                     detailPid = detailPid,
-                    rain.asDbModelRain(detailPid = detailPid)
+                    rain.asAccuweatherDbModelRain(detailPid = detailPid)
                 )
             }
             snow?.let { snow ->
-                forecastDbRepository.insertSnow(
+                accuweatherDbRepository.insertSnow(
                     detailPid = detailPid,
-                    snow.asDbModelSnow(detailPid = detailPid)
+                    snow.asAccuweatherDbModelSnow(detailPid = detailPid)
                 )
             }
             ice?.let { ice ->
-                forecastDbRepository.insertIce(
+                accuweatherDbRepository.insertIce(
                     detailPid = detailPid,
-                    ice.asDbModelIce(detailPid = detailPid)
+                    ice.asAccuweatherDbModelIce(detailPid = detailPid)
                 )
             }
             evapotranspiration?.let { e ->
-                forecastDbRepository.insertEvapotranspiration(
+                accuweatherDbRepository.insertEvapotranspiration(
                     detailPid = detailPid,
-                    e.asDbModelEvapotranspiration(detailPid = detailPid)
+                    e.asAccuweatherDbModelEvapotranspiration(detailPid = detailPid)
                 )
             }
             solarIrradiance?.let { si ->
-                forecastDbRepository.insertSolarIrradiance(
+                accuweatherDbRepository.insertSolarIrradiance(
                     detailPid = detailPid,
-                    si.asDbModelSolarIrradiance(detailPid = detailPid)
+                    si.asAccuweatherDbModelSolarIrradiance(detailPid = detailPid)
                 )
             }
         }
@@ -213,74 +247,65 @@ class ForecastUseCase(
     }
 
     private suspend fun getForecastInternal(
-        forecastKey: String,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): Forecast? = when (weatherSettings.getConfig().weatherConfig) {
+        is WeatherConfigData.Accuweather -> getAccuweatherForecastInternal(
+            startDate,
+            endDate
+        )
+
+        is WeatherConfigData.OpenWeatherMap -> getOpenWeatherMapForecastInternal(
+            startDate,
+            endDate
+        )
+    }
+
+    private suspend fun getAccuweatherForecastInternal(
         startDate: LocalDate,
         endDate: LocalDate
     ): Forecast? {
-        val headline = forecastDbRepository
-            .getHeadline(
-                forecastKey,
-                startDate,
-                endDate
-            )
-            ?.asDomainModel()
-        val forecast = forecastDbRepository.getForecast(
-            forecastKey,
+        val headline = accuweatherDbRepository.getHeadline(
+            weatherSettings.getCityKey(),
             startDate,
             endDate
-        ).map { it.toDomainModel() }
+        )
+        val forecast = accuweatherDbRepository.getForecast(
+            weatherSettings.getCityKey(),
+            startDate,
+            endDate
+        ).mapNotNull {
+            it.asDomainModel(
+                temperature = accuweatherDbRepository.getTemperature(byForecastPid = it.pid),
+                detailDay = accuweatherDbRepository.getDetail(
+                    byForecastPid = it.pid,
+                    DetailType.DAY
+                ),
+                detailNight = accuweatherDbRepository.getDetail(
+                    byForecastPid = it.pid,
+                    DetailType.NIGHT
+                )
+            )
+        }
         return Forecast(
-            headline = headline,
-            dailyForecasts = forecast
+            headline = headline?.text,
+            severity = Severity.entries[headline?.severity ?: 0],
+            dailyForecast = forecast
         ).takeIf { headline != null || forecast.isNotEmpty() }
     }
 
-    private suspend fun ForecastDetail.toDomainModel(): Detail {
-        return asDomainModel(
-            evapotranspiration = forecastDbRepository
-                .getEvapotranspiration(byDetailPid = pid)
-                ?.asDomainModel(),
-            solarIrradiance = forecastDbRepository
-                .getSolarIrradiance(byDetailPid = pid)
-                ?.asDomainModel(),
-            wind = forecastDbRepository.getWindGust(byDetailPid = pid)?.asDomainModel(),
-            windGust = forecastDbRepository.getWindGust(byDetailPid = pid)?.asDomainModel(),
-            totalLiquid = forecastDbRepository.getTotalLiquid(byDetailPid = pid)?.asDomainModel(),
-            snow = forecastDbRepository.getSnow(byDetailPid = pid)?.asDomainModel(),
-            rain = forecastDbRepository.getRain(byDetailPid = pid)?.asDomainModel(),
-            ice = forecastDbRepository.getIce(byDetailPid = pid)?.asDomainModel()
-        )
+    private suspend fun getOpenWeatherMapForecastInternal(
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): Forecast? {
+        //TODO Сделать!!!
+        return null
     }
 
-    private suspend fun DailyForecast.toDomainModel(): ru.weatherclock.adg.app.domain.model.forecast.DailyForecast {
-        return asDomainModel(
-            airAndPollen = forecastDbRepository
-                .getAirAndPollen(byForecastPid = pid)
-                .map { it.asDomainModel() },
-            degreeDaySummary = forecastDbRepository
-                .getDegreeDaySummary(byForecastPid = pid)
-                ?.asDomainModel(),
-            temperature = forecastDbRepository
-                .getTemperature(byForecastPid = pid)
-                ?.asDomainModel(),
-            realFeelTemperature = forecastDbRepository
-                .getRealFeelTemperature(byForecastPid = pid)
-                ?.asDomainModel(),
-            realFeelTemperatureShade = forecastDbRepository
-                .getRealFeelTemperatureShade(byForecastPid = pid)
-                ?.asDomainModel(),
-            day = forecastDbRepository
-                .getDetail(
-                    byForecastPid = pid,
-                    type = DetailType.DAY
-                )
-                ?.toDomainModel(),
-            night = forecastDbRepository.getDetail(
-                byForecastPid = pid,
-                type = DetailType.NIGHT
-            )?.toDomainModel(),
-            moon = forecastDbRepository.getMoon(byForecastPid = pid)?.asDomainModel(),
-            sun = forecastDbRepository.getSun(byForecastPid = pid)?.asDomainModel()
-        )
+    private suspend fun OpenWeatherMapForecastDto.saveToDb(
+        lat: Double,
+        lon: Double
+    ) {
+        //TODO Сделать!!!
     }
 }

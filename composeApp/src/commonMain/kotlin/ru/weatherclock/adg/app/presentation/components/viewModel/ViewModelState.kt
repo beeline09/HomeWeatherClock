@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import cafe.adriel.voyager.core.model.ScreenModel
-import ru.weatherclock.adg.app.domain.model.settings.AppSettings
-import ru.weatherclock.adg.app.domain.model.settings.orDefault
+import ru.weatherclock.adg.app.data.dto.AppSettings
+import ru.weatherclock.adg.app.data.dto.orDefault
 import ru.weatherclock.adg.platformSpecific.appSettingsKStore
 
 abstract class ViewModelState<STATE: State, INTENT: Intent>(

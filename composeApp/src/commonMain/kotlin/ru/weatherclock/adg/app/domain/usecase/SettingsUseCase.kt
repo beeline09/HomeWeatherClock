@@ -5,13 +5,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
+import ru.weatherclock.adg.app.data.dto.AppSettings
+import ru.weatherclock.adg.app.data.dto.WeatherConfigData
 import ru.weatherclock.adg.app.data.repository.settings.CalendarSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.TimeSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.UiSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
 import ru.weatherclock.adg.app.data.util.isInHours
-import ru.weatherclock.adg.app.domain.model.settings.AppSettings
 import ru.weatherclock.adg.app.domain.model.settings.BaseSettingItem
 import ru.weatherclock.adg.app.domain.model.settings.BooleanSetting
 import ru.weatherclock.adg.app.domain.model.settings.ColorsThemeSetting
@@ -51,7 +52,7 @@ class SettingsUseCase(
     fun getSettingsFlow(): Flow<List<BaseSettingItem>> =
         getAllSettingsFlow().mapLatest { settings ->
             val timeConfig = settings.timeConfig
-            val weatherConfig = settings.weatherConfig
+            val weatherSettings = settings.weatherConfig
             val calendarConfig = settings.calendarConfig
             val prodCalendarConfig = calendarConfig.prodCalendarConfig
             val uiConfig = settings.uiConfig
@@ -104,7 +105,7 @@ class SettingsUseCase(
                 add(SettingsHeader(settingsKey = SettingKey.HeaderWeatherConfig))
                 add(
                     BooleanSetting(settingsKey = SettingKey.WeatherEnabled,
-                        currentValue = weatherConfig.weatherEnabled,
+                        currentValue = weatherSettings.weatherEnabled,
                         onChange = {
                             safeUpdate {
                                 weatherRepo.setWeatherEnabled(it)
@@ -113,8 +114,8 @@ class SettingsUseCase(
                 )
                 add(
                     StringListSetting(settingsKey = SettingKey.WeatherApiKeys,
-                        isEnabled = weatherConfig.weatherEnabled,
-                        currentValue = weatherConfig.weatherApiKeys,
+                        isEnabled = weatherSettings.weatherEnabled,
+                        currentValue = weatherSettings.weatherConfig.weatherApiKeys,
                         onChange = {
                             safeUpdate {
                                 weatherRepo.setApiKeys(it)
@@ -123,8 +124,8 @@ class SettingsUseCase(
                 )
                 add(
                     WeatherApiLanguageSetting(settingsKey = SettingKey.WeatherLanguage,
-                        currentValue = weatherConfig.weatherApiLanguage,
-                        isEnabled = weatherConfig.weatherEnabled,
+                        currentValue = weatherSettings.weatherConfig.weatherApiLanguage,
+                        isEnabled = weatherSettings.weatherEnabled,
                         onChange = {
                             safeUpdate {
                                 weatherRepo.setWeatherLanguage(it)
@@ -132,10 +133,10 @@ class SettingsUseCase(
                         })
                 )
                 val weatherEnabled =
-                    weatherConfig.weatherEnabled && weatherConfig.weatherApiKeys.isNotEmpty()
+                    weatherSettings.weatherEnabled && weatherSettings.weatherConfig.weatherApiKeys.isNotEmpty()
                 add(
                     StringSetting(settingsKey = if (weatherEnabled) SettingKey.WeatherCityKey1 else SettingKey.WeatherCityKey2,
-                        currentValue = weatherConfig.weatherCityKey,
+                        currentValue = (weatherSettings.weatherConfig as? WeatherConfigData.Accuweather)?.cityKey.orEmpty(),
                         isEnabled = weatherEnabled,
                         onChange = { s ->
                             if (s.isNotBlank()) {

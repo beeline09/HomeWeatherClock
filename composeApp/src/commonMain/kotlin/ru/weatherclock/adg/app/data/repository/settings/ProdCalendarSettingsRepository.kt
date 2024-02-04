@@ -1,7 +1,7 @@
 package ru.weatherclock.adg.app.data.repository.settings
 
 import kotlinx.coroutines.flow.Flow
-import ru.weatherclock.adg.app.domain.model.settings.ProdCalendarConfig
+import ru.weatherclock.adg.app.data.dto.ProdCalendarConfig
 
 interface ProdCalendarSettingsRepository {
 

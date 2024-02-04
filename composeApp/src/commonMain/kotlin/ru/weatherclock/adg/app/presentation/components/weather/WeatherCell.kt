@@ -20,7 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.weatherclock.adg.app.domain.model.forecast.DailyForecast
+import ru.weatherclock.adg.app.data.dto.WeatherConfigData
+import ru.weatherclock.adg.app.domain.model.forecast.ForecastDay
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.app.presentation.components.text.formatForWeatherCell
 import ru.weatherclock.adg.app.presentation.components.text.toTemperature
@@ -28,7 +29,8 @@ import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @Composable
 fun ColumnScope.WeatherCell(
-    forecast: DailyForecast,
+    forecast: ForecastDay,
+    weatherConfigData: WeatherConfigData,
     isPreview: Boolean = false
 ) {
     val colorPalette = LocalCustomColorsPalette.current
@@ -49,9 +51,7 @@ fun ColumnScope.WeatherCell(
                 .weight(1f)
         ) {
             AutoSizeText(
-                text = forecast.temperature?.maximum?.let {
-                    it.value.toTemperature(unit = it.unit)
-                }.orEmpty(),
+                text = forecast.max.temperature.toTemperature(unitType = weatherConfigData.units),
                 maxTextSize = 85.sp,
                 minTextSize = 5.sp,
                 stepGranularityTextSize = 1.sp,
@@ -83,9 +83,7 @@ fun ColumnScope.WeatherCell(
                 .weight(1f)
         ) {
             AutoSizeText(
-                text = forecast.temperature?.minimum?.let {
-                    it.value.toTemperature(unit = it.unit)
-                }.orEmpty(),
+                text = forecast.max.temperature.toTemperature(unitType = weatherConfigData.units),
                 maxTextSize = 85.sp,
                 minTextSize = 5.sp,
                 stepGranularityTextSize = 1.sp,
@@ -121,12 +119,11 @@ fun ColumnScope.WeatherCell(
                 .weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            forecast.day?.let {
-                WeatherIcon(
-                    it,
-                    isPreview
-                )
-            }
+            WeatherIcon(
+                detail = forecast.min,
+                weatherConfigData = weatherConfigData,
+                isPreview = isPreview
+            )
         }
         Spacer(
             modifier = Modifier
@@ -140,12 +137,11 @@ fun ColumnScope.WeatherCell(
                 .weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            forecast.night?.let {
-                WeatherIcon(
-                    it,
-                    isPreview
-                )
-            }
+            WeatherIcon(
+                detail = forecast.max,
+                weatherConfigData = weatherConfigData,
+                isPreview = isPreview
+            )
         }
     }
     //Краткое описание иконки погоды
@@ -165,7 +161,7 @@ fun ColumnScope.WeatherCell(
                 .weight(1f)
         ) {
             AutoSizeText(
-                text = forecast.day?.iconPhrase.orEmpty(),
+                text = forecast.min.iconPhrase.orEmpty(),
                 maxTextSize = 11.sp,
                 minTextSize = 5.sp,
                 stepGranularityTextSize = 1.sp,
@@ -186,7 +182,7 @@ fun ColumnScope.WeatherCell(
                 .weight(1f),
         ) {
             AutoSizeText(
-                text = forecast.night?.iconPhrase.orEmpty(),
+                text = forecast.max.iconPhrase.orEmpty(),
                 maxTextSize = 11.sp,
                 minTextSize = 5.sp,
                 stepGranularityTextSize = 1.sp,
