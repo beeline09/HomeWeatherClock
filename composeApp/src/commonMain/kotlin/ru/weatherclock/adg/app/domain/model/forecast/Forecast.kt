@@ -2,7 +2,7 @@ package ru.weatherclock.adg.app.domain.model.forecast
 
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.AccuweatherForecastDto
 import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.OpenWeatherMapForecastDto
-import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.forecast.PartOfDay
+import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail.PartOfDay
 import ru.weatherclock.adg.app.data.util.epochSecondsToLocalDateTime
 
 data class Forecast(

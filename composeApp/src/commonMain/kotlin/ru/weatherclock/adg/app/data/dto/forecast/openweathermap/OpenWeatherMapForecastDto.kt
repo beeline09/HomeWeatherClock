@@ -3,7 +3,7 @@ package ru.weatherclock.adg.app.data.dto.forecast.openweathermap
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import ru.weatherclock.adg.app.data.dto.forecast.ForecastDto
-import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.forecast.ForecastItemDto
+import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail.ForecastItemDto
 
 @Serializable
 data class OpenWeatherMapForecastDto(

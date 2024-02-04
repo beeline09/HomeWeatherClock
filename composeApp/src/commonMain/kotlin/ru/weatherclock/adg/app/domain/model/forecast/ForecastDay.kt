@@ -1,7 +1,7 @@
 package ru.weatherclock.adg.app.domain.model.forecast
 
 import kotlinx.datetime.LocalDate
-import ru.weatherclock.adg.app.data.dto.forecast.accuweather.forecast.DailyForecastDto
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.DailyForecastDto
 import ru.weatherclock.adg.app.data.util.epochSecondsToLocalDate
 
 data class ForecastDay(
