@@ -11,10 +11,8 @@ data class Forecast(
     val dailyForecast: List<ForecastDay> = emptyList()
 )
 
-fun AccuweatherForecastDto.asDomainModel(): Forecast = Forecast(
-    headline = headline?.text,
-    dailyForecast = dailyForecasts.map { it.asDomainModel() }
-)
+fun AccuweatherForecastDto.asDomainModel(): Forecast = Forecast(headline = headline?.text,
+    dailyForecast = dailyForecasts.map { it.asDomainModel() })
 
 fun OpenWeatherMapForecastDto.asDomainModel(): Forecast {
     val byDays = items.groupBy {
@@ -30,16 +28,12 @@ fun OpenWeatherMapForecastDto.asDomainModel(): Forecast {
             val day = dayValues.maxBy { item -> item.main.temperature }
             ForecastDay(
                 date = date,
-                min = DayDetail(
-                    temperature = night.main.temperature,
+                min = DayDetail(temperature = night.main.temperature,
                     icon = night.weather.firstOrNull()?.icon.orEmpty(),
-                    iconPhrase = night.weather.firstOrNull()?.description
-                ),
-                max = DayDetail(
-                    temperature = day.main.temperature,
+                    iconPhrase = night.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercaseChar() }),
+                max = DayDetail(temperature = day.main.temperature,
                     icon = day.weather.firstOrNull()?.icon.orEmpty(),
-                    iconPhrase = day.weather.firstOrNull()?.description
-                )
+                    iconPhrase = day.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercaseChar() })
             )
         }
 

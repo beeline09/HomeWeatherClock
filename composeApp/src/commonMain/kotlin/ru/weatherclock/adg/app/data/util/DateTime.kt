@@ -183,7 +183,7 @@ fun LocalDate.isEqualsByYear(other: LocalDate): Boolean {
 }
 
 fun LocalDate.toDbFormat(): Long {
-    return "$year${monthNumber.padStart(2)}${dayOfMonth.padStart(2)}".toLong()
+    return "${year.padStart(4)}${monthNumber.padStart(2)}${dayOfMonth.padStart(2)}".toLong()
 }
 
 fun Long.fromDbToLocalDate(): LocalDate {
@@ -209,7 +209,7 @@ fun Long.fromDbToLocalDate(): LocalDate {
 }
 
 fun LocalDateTime.toDbFormat(): Long {
-    val year = year.toString()
+    val year = year.padStart(4)
     val month = monthNumber.padStart(2)
     val day = dayOfMonth.padStart(2)
     val hour = hour.padStart(2)
@@ -233,24 +233,18 @@ fun Long.fromDbToLocalDateTime(): LocalDateTime {
         6,
         8
     ).toInt()
-    val hour = str
-        .substring(
-            8,
-            10
-        )
-        .toInt()
-    val minute = str
-        .substring(
-            10,
-            12
-        )
-        .toInt()
-    val second = str
-        .substring(
-            12,
-            14
-        )
-        .toInt()
+    val hour = str.substring(
+        8,
+        10
+    ).toInt()
+    val minute = str.substring(
+        10,
+        12
+    ).toInt()
+    val second = str.substring(
+        12,
+        14
+    ).toInt()
     return LocalDateTime(
         year = year,
         monthNumber = month,

@@ -2,6 +2,7 @@ package ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import ru.weatherclock.adg.db.OpenWeatherMap.MainInfo
 
 @Serializable
 data class MainDto(
@@ -35,6 +36,19 @@ data class MainDto(
 
     //Влажность, %
     @SerialName("humidity")
-    val humidity: Int = 0,
+    val humidity: Int = 0
+)
 
+fun MainDto.asDbModel(forecastPid: Long): MainInfo {
+    return MainInfo(
+        forecast_pid = forecastPid,
+        temperature = temperature,
+        feels_like = feelsLike,
+        ground_level = groundLevel,
+        seaLevel = seaLevel,
+        humidity = humidity,
+        max_temperature = maxTemperature,
+        min_temperature = minTemperature,
+        pressure = pressure
     )
+}

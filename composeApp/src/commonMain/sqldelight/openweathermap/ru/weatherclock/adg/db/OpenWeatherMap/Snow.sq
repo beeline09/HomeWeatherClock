@@ -1,0 +1,14 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS Snow (
+    forecast_pid	INTEGER NOT NULL,
+    duration_h TEXT NOT NULL,
+    count REAL NOT NULL,
+    FOREIGN KEY(forecast_pid) REFERENCES ForecastItem(pid) ON DELETE CASCADE
+);
+
+insert:
+REPLACE INTO Snow VALUES ?;
+
+getByForecastPid:
+SELECT * FROM Snow WHERE forecast_pid = ?;

@@ -7,6 +7,7 @@ enum class SettingKey {
     HideTextCalendarByTime,
     HideGridCalendarByTime,
     WeatherEnabled,
+    WeatherServers,
     WeatherApiKeys,
     WeatherCityKey1,
     WeatherCityKey2,

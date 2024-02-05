@@ -2,7 +2,7 @@ package ru.weatherclock.adg.app.domain.usecase
 
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
-import ru.weatherclock.adg.app.data.dto.WeatherConfigData
+import ru.weatherclock.adg.app.data.dto.WeatherServer
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.AccuweatherForecastDto
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.DetailDto
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbModel
@@ -19,68 +19,79 @@ import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweathe
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbTemperature
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asDomainModel
 import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.OpenWeatherMapForecastDto
+import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail.PartOfDay
+import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail.asDbModel
+import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail.toPartOfDay
 import ru.weatherclock.adg.app.data.repository.db.forecast.AccuweatherDbRepository
+import ru.weatherclock.adg.app.data.repository.db.forecast.OpenWeatherMapDbRepository
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
 import ru.weatherclock.adg.app.data.repository.weather.implementation.AccuweatherForecastRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.weather.implementation.OpenWeatherMapForecastRepositoryImpl
+import ru.weatherclock.adg.app.data.util.fromDbToLocalDateTime
 import ru.weatherclock.adg.app.data.util.isEqualsByHour
+import ru.weatherclock.adg.app.domain.model.forecast.DayDetail
 import ru.weatherclock.adg.app.domain.model.forecast.DetailType
 import ru.weatherclock.adg.app.domain.model.forecast.Forecast
+import ru.weatherclock.adg.app.domain.model.forecast.ForecastDay
 import ru.weatherclock.adg.app.domain.model.forecast.Severity
 import ru.weatherclock.adg.app.domain.model.forecast.asDomainModel
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
+import ru.weatherclock.adg.db.OpenWeatherMap.ForecastItem
+import ru.weatherclock.adg.db.OpenWeatherMap.Rain
+import ru.weatherclock.adg.db.OpenWeatherMap.Snow
 
 class ForecastUseCase(
     private val accuweatherRepository: AccuweatherForecastRepositoryImpl,
     private val openWeatherMapRepository: OpenWeatherMapForecastRepositoryImpl,
     private val accuweatherDbRepository: AccuweatherDbRepository,
-    private val weatherSettings: WeatherSettingsRepository,
+    private val openWeatherMapDbRepository: OpenWeatherMapDbRepository,
+    private val weatherSettingsRepository: WeatherSettingsRepository,
 ) {
 
     private var lastUpdateForecast: LocalDateTime? = null
 
-    private suspend fun getAccuweatherForecast(): AccuweatherForecastDto {
+    private suspend fun getAccuweatherForecastRemote(): AccuweatherForecastDto {
         return accuweatherRepository.getWeatherForecast(
-            cityKey = weatherSettings.getCityKey(),
-            language = weatherSettings.getWeatherLanguage().code,
-            apiKeys = weatherSettings.getApiKeys()
+            cityKey = weatherSettingsRepository.getCityKey(),
+            language = weatherSettingsRepository.getWeatherLanguage().code,
+            apiKeys = weatherSettingsRepository.getApiKeys()
         )
     }
 
-    private suspend fun getOpenWeatherMapForecast(): OpenWeatherMapForecastDto {
+    private suspend fun getOpenWeatherMapForecastRemote(): OpenWeatherMapForecastDto {
         return openWeatherMapRepository.getWeatherForecast(
-            latitude = weatherSettings.getLatitude(),
-            longitude = weatherSettings.getLongitude(),
-            language = weatherSettings.getWeatherLanguage().code,
-            apiKeys = weatherSettings.getApiKeys(),
-            units = weatherSettings.getUnitType()
+            latitude = weatherSettingsRepository.getLatitude(),
+            longitude = weatherSettingsRepository.getLongitude(),
+            language = weatherSettingsRepository.getWeatherLanguage().code,
+            apiKeys = weatherSettingsRepository.getApiKeys(),
+            units = weatherSettingsRepository.getUnitType()
         )
     }
 
     private suspend fun getForecastRemote(): Forecast {
-        return when (weatherSettings.getConfig().weatherConfig) {
-            is WeatherConfigData.Accuweather -> {
-                getAccuweatherForecast().let {
-                    it.saveToDb(weatherSettings.getCityKey())
+        return when (weatherSettingsRepository.getConfig().server) {
+            WeatherServer.Accuweather -> {
+                getAccuweatherForecastRemote().let {
+                    it.saveToDb(weatherSettingsRepository.getCityKey())
                     it.asDomainModel()
                 }
             }
 
-            is WeatherConfigData.OpenWeatherMap -> {
-                getOpenWeatherMapForecast().let {
-                    it.saveToDb(
-                        lat = weatherSettings.getLatitude(),
-                        lon = weatherSettings.getLongitude()
+            WeatherServer.OpenWeatherMap -> {
+                getOpenWeatherMapForecastRemote().run {
+                    saveToDb(
+                        latitude = weatherSettingsRepository.getLatitude(),
+                        longitude = weatherSettingsRepository.getLongitude()
                     )
-                    it.asDomainModel()
+                    asDomainModel()
                 }
             }
         }
     }
 
     suspend fun getForPeriod(
-        startDate: LocalDate,
-        endDate: LocalDate
+        startDate: LocalDateTime,
+        endDate: LocalDateTime
     ): Forecast? {
 
         val forecastInternal = getForecastInternal(
@@ -89,19 +100,21 @@ class ForecastUseCase(
         )
 
         //Логика обновления данных такая:
+        //Если в БД пусто
         //Если в БД пусто и больше часа ничего не загружалось, либо это в первый раз
         //Если в БД не пусто и прошло больше 2 часов с последнего обновления
         val currentTime = LocalDateTime.now()
+        //Если это в первый раз после запуска и в БД меньше 5 записей
         val us0 = lastUpdateForecast == null && (forecastInternal?.dailyForecast?.size ?: 0) < 5
-        //Для обновления раз в два часа
-        val us1 = lastUpdateForecast?.isEqualsByHour(
+        //С последнего обновления прошло больше 2 часов
+        val us1 = lastUpdateForecast != null && lastUpdateForecast?.isEqualsByHour(
             currentTime,
             1
         ) != true
         //Если в БД пусто и данные не запрашивались больше часа
-        val us3 =
-            forecastInternal?.dailyForecast.isNullOrEmpty() && lastUpdateForecast?.isEqualsByHour(currentTime) != true
-        val result = if (us0 || us3 || us1) {
+        val us2 =
+            lastUpdateForecast != null && forecastInternal?.dailyForecast.isNullOrEmpty() && lastUpdateForecast?.isEqualsByHour(currentTime) != true
+        val result = if (us0 || us1 || us2) {
             return try {
                 getForecastRemote().also {
                     lastUpdateForecast = currentTime
@@ -247,15 +260,15 @@ class ForecastUseCase(
     }
 
     private suspend fun getForecastInternal(
-        startDate: LocalDate,
-        endDate: LocalDate
-    ): Forecast? = when (weatherSettings.getConfig().weatherConfig) {
-        is WeatherConfigData.Accuweather -> getAccuweatherForecastInternal(
-            startDate,
-            endDate
+        startDate: LocalDateTime,
+        endDate: LocalDateTime
+    ): Forecast? = when (weatherSettingsRepository.getConfig().server) {
+        WeatherServer.Accuweather -> getAccuweatherForecastInternal(
+            startDate.date,
+            endDate.date
         )
 
-        is WeatherConfigData.OpenWeatherMap -> getOpenWeatherMapForecastInternal(
+        WeatherServer.OpenWeatherMap -> getOpenWeatherMapForecastInternal(
             startDate,
             endDate
         )
@@ -266,12 +279,12 @@ class ForecastUseCase(
         endDate: LocalDate
     ): Forecast? {
         val headline = accuweatherDbRepository.getHeadline(
-            weatherSettings.getCityKey(),
+            weatherSettingsRepository.getCityKey(),
             startDate,
             endDate
         )
         val forecast = accuweatherDbRepository.getForecast(
-            weatherSettings.getCityKey(),
+            weatherSettingsRepository.getCityKey(),
             startDate,
             endDate
         ).mapNotNull {
@@ -295,17 +308,108 @@ class ForecastUseCase(
     }
 
     private suspend fun getOpenWeatherMapForecastInternal(
-        startDate: LocalDate,
-        endDate: LocalDate
+        startDate: LocalDateTime,
+        endDate: LocalDateTime
     ): Forecast? {
-        //TODO Сделать!!!
-        return null
+        val forecastItems = openWeatherMapDbRepository.getForecast(
+            latitude = weatherSettingsRepository.getLatitude(),
+            longitude = weatherSettingsRepository.getLongitude(),
+            startDate = startDate,
+            endDate = endDate
+        )
+        return forecastItems.asDomainModel().takeIf { forecastItems.isNotEmpty() }
     }
 
     private suspend fun OpenWeatherMapForecastDto.saveToDb(
-        lat: Double,
-        lon: Double
+        latitude: Double,
+        longitude: Double
     ) {
-        //TODO Сделать!!!
+        items.forEach { forecastItem ->
+            val forecastPid = openWeatherMapDbRepository.insertDailyForecast(
+                forecastItem.asDbModel(
+                    latitude = latitude,
+                    longitude = longitude
+                )
+            )
+            if (forecastPid > 0L) {
+                openWeatherMapDbRepository.insertMainInfo(
+                    info = forecastItem.main.asDbModel(forecastPid = forecastPid)
+                )
+                forecastItem.weather.forEach { weatherIcon ->
+                    openWeatherMapDbRepository.insertWeatherIcon(
+                        icon = weatherIcon.asDbModel(forecastPid = forecastPid)
+                    )
+                }
+                forecastItem.wind?.let {
+                    openWeatherMapDbRepository.insertWind(
+                        wind = it.asDbModel(forecastPid = forecastPid)
+                    )
+                }
+                forecastItem.rain.forEach {
+                    openWeatherMapDbRepository.insertRain(
+                        rain = Rain(
+                            forecast_pid = forecastPid,
+                            duration_h = it.key,
+                            count = it.value
+                        )
+                    )
+                }
+                forecastItem.snow.forEach {
+                    openWeatherMapDbRepository.insertSnow(
+                        snow = Snow(
+                            forecast_pid = forecastPid,
+                            duration_h = it.key,
+                            count = it.value
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun List<ForecastItem>.asDomainModel(): Forecast {
+        val items = this
+        val byDays = items.groupBy {
+            it.date_time.fromDbToLocalDateTime().date
+        }.filter { it.value.isNotEmpty() }.mapNotNull {
+            val date = it.key
+            val dayValues =
+                it.value.filter { item -> item.part_of_day.toPartOfDay() == PartOfDay.Day }
+            val nightValues =
+                it.value.filter { item -> item.part_of_day.toPartOfDay() == PartOfDay.Night }
+            if (dayValues.isEmpty() || nightValues.isEmpty()) {
+                null
+            } else {
+                val nightList = nightValues.map { item ->
+                    openWeatherMapDbRepository.getMainInfo(byForecastPid = item.pid)
+                }
+                val dayList = dayValues.map { item ->
+                    openWeatherMapDbRepository.getMainInfo(byForecastPid = item.pid)
+                }
+                val nightInfo = nightList.minBy { info -> info.temperature }
+                val dayInfo = dayList.maxBy { info -> info.temperature }
+                val nightWeatherIcon = openWeatherMapDbRepository
+                    .getWeatherIcon(byForecastPid = nightInfo.forecast_pid)
+                    .firstOrNull()
+                val dayWeatherIcon = openWeatherMapDbRepository
+                    .getWeatherIcon(byForecastPid = dayInfo.forecast_pid)
+                    .firstOrNull()
+                ForecastDay(
+                    date = date,
+                    min = DayDetail(
+                        temperature = nightInfo.temperature,
+                        icon = nightWeatherIcon?.icon.orEmpty(),
+                        iconPhrase = nightWeatherIcon?.description
+                    ),
+                    max = DayDetail(
+                        temperature = dayInfo.temperature,
+                        icon = dayWeatherIcon?.icon.orEmpty(),
+                        iconPhrase = dayWeatherIcon?.description
+                    )
+                )
+            }
+
+        }
+        return Forecast(dailyForecast = byDays)
     }
 }

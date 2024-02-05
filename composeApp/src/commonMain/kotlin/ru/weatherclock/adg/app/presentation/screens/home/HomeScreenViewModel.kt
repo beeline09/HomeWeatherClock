@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.atTime
 import kotlinx.datetime.plus
 import ru.weatherclock.adg.app.data.util.atEndOfDay
 import ru.weatherclock.adg.app.data.util.atStartOfDay
@@ -75,8 +76,14 @@ class HomeScreenViewModel(
 
     private suspend fun refreshWeatherData(currentDateTime: LocalDateTime) = safeScope.launch {
         val forecast = forecastUseCase.getForPeriod(
-            startDate = currentDateTime.atStartOfDay().date,
-            endDate = currentDateTime.atEndOfDay().date.plus(DatePeriod(days = 5))
+            startDate = currentDateTime.atStartOfDay(),
+            endDate = currentDateTime.atEndOfDay().date
+                .plus(DatePeriod(days = 5))
+                .atTime(
+                    hour = 23,
+                    minute = 59,
+                    second = 59
+                )
         )
         setState {
             copy(

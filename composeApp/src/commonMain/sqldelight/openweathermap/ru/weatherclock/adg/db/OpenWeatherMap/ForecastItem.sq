@@ -1,0 +1,21 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS ForecastItem (
+	pid	INTEGER PRIMARY KEY AUTOINCREMENT ,
+	latitude REAL NOT NULL,
+	longitude REAL NOT NULL,
+	date_time	INTEGER NOT NULL,
+	part_of_day INTEGER AS Int NOT NULL,
+	visibility	INTEGER AS Int,
+	pop	REAL,
+	clouds INTEGER AS Int
+);
+
+insert:
+REPLACE INTO ForecastItem
+    VALUES (?,?,?,?,?,?,?,?);
+
+lastPid:
+SELECT MAX(pid) FROM ForecastItem;
+getByDateRange:
+SELECT * FROM ForecastItem WHERE date_time >= ? AND date_time <= ? AND latitude = ? AND longitude = ? ORDER BY date_time ASC;

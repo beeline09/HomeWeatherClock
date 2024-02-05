@@ -16,3 +16,13 @@ enum class PartOfDay {
     Day,
     Night
 }
+
+fun Int.toPartOfDay(): PartOfDay = when (this) {
+    0 -> PartOfDay.Day
+    else -> PartOfDay.Night
+}
+
+fun PartOfDay?.toInt(): Int = when (this) {
+    PartOfDay.Day -> 0
+    else -> 1
+}
