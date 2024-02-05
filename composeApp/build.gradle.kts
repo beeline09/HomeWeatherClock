@@ -75,6 +75,7 @@ kotlin {
                 implementation(libs.kamelImageLoader)
                 implementation(libs.androidx.annotation)
                 implementation(kotlin("stdlib-common"))
+                implementation(kotlin("reflect"))
             }
         }
 
@@ -292,11 +293,11 @@ sqldelight {
             packageName.set(packName)
             srcDirs("src/commonMain/sqldelight/accuweather")
         }
-//        create("OpenWeatherMapDb") {
-//            // Database configuration here.
-//            // https://cashapp.github.io/sqldelight
-//            packageName = "ru.weatherclock.adg.db"
-//            srcDirs("OpenWeatherMap")
-//        }
+        create("OpenWeatherMapDb") {
+            // Database configuration here.
+            // https://cashapp.github.io/sqldelight
+            packageName.set(packName)
+            srcDirs("src/commonMain/sqldelight/openweathermap")
+        }
     }
 }

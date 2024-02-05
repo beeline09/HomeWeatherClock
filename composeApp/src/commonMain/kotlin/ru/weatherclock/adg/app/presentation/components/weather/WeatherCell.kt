@@ -17,10 +17,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.weatherclock.adg.app.data.dto.WeatherConfigData
+import ru.weatherclock.adg.app.data.dto.WeatherConfig
 import ru.weatherclock.adg.app.domain.model.forecast.ForecastDay
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.app.presentation.components.text.formatForWeatherCell
@@ -30,7 +33,7 @@ import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 @Composable
 fun ColumnScope.WeatherCell(
     forecast: ForecastDay,
-    weatherConfigData: WeatherConfigData,
+    weatherConfigData: WeatherConfig,
     isPreview: Boolean = false
 ) {
     val colorPalette = LocalCustomColorsPalette.current
@@ -51,7 +54,11 @@ fun ColumnScope.WeatherCell(
                 .weight(1f)
         ) {
             AutoSizeText(
-                text = forecast.min.temperature.toTemperature(unitType = weatherConfigData.units),
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(fontFeatureSettings = "tnum")) {
+                        append(forecast.min.temperature.toTemperature(unitType = weatherConfigData.units))
+                    }
+                },
                 maxTextSize = 85.sp,
                 minTextSize = 5.sp,
                 stepGranularityTextSize = 1.sp,
@@ -83,7 +90,11 @@ fun ColumnScope.WeatherCell(
                 .weight(1f)
         ) {
             AutoSizeText(
-                text = forecast.max.temperature.toTemperature(unitType = weatherConfigData.units),
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(fontFeatureSettings = "tnum")) {
+                        append(forecast.max.temperature.toTemperature(unitType = weatherConfigData.units))
+                    }
+                },
                 maxTextSize = 85.sp,
                 minTextSize = 5.sp,
                 stepGranularityTextSize = 1.sp,

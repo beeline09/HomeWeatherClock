@@ -1,0 +1,20 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS MainInfo (
+	forecast_pid	INTEGER NOT NULL,
+	temperature	REAL NOT NULL,
+	feels_like	REAL,
+	min_temperature	REAL,
+	max_temperature	REAL,
+	pressure	INTEGER AS Int,
+	seaLevel	INTEGER AS Int,
+	ground_level	INTEGER AS Int,
+	humidity	INTEGER AS Int,
+	FOREIGN KEY(forecast_pid) REFERENCES ForecastItem(pid) ON DELETE CASCADE
+);
+
+insert:
+REPLACE INTO MainInfo VALUES ?;
+
+getByForecastPid:
+SELECT * FROM MainInfo WHERE forecast_pid = ?;

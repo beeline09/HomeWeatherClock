@@ -17,14 +17,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import io.kamel.core.Resource
 import io.kamel.image.asyncPainterResource
-import ru.weatherclock.adg.app.data.dto.WeatherConfigData
+import ru.weatherclock.adg.app.data.dto.WeatherConfig
 import ru.weatherclock.adg.app.domain.model.forecast.DayDetail
 import ru.weatherclock.adg.app.domain.model.forecast.iconUrl
 
 @Composable
 fun ColumnScope.WeatherIcon(
     detail: DayDetail,
-    weatherConfigData: WeatherConfigData,
+    weatherConfigData: WeatherConfig,
     isPreview: Boolean = false
 ) {
     if (isPreview) {
@@ -42,7 +42,7 @@ fun ColumnScope.WeatherIcon(
                 .fillMaxHeight(),
         )
     } else when (val p =
-        asyncPainterResource(data = detail.iconUrl(weatherConfigData = weatherConfigData))) {
+        asyncPainterResource(data = detail.iconUrl(weatherConfig = weatherConfigData))) {
         is Resource.Failure -> {
             val p1 = rememberVectorPainter(image = Icons.Filled.Error)
             Icon(

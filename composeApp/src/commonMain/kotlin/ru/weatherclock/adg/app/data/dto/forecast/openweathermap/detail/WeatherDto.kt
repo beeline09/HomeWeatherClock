@@ -2,6 +2,7 @@ package ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import ru.weatherclock.adg.db.OpenWeatherMap.WeatherIcon
 
 @Serializable
 data class WeatherDto(
@@ -17,3 +18,13 @@ data class WeatherDto(
     @SerialName("icon")
     val icon: String = ""
 )
+
+fun WeatherDto.asDbModel(forecastPid: Long): WeatherIcon {
+    return WeatherIcon(
+        forecast_pid = forecastPid,
+        icon = icon,
+        description = description?.replaceFirstChar { it.uppercaseChar() },
+        main = main,
+        id = id
+    )
+}

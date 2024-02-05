@@ -2,7 +2,9 @@ package ru.weatherclock.adg.platformSpecific
 
 import kotlinx.coroutines.CoroutineDispatcher
 import app.cash.sqldelight.ColumnAdapter
+import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.db.SqlSchema
 import org.koin.core.module.Module
 import ru.weatherclock.adg.db.Accuweather.AirAndPollen
 import ru.weatherclock.adg.db.Accuweather.DegreeDaySummary
@@ -21,11 +23,17 @@ import ru.weatherclock.adg.db.Accuweather.TotalLiquid
 import ru.weatherclock.adg.db.Accuweather.Wind
 import ru.weatherclock.adg.db.Accuweather.WindGust
 import ru.weatherclock.adg.db.AccuweatherDb
+import ru.weatherclock.adg.db.OpenWeatherMap.ForecastItem
+import ru.weatherclock.adg.db.OpenWeatherMap.MainInfo
+import ru.weatherclock.adg.db.OpenWeatherMap.WeatherIcon
+import ru.weatherclock.adg.db.OpenWeatherMapDb
 import ru.weatherclock.adg.db.ProdCalendar.ProdCalendar
 import ru.weatherclock.adg.db.ProdCalendarDb
 
-expect fun createProdCalendarDbDriver(): SqlDriver
-expect fun createAccuweatherDbDriver(): SqlDriver
+expect fun createDbDriver(
+    dbName: String,
+    schema: SqlSchema<QueryResult.Value<Unit>>
+): SqlDriver
 
 private val intAdapter = object: ColumnAdapter<Int, Long> {
     override fun decode(databaseValue: Long): Int = databaseValue.toInt()
@@ -35,7 +43,10 @@ private val intAdapter = object: ColumnAdapter<Int, Long> {
 
 fun createAccuweatherDb(): AccuweatherDb {
     return AccuweatherDb(
-        driver = createAccuweatherDbDriver(),
+        driver = createDbDriver(
+            schema = AccuweatherDb.Schema,
+            dbName = "accuweather.db"
+        ),
         ForecastHeadlineAdapter = ForecastHeadline.Adapter(
             intAdapter,
         ),
@@ -82,12 +93,41 @@ fun createAccuweatherDb(): AccuweatherDb {
 
 fun createProdCalendarDb(): ProdCalendarDb {
     return ProdCalendarDb(
-        driver = createProdCalendarDbDriver(),
+        driver = createDbDriver(
+            schema = ProdCalendarDb.Schema,
+            dbName = "prod_calendar.db"
+        ),
         ProdCalendarAdapter = ProdCalendar.Adapter(
             type_idAdapter = intAdapter,
             regionAdapter = intAdapter,
             working_hoursAdapter = intAdapter
         ),
+    )
+}
+
+fun createOpenWeatherMapDb(): OpenWeatherMapDb {
+    return OpenWeatherMapDb(
+        driver = createDbDriver(
+            schema = OpenWeatherMapDb.Schema,
+            dbName = "open_weather_map.db"
+        ),
+        ForecastItemAdapter = ForecastItem.Adapter(
+            part_of_dayAdapter = intAdapter,
+            visibilityAdapter = intAdapter,
+            cloudsAdapter = intAdapter
+        ),
+        MainInfoAdapter = MainInfo.Adapter(
+            pressureAdapter = intAdapter,
+            seaLevelAdapter = intAdapter,
+            ground_levelAdapter = intAdapter,
+            humidityAdapter = intAdapter
+        ),
+        WeatherIconAdapter = WeatherIcon.Adapter(
+            idAdapter = intAdapter
+        ),
+        WindAdapter = ru.weatherclock.adg.db.OpenWeatherMap.Wind.Adapter(
+            degreeAdapter = intAdapter
+        )
     )
 }
 

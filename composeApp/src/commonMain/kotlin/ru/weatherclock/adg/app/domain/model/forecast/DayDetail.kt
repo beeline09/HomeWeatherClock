@@ -1,6 +1,7 @@
 package ru.weatherclock.adg.app.domain.model.forecast
 
-import ru.weatherclock.adg.app.data.dto.WeatherConfigData
+import ru.weatherclock.adg.app.data.dto.WeatherConfig
+import ru.weatherclock.adg.app.data.dto.WeatherServer
 
 data class DayDetail(
     val temperature: Double = 0.0,
@@ -8,10 +9,10 @@ data class DayDetail(
     val iconPhrase: String? = null
 )
 
-fun DayDetail.iconUrl(weatherConfigData: WeatherConfigData): String =
-    when (weatherConfigData) {
-        is WeatherConfigData.Accuweather -> "https://vortex.accuweather.com/adc2010/images/slate/icons/${icon}.svg"
-        is WeatherConfigData.OpenWeatherMap -> "https://openweathermap.org/img/wn/${icon}@2x.png"
+fun DayDetail.iconUrl(weatherConfig: WeatherConfig): String =
+    when (weatherConfig.server) {
+        WeatherServer.Accuweather -> "https://vortex.accuweather.com/adc2010/images/slate/icons/${icon}.svg"
+        WeatherServer.OpenWeatherMap -> "https://openweathermap.org/img/wn/${icon}@2x.png"
     }
 
 /*fun DayDetail.accuweatherPngIconUrl(): String =

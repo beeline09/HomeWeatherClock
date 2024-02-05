@@ -27,48 +27,54 @@ data class TimeConfig(
 )
 
 @Serializable
-sealed class WeatherConfigData {
+enum class WeatherServer {
 
-    @SerialName("language")
-    abstract val weatherApiLanguage: WeatherApiLanguage
-
-    @SerialName("apiKeys")
-    abstract val weatherApiKeys: List<String>
-
-    @SerialName("units")
-    abstract val units: WeatherUnits
-
-    @Serializable
     @SerialName("accuweather")
-    data class Accuweather(
-        @SerialName("cityKey")
-        val cityKey: String = "291658",
-        override val weatherApiLanguage: WeatherApiLanguage = WeatherApiLanguage.System,
-        override val weatherApiKeys: List<String> = listOf(
-            "GSWo67YCWgJ6raZqsluqkuhxsl2zJAOK",
-            "JZz9kz4ElQp8VVKLiF3KVSpDtyllS7CC"
-        ),
-        override val units: WeatherUnits = WeatherUnits.Metric,
+    Accuweather,
 
-        ): WeatherConfigData()
-
-    @Serializable
     @SerialName("openweathermap")
-    data class OpenWeatherMap(
-        @SerialName("lat")
-        val latitude: Double = 44.6062079,
-        @SerialName("lon")
-        val longitude: Double = 40.104053,
-        override val weatherApiLanguage: WeatherApiLanguage = WeatherApiLanguage.System,
-        override val weatherApiKeys: List<String> = listOf("8f064b7cdab87c6cde5acd33b4d24a44"),
-        override val units: WeatherUnits = WeatherUnits.Metric
-    ): WeatherConfigData()
+    OpenWeatherMap
 }
 
 @Serializable
+data class CityConfig(
+    @SerialName("latitude")
+    val latitude: Double = 44.6062079,
+    @SerialName("longitude")
+    val longitude: Double = 40.104053,
+    @SerialName("name")
+    val name: String = "Майкоп",
+    @SerialName("region")
+    val region: String = "Республика Адыгея",
+    @SerialName("country")
+    val country: String = "Россия",
+    @SerialName("key")
+    val key: String = "291658",
+)
+
+@Serializable
 data class WeatherConfig(
+    @SerialName("enabled")
     val weatherEnabled: Boolean = true,
-    val weatherConfig: WeatherConfigData = WeatherConfigData.OpenWeatherMap()
+
+    @SerialName("server")
+    val server: WeatherServer = WeatherServer.Accuweather,
+
+    @SerialName("city")
+    val city: CityConfig = CityConfig(),
+
+    @SerialName("language")
+    val weatherApiLanguage: WeatherApiLanguage = WeatherApiLanguage.System,
+
+    @SerialName("apiKeys")
+    val weatherApiKeys: List<String> = listOf(
+        "GSWo67YCWgJ6raZqsluqkuhxsl2zJAOK",
+        "JZz9kz4ElQp8VVKLiF3KVSpDtyllS7CC",
+//        "8f064b7cdab87c6cde5acd33b4d24a44" //Openweathermap
+    ),
+
+    @SerialName("units")
+    val units: WeatherUnits = WeatherUnits.Metric,
 )
 
 @Serializable
@@ -85,8 +91,6 @@ data class ProdCalendarConfig(
     val russiaRegion: Int = 0,
     val dayDescriptionEnabled: Boolean = true,
 )
-
-
 
 @Serializable(with = ColorThemeSerializer::class)
 enum class ColorTheme {
@@ -119,10 +123,10 @@ fun AppSettings?.orDefault(): AppSettings {
 }
 
 fun WeatherConfig.isAvailableToShow(): Boolean {
-    if (weatherConfig.weatherApiKeys.isEmpty()) return false
-    if (weatherConfig is WeatherConfigData.Accuweather && weatherConfig.cityKey.isBlank()) return false
-    if (weatherConfig is WeatherConfigData.OpenWeatherMap) {
-        if (weatherConfig.latitude == 0.0 && weatherConfig.longitude == 0.0) return false
+    if (weatherApiKeys.isEmpty()) return false
+    if (server == WeatherServer.Accuweather && city.key.isBlank()) return false
+    if (server == WeatherServer.OpenWeatherMap) {
+        if (city.latitude == 0.0 && city.longitude == 0.0) return false
     }
     return weatherEnabled
 }

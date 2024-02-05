@@ -33,7 +33,9 @@ import ru.weatherclock.adg.app.data.remote.service.implementation.OpenWeatherMap
 import ru.weatherclock.adg.app.data.repository.calendar.CalendarRemoteRepository
 import ru.weatherclock.adg.app.data.repository.calendar.implementation.CalendarRemoteRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.db.forecast.AccuweatherDbRepository
+import ru.weatherclock.adg.app.data.repository.db.forecast.OpenWeatherMapDbRepository
 import ru.weatherclock.adg.app.data.repository.db.forecast.implementation.AccuweatherDbRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.db.forecast.implementation.OpenWeatherMapDbRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.ProdCalendarDbRepository
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.implementation.ProdCalendarDbRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.settings.AllSettingsRepository
@@ -56,9 +58,11 @@ import ru.weatherclock.adg.app.domain.usecase.SettingsUseCase
 import ru.weatherclock.adg.app.presentation.screens.home.HomeScreenViewModel
 import ru.weatherclock.adg.app.presentation.screens.settings.SettingsScreenViewModel
 import ru.weatherclock.adg.db.AccuweatherDb
+import ru.weatherclock.adg.db.OpenWeatherMapDb
 import ru.weatherclock.adg.db.ProdCalendarDb
 import ru.weatherclock.adg.platformSpecific.appSettingsKStore
 import ru.weatherclock.adg.platformSpecific.createAccuweatherDb
+import ru.weatherclock.adg.platformSpecific.createOpenWeatherMapDb
 import ru.weatherclock.adg.platformSpecific.createProdCalendarDb
 import ru.weatherclock.adg.platformSpecific.platformModule
 
@@ -112,6 +116,7 @@ fun getDataModule(
     }
     single<CalendarRemoteRepository> { CalendarRemoteRepositoryImpl(ktorService = get()) }
     single<AccuweatherDbRepository> { AccuweatherDbRepositoryImpl(database = get()) }
+    single<OpenWeatherMapDbRepository> { OpenWeatherMapDbRepositoryImpl(database = get()) }
 
     single<AccuweatherKtorServiceImpl> {
         AccuweatherKtorServiceImpl(httpClient = get())
@@ -141,6 +146,7 @@ fun getDataModule(
 
     single<ProdCalendarDb> { createProdCalendarDb() }
     single<AccuweatherDb> { createAccuweatherDb() }
+    single<OpenWeatherMapDb> { createOpenWeatherMapDb() }
 }
 
 fun settingsRepoModule() = module {
@@ -159,7 +165,8 @@ fun getUseCaseModule() = module {
             accuweatherRepository = get(),
             accuweatherDbRepository = get(),
             openWeatherMapRepository = get(),
-            weatherSettings = get()
+            weatherSettingsRepository = get(),
+            openWeatherMapDbRepository = get()
         )
     }
     single {

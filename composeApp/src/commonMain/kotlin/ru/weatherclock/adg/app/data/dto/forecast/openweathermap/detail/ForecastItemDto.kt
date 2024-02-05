@@ -2,12 +2,14 @@ package ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import ru.weatherclock.adg.app.domain.util.UNSPECIFIED_DATE
+import ru.weatherclock.adg.app.data.util.epochSecondsToLocalDateTime
+import ru.weatherclock.adg.app.data.util.toDbFormat
+import ru.weatherclock.adg.db.OpenWeatherMap.ForecastItem
 
 @Serializable
 data class ForecastItemDto(
     @SerialName("dt")
-    val timeStamp: Long = UNSPECIFIED_DATE,
+    val timeStamp: Long,
 
     @SerialName("main")
     val main: MainDto = MainDto(),
@@ -38,3 +40,19 @@ data class ForecastItemDto(
     val sys: SysDto = SysDto()
 
 )
+
+fun ForecastItemDto.asDbModel(
+    latitude: Double,
+    longitude: Double
+): ForecastItem {
+    return ForecastItem(
+        pid = -1L,
+        date_time = timeStamp.epochSecondsToLocalDateTime().toDbFormat(),
+        visibility = visibility,
+        pop = probabilityOfPrecipitation,
+        clouds = clouds?.all ?: 0,
+        part_of_day = sys.partOfDay.toInt(),
+        latitude = latitude,
+        longitude = longitude
+    )
+}

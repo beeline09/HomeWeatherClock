@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import ru.weatherclock.adg.app.data.dto.AppSettings
-import ru.weatherclock.adg.app.data.dto.WeatherConfigData
+import ru.weatherclock.adg.app.data.dto.WeatherServer
 import ru.weatherclock.adg.app.data.repository.settings.CalendarSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.TimeSettingsRepository
@@ -23,6 +23,7 @@ import ru.weatherclock.adg.app.domain.model.settings.SettingsHeader
 import ru.weatherclock.adg.app.domain.model.settings.StringListSetting
 import ru.weatherclock.adg.app.domain.model.settings.StringSetting
 import ru.weatherclock.adg.app.domain.model.settings.WeatherApiLanguageSetting
+import ru.weatherclock.adg.app.domain.model.settings.WeatherApiListSetting
 import ru.weatherclock.adg.platformSpecific.ioDispatcher
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -113,9 +114,20 @@ class SettingsUseCase(
                         })
                 )
                 add(
+                    WeatherApiListSetting(settingsKey = SettingKey.WeatherServers,
+                        currentValue = weatherSettings.server,
+                        onChange = {
+                            safeUpdate {
+                                weatherRepo.saveConfig {
+                                    copy(server = it)
+                                }
+                            }
+                        })
+                )
+                add(
                     StringListSetting(settingsKey = SettingKey.WeatherApiKeys,
                         isEnabled = weatherSettings.weatherEnabled,
-                        currentValue = weatherSettings.weatherConfig.weatherApiKeys,
+                        currentValue = weatherSettings.weatherApiKeys,
                         onChange = {
                             safeUpdate {
                                 weatherRepo.setApiKeys(it)
@@ -124,7 +136,7 @@ class SettingsUseCase(
                 )
                 add(
                     WeatherApiLanguageSetting(settingsKey = SettingKey.WeatherLanguage,
-                        currentValue = weatherSettings.weatherConfig.weatherApiLanguage,
+                        currentValue = weatherSettings.weatherApiLanguage,
                         isEnabled = weatherSettings.weatherEnabled,
                         onChange = {
                             safeUpdate {
@@ -133,19 +145,25 @@ class SettingsUseCase(
                         })
                 )
                 val weatherEnabled =
-                    weatherSettings.weatherEnabled && weatherSettings.weatherConfig.weatherApiKeys.isNotEmpty()
-                add(
-                    StringSetting(settingsKey = if (weatherEnabled) SettingKey.WeatherCityKey1 else SettingKey.WeatherCityKey2,
-                        currentValue = (weatherSettings.weatherConfig as? WeatherConfigData.Accuweather)?.cityKey.orEmpty(),
-                        isEnabled = weatherEnabled,
-                        onChange = { s ->
-                            if (s.isNotBlank()) {
-                                safeUpdate {
-                                    weatherRepo.setCityKey(s)
-                                }
-                            }
-                        })
-                )
+                    weatherSettings.weatherEnabled && weatherSettings.weatherApiKeys.isNotEmpty()
+                when (weatherSettings.server) {
+                    WeatherServer.Accuweather -> {
+                        add(
+                            StringSetting(settingsKey = if (weatherEnabled) SettingKey.WeatherCityKey1 else SettingKey.WeatherCityKey2,
+                                currentValue = weatherSettings.city.key,
+                                isEnabled = weatherEnabled,
+                                onChange = { s ->
+                                    if (s.isNotBlank()) {
+                                        safeUpdate {
+                                            weatherRepo.setCityKey(s)
+                                        }
+                                    }
+                                })
+                        )
+                    }
+
+                    WeatherServer.OpenWeatherMap -> {}
+                }
                 add(SettingsHeader(settingsKey = SettingKey.HeaderTimeConfig))
                 add(
                     BooleanSetting(settingsKey = SettingKey.HoursWithLeadingZero,
@@ -155,7 +173,8 @@ class SettingsUseCase(
                         })
                 )
                 add(
-                    BooleanSetting(settingsKey = SettingKey.DotsFlashEnabled,
+                    BooleanSetting(
+                        settingsKey = SettingKey.DotsFlashEnabled,
                         currentValue = timeConfig.dotsFlashEnabled,
                         onChange = {
                             safeUpdate {

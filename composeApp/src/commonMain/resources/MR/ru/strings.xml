@@ -42,8 +42,12 @@
         name="setting_title_prod_calendar_day_description_enabled">Отображать название текущего праздника
     </string>
     <string name="setting_title_hours_with_leading_zero">Час с лидирующим нулём</string>
+    <string name="setting_title_weather_server">Источник данных о погоде</string>
     <string
         name="setting_description_hours_with_leading_zero">Если включено, часы меньше 10 будут отображаться с нулём. Например: 08.
+    </string>
+    <string
+        name="setting_description_weather_server">Изменение этих данных повлечет затирание остальных настроек погоды, включая API ключи. Действуйте очень осторожно!
     </string>
     <string name="setting_title_dots_flash_enabled">Включить мигание точками секунд</string>
     <string name="setting_title_dots_flash_animated">Анимировать мигание точек секунд</string>

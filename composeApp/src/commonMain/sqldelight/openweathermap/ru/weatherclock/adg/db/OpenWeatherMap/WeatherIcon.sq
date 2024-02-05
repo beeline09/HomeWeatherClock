@@ -1,0 +1,16 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS WeatherIcon (
+    forecast_pid	INTEGER NOT NULL,
+    id INTEGER AS Int NOT NULL,
+    main TEXT NOT NULL ,
+    description TEXT ,
+    icon TEXT NOT NULL ,
+    FOREIGN KEY(forecast_pid) REFERENCES ForecastItem(pid) ON DELETE CASCADE
+);
+
+insert:
+REPLACE INTO WeatherIcon VALUES ?;
+
+getByForecastPid:
+SELECT * FROM WeatherIcon WHERE forecast_pid = ?;

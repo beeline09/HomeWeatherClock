@@ -326,7 +326,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         Column(modifier = Modifier.fillMaxSize()) {
                             WeatherCell(
                                 forecast = dailyForecast,
-                                weatherConfigData = weatherConfig.weatherConfig
+                                weatherConfigData = weatherConfig
                             )
                         }
                     }

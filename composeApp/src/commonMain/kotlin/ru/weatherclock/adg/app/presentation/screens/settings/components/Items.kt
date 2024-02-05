@@ -11,7 +11,9 @@ import ru.weatherclock.adg.app.domain.model.settings.SettingsHeader
 import ru.weatherclock.adg.app.domain.model.settings.StringListSetting
 import ru.weatherclock.adg.app.domain.model.settings.StringSetting
 import ru.weatherclock.adg.app.domain.model.settings.WeatherApiLanguageSetting
+import ru.weatherclock.adg.app.domain.model.settings.WeatherApiListSetting
 import ru.weatherclock.adg.app.presentation.screens.settings.components.items.ApiLanguageSettingsItem
+import ru.weatherclock.adg.app.presentation.screens.settings.components.items.ApiServerSettingsItem
 import ru.weatherclock.adg.app.presentation.screens.settings.components.items.BooleanSettingsItem
 import ru.weatherclock.adg.app.presentation.screens.settings.components.items.ColorsThemeSettingItem
 import ru.weatherclock.adg.app.presentation.screens.settings.components.items.HeaderSettingsItem
@@ -31,5 +33,6 @@ fun LazyItemScope.SettingsListItem(item: BaseSettingItem) {
         is ColorsThemeSetting -> ColorsThemeSettingItem(item)
         is RussiaRegionSetting -> RussiaRegionSettingsItem(item)
         is WeatherApiLanguageSetting -> ApiLanguageSettingsItem(item)
+        is WeatherApiListSetting -> ApiServerSettingsItem(item)
     }
 }

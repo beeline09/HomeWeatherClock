@@ -20,5 +20,6 @@ fun SettingKey.getDescription(): String = when (this) {
     SettingKey.HourlyBeepEnabled -> stringResource(MR.strings.setting_description_hourly_beep_enabled)
     SettingKey.HideElementsByTime -> stringResource(MR.strings.setting_description_hide_elements_by_time)
     SettingKey.HoursWithLeadingZero -> stringResource(MR.strings.setting_description_hours_with_leading_zero)
+    SettingKey.WeatherServers -> stringResource(MR.strings.setting_description_weather_server)
     else -> ""
 }
