@@ -20,8 +20,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.icerock.moko.resources.compose.stringResource
-import ru.weatherclock.adg.MR
+import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.weather_api_language_en
+import homeweatherclock.composeapp.generated.resources.weather_api_language_ru
+import homeweatherclock.composeapp.generated.resources.weather_api_language_system
+import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.data.dto.WeatherApiLanguage
 import ru.weatherclock.adg.app.data.dto.WeatherServer
 import ru.weatherclock.adg.app.domain.model.settings.WeatherApiListSetting
@@ -119,9 +122,9 @@ fun LazyItemScope.ApiServerSettingsItem(item: WeatherApiListSetting) {
 @Composable
 private fun WeatherApiLanguage.getName(withCode: Boolean): String = buildString {
     val name = when (this@getName) {
-        WeatherApiLanguage.Russian -> stringResource(MR.strings.weather_api_language_ru)
-        WeatherApiLanguage.English -> stringResource(MR.strings.weather_api_language_en)
-        WeatherApiLanguage.System -> stringResource(MR.strings.weather_api_language_system)
+        WeatherApiLanguage.Russian -> stringResource(Res.string.weather_api_language_ru)
+        WeatherApiLanguage.English -> stringResource(Res.string.weather_api_language_en)
+        WeatherApiLanguage.System -> stringResource(Res.string.weather_api_language_system)
     }
     append(name)
     if (withCode) {

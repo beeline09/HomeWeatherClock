@@ -1,18 +1,17 @@
 [versions]
 
-atomicfu = "0.23.1"
+atomicfu = "0.23.2"
 coreKtx = "1.12.0"
 desugar_jdk_libs = "2.0.4"
 jlayer = "1.0.2"
 jSystemThemeDetector = "3.6"
-kotlin = "1.9.21"
+kotlin = "2.0.0-Beta1"
 agp = "8.2.2"
-compose = "1.5.11"
+compose = "1.6.0-rc02"
 androidx-appcompat = "1.6.1"
 androidx-activityCompose = "1.8.2"
-compose-uitooling = "1.6.0"
+compose-uitooling = "1.6.1"
 media3Exoplayer = "1.2.1"
-multiplatformSettings = "1.1.1"
 statelyCommon = "2.0.5"
 vlcj = "4.7.3"
 voyager = "1.0.0-rc10"
@@ -29,9 +28,6 @@ koin-compose-jb = "1.0.4"
 koin-compose-version = "3.4.2"
 sqlDelight = "2.0.1"
 kermit = "2.0.0-RC4"
-moko = "0.23.0"
-androidx-preferences = "1.2.1"
-dataStoreVersion = "1.1.0-beta01"
 kstore = "0.7.1"
 java-appdirs = "1.2.2"
 kamelImageLoader = "0.9.1"
@@ -81,9 +77,6 @@ sqlDelight-driver-native = { module = "app.cash.sqldelight:native-driver", versi
 sqlDelight-driver-js = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
 sqlDelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
-moko-resources-compose = { module = "dev.icerock.moko:resources-compose", version.ref = "moko" }
-moko-resources = { module = "dev.icerock.moko:resources", version.ref = "moko" }
-moko-resources-generator = { module = "dev.icerock.moko:resources-generator", version.ref = "moko" }
 kstore = { module = "io.github.xxfast:kstore", version.ref = "kstore" }
 kstore-file = { module = "io.github.xxfast:kstore-file", version.ref = "kstore" }
 java-appdirs = { module = "net.harawata:appdirs", version.ref = "java-appdirs" }
@@ -114,5 +107,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 buildConfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildConfig" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
-mokoResources = { id = "dev.icerock.mobile.multiplatform-resources", version.ref = "moko" }
 

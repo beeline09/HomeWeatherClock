@@ -17,8 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.icerock.moko.resources.compose.stringResource
-import ru.weatherclock.adg.MR
+import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.day_name_short_friday
+import homeweatherclock.composeapp.generated.resources.day_name_short_monday
+import homeweatherclock.composeapp.generated.resources.day_name_short_saturday
+import homeweatherclock.composeapp.generated.resources.day_name_short_sunday
+import homeweatherclock.composeapp.generated.resources.day_name_short_thursday
+import homeweatherclock.composeapp.generated.resources.day_name_short_tuesday
+import homeweatherclock.composeapp.generated.resources.day_name_short_wednesday
+import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
@@ -61,12 +68,12 @@ fun weekHeader() {
 
 @Composable
 fun Int.toWeekName(): String = when (this) {
-    0 -> stringResource(MR.strings.day_name_short_monday)
-    1 -> stringResource(MR.strings.day_name_short_tuesday)
-    2 -> stringResource(MR.strings.day_name_short_wednesday)
-    3 -> stringResource(MR.strings.day_name_short_thursday)
-    4 -> stringResource(MR.strings.day_name_short_friday)
-    5 -> stringResource(MR.strings.day_name_short_saturday)
-    6 -> stringResource(MR.strings.day_name_short_sunday)
+    0 -> stringResource(Res.string.day_name_short_monday)
+    1 -> stringResource(Res.string.day_name_short_tuesday)
+    2 -> stringResource(Res.string.day_name_short_wednesday)
+    3 -> stringResource(Res.string.day_name_short_thursday)
+    4 -> stringResource(Res.string.day_name_short_friday)
+    5 -> stringResource(Res.string.day_name_short_saturday)
+    6 -> stringResource(Res.string.day_name_short_sunday)
     else -> ""
 }

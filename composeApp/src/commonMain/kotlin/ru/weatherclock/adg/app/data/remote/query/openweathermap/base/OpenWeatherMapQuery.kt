@@ -1,6 +1,6 @@
 package ru.weatherclock.adg.app.data.remote.query.openweathermap.base
 
-import ru.weatherclock.adg.app.data.remote.query.base.ApiQuery
+import ru.weatherclock.adg.app.data.remote.query.ApiQuery
 
 abstract class OpenWeatherMapQuery: ApiQuery {
 
@@ -9,7 +9,7 @@ abstract class OpenWeatherMapQuery: ApiQuery {
     final override fun buildUrl(): String = buildString {
         val url = buildOpenWeatherMapUrl()
         append("https://api.openweathermap.org")
-        if (url.first() != '/') {
+        if (url.firstOrNull() != '/') {
             append("/")
         }
         append(url)

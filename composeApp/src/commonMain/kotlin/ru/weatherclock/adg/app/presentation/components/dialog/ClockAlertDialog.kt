@@ -14,16 +14,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
-import dev.icerock.moko.resources.compose.stringResource
-import ru.weatherclock.adg.MR
+import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.dialog_button_cancel
+import homeweatherclock.composeapp.generated.resources.dialog_button_ok
+import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @Composable
 fun ClockAlertDialog(
     title: String,
     dismissRequest: () -> Unit,
-    dismissButtonText: String = stringResource(MR.strings.dialog_button_cancel),
-    positiveButtonText: String = stringResource(MR.strings.dialog_button_ok),
+    dismissButtonText: String = stringResource(Res.string.dialog_button_cancel),
+    positiveButtonText: String = stringResource(Res.string.dialog_button_ok),
     onPositiveClick: (() -> Unit)? = null,
     positiveButtonEnabled: Boolean = false,
     content: @Composable () -> Unit

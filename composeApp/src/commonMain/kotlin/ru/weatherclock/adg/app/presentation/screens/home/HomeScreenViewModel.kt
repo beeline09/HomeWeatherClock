@@ -1,7 +1,6 @@
 package ru.weatherclock.adg.app.presentation.screens.home
 
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -27,7 +26,6 @@ import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.tickerFlow
 import ru.weatherclock.adg.app.presentation.components.viewModel.ViewModelState
 
-@ExperimentalCoroutinesApi
 class HomeScreenViewModel(
     private val forecastUseCase: ForecastUseCase,
     private val calendarUseCase: CalendarUseCase,

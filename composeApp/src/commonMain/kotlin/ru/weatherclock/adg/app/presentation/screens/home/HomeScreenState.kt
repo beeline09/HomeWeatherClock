@@ -21,6 +21,6 @@ data class HomeScreenState(
     val headline: String? = null,
     val headlineSeverity: Severity = Severity.UNKNOWN,
     val settingsButtonShowed: Boolean = false,
-    val hourlyBeepIncrement: Long = 0,
+    val hourlyBeepIncrement: Long = 1,
     val appSettings: AppSettings = AppSettings()
 ): State

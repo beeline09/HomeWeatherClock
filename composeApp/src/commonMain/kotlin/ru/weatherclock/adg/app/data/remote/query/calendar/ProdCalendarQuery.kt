@@ -1,6 +1,6 @@
-package ru.weatherclock.adg.app.data.remote.query
+package ru.weatherclock.adg.app.data.remote.query.calendar
 
-import ru.weatherclock.adg.app.data.remote.query.base.ApiQuery
+import ru.weatherclock.adg.app.data.remote.query.ApiQuery
 import ru.weatherclock.adg.app.presentation.components.util.padStart
 
 class ProdCalendarQuery(

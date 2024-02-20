@@ -20,9 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import dev.icerock.moko.resources.compose.stringResource
+import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.settings_toolbar
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import ru.weatherclock.adg.MR
 import ru.weatherclock.adg.app.domain.model.settings.BaseSettingItem
 import ru.weatherclock.adg.app.domain.model.settings.SettingKey
 import ru.weatherclock.adg.app.presentation.screens.settings.components.SettingsListItem
@@ -42,7 +43,7 @@ fun SettingsScreen(screenModel: SettingsScreenViewModel = koinInject()) {
                 backgroundColor = colorsPalette.toolbarColor,
                 title = {
                     Text(
-                        text = stringResource(MR.strings.settings_toolbar),
+                        text = stringResource(Res.string.settings_toolbar),
                         color = colorsPalette.background
                     )
                 },

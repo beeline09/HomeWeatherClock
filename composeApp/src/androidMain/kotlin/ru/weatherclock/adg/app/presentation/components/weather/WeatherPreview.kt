@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import ru.weatherclock.adg.app.data.dto.WeatherConfigData
+import ru.weatherclock.adg.app.data.dto.WeatherConfig
 import ru.weatherclock.adg.app.domain.model.forecast.DayDetail
 import ru.weatherclock.adg.app.domain.model.forecast.ForecastDay
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
@@ -40,7 +40,7 @@ fun WeatherCellPreview() {
                         iconPhrase = "Пойдёт"
                     )
                 ),
-                weatherConfigData = WeatherConfigData.Accuweather()
+                weatherConfigData = WeatherConfig()
             )
         }
     }

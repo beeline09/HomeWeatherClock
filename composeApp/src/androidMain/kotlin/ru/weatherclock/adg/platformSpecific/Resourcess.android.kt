@@ -4,17 +4,9 @@ import java.io.File
 import java.io.FileOutputStream
 import kotlinx.coroutines.runBlocking
 import android.annotation.SuppressLint
-import android.content.res.Resources
-import dev.icerock.moko.resources.FileResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import ru.weatherclock.adg.AndroidApp
 import ru.weatherclock.adg.app.presentation.components.player.ResourceWrapper
-
-actual fun FileResource.fileName(): String {
-    val resources: Resources = AndroidApp.INSTANCE.resources
-    val resId = rawResId
-    return resources.getString(resId).substringAfterLast("/")
-}
 
 @OptIn(ExperimentalResourceApi::class)
 @SuppressLint("DiscouragedApi")
