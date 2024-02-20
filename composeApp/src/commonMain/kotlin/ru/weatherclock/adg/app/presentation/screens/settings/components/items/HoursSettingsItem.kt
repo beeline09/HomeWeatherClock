@@ -23,9 +23,13 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.icerock.moko.resources.StringResource
-import dev.icerock.moko.resources.compose.stringResource
-import ru.weatherclock.adg.MR
+import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.setting_hours_dialog_title_end
+import homeweatherclock.composeapp.generated.resources.setting_hours_dialog_title_start
+import homeweatherclock.composeapp.generated.resources.setting_hours_item_end_hour
+import homeweatherclock.composeapp.generated.resources.setting_hours_item_start_hour
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.domain.model.settings.HoursRangeSetting
 import ru.weatherclock.adg.app.presentation.components.radiobutton.RadioGroupDialog
 import ru.weatherclock.adg.app.presentation.components.util.padStart
@@ -71,7 +75,7 @@ fun LazyItemScope.HoursSettingsItem(item: HoursRangeSetting) {
             val converter: (Int) -> String = { "${it.padStart(2)}:00" }
             val hoursRange: List<Int> = (0..23).toList()
             if (showStartHour && item.isEnabled) {
-                hoursRange.RadioGroupDialog(title = stringResource(MR.strings.setting_hours_dialog_title_start),
+                hoursRange.RadioGroupDialog(title = stringResource(Res.string.setting_hours_dialog_title_start),
                     converter = converter,
                     dismissRequest = {
                         showStartHour = false
@@ -84,7 +88,7 @@ fun LazyItemScope.HoursSettingsItem(item: HoursRangeSetting) {
                     isEnabled = { item.currentValue.second != it })
             }
             if (showEndHour && item.isEnabled) {
-                hoursRange.RadioGroupDialog(title = stringResource(MR.strings.setting_hours_dialog_title_end),
+                hoursRange.RadioGroupDialog(title = stringResource(Res.string.setting_hours_dialog_title_end),
                     converter = converter,
                     dismissRequest = {
                         showEndHour = false
@@ -99,14 +103,14 @@ fun LazyItemScope.HoursSettingsItem(item: HoursRangeSetting) {
             HourButton(
                 item = item,
                 hourValue = startHourStr,
-                hint = MR.strings.setting_hours_item_start_hour
+                hint = Res.string.setting_hours_item_start_hour
             ) {
                 showStartHour = true
             }
             HourButton(
                 item = item,
                 hourValue = endHourStr,
-                hint = MR.strings.setting_hours_item_end_hour
+                hint = Res.string.setting_hours_item_end_hour
             ) {
                 showEndHour = true
             }

@@ -4,17 +4,6 @@ import ru.weatherclock.adg.app.data.WeatherUnits
 import ru.weatherclock.adg.app.data.remote.query.openweathermap.forecast.base.ForecastsQuery
 import ru.weatherclock.adg.app.presentation.components.text.limitDecimals
 
-fun main() {
-    val q = Forecast5DayQuery(
-        44.40,
-        41.3,
-        "sdasds",
-        WeatherUnits.Metric,
-        "ru-ru"
-    )
-    println(q.buildUrl())
-}
-
 open class Forecast5DayQuery(
     private val latitude: Double,
     private val longitude: Double,

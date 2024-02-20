@@ -1,6 +1,4 @@
-package ru.weatherclock.adg.app.data.remote.query.accuweather.locations
-
-import ru.weatherclock.adg.app.data.remote.query.accuweather.locations.base.LocationsQuery
+package ru.weatherclock.adg.app.data.remote.query.accuweather.locations.base
 
 abstract class CityLocationsQuery(
     apiKey: String,

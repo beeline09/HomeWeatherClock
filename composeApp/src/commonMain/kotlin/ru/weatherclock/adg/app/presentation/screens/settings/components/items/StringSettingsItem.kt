@@ -22,8 +22,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.icerock.moko.resources.compose.stringResource
-import ru.weatherclock.adg.MR
+import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.dialog_edittext_hint_enter_new_value
+import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.domain.model.settings.StringSetting
 import ru.weatherclock.adg.app.presentation.components.dialog.ClockAlertDialog
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getDescription
@@ -55,7 +56,7 @@ fun LazyItemScope.StringSettingsItem(item: StringSetting) {
                 onValueChange = { text = it },
                 label = {
                     Text(
-                        text = stringResource(MR.strings.dialog_edittext_hint_enter_new_value),
+                        text = stringResource(Res.string.dialog_edittext_hint_enter_new_value),
                         color = colorsPalette.toolbarColor
                     )
                 },

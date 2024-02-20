@@ -136,7 +136,7 @@ actual class AudioPlayer actual constructor(
 
     actual fun play(resource: ResourceWrapper) {
         runBlocking {
-            play(resource.resource.readBytes())
+            play(resource.toByteArray())
         }
     }
 }

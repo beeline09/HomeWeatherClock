@@ -3,7 +3,7 @@ package ru.weatherclock.adg.app.presentation.screens.settings.components
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
@@ -15,7 +15,7 @@ fun Navigator.backIcon(): @Composable (() -> Unit)? {
         {
             IconButton(onClick = ::pop) {
                 Icon(
-                    imageVector = Icons.Filled.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     tint = colorsPalette.background
                 )

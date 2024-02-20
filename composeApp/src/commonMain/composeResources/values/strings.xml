@@ -42,8 +42,7 @@
     <string
         name="setting_description_hours_with_leading_zero">If enabled, hours less than 10 will be displayed with a zero. For example: 08.
     </string>
-    <string
-        name="setting_description_weather_server">Changing this data will overwrite other weather settings, including API keys. Proceed very carefully!
+    <string name="setting_description_weather_server">Don\'t forget to change the corresponding API key(s) for the selected server
     </string>
     <string name="setting_title_dots_flash_enabled">Enable blinking seconds dots</string>
     <string name="setting_title_dots_flash_animated">Animate seconds dots blinking</string>

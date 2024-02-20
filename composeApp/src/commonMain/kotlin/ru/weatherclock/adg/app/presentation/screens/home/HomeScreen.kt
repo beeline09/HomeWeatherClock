@@ -1,6 +1,5 @@
 package ru.weatherclock.adg.app.presentation.screens.home
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.datetime.LocalDateTime
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -54,9 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.koinInject
-import ru.weatherclock.adg.MR
 import ru.weatherclock.adg.app.data.dto.isHourInRangeForHide
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.stringForCalendar
@@ -68,6 +65,7 @@ import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.calendar.stringForToast
 import ru.weatherclock.adg.app.presentation.components.calendar.toMessageDateString
 import ru.weatherclock.adg.app.presentation.components.player.AudioPlayer
+import ru.weatherclock.adg.app.presentation.components.player.ResourceWrapper
 import ru.weatherclock.adg.app.presentation.components.player.rememberPlayerState
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.app.presentation.components.util.getColor
@@ -75,15 +73,10 @@ import ru.weatherclock.adg.app.presentation.components.util.padStart
 import ru.weatherclock.adg.app.presentation.components.weather.WeatherCell
 import ru.weatherclock.adg.app.presentation.screens.home.components.TextCalendar
 import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
-import ru.weatherclock.adg.platformSpecific.fileName
-import ru.weatherclock.adg.platformSpecific.rawResource
 import ru.weatherclock.adg.showToast
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
-@OptIn(
-    ExperimentalResourceApi::class,
-    ExperimentalCoroutinesApi::class
-)
+
 @Composable
 fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val navigator = LocalNavigator.currentOrThrow
@@ -134,7 +127,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     LaunchedEffect(state.hourlyBeepIncrement) {
         if (state.hourlyBeepIncrement > 0) {
             val player = AudioPlayer(playerState)
-            player.play(MR.files.casiohour.fileName().rawResource())
+            player.play(ResourceWrapper("files/casiohour.mp3"))
         }
     }
 
@@ -144,7 +137,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
             showToast(text = it.message.orEmpty())
         }
         val player = AudioPlayer(playerState)
-        player.play(MR.files.casiohour.fileName().rawResource())
+        player.play()
     }
 
     var dateSelected by remember {

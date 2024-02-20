@@ -1,3 +1,4 @@
+
 import java.time.LocalDateTime
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
@@ -8,7 +9,6 @@ plugins {
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.sqlDelight)
-    alias(libs.plugins.mokoResources)
 }
 
 apply(from = "${rootProject.projectDir}/composeApp/constants.gradle.kts")
@@ -28,12 +28,6 @@ kotlin {
         }
     }
 
-    @Suppress("OPT_IN_USAGE")
-    //https://youtrack.jetbrains.com/issue/KT-61573
-    compilerOptions {
-        freeCompilerArgs.add("-Xexpect-actual-classes")
-    }
-
     jvm()
 
     listOf(
@@ -48,6 +42,11 @@ kotlin {
     }
 
     sourceSets {
+
+        all {
+            languageSettings.optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
+        }
+
         val commonMain by getting {
             dependencies {
                 implementation(compose.runtime)
@@ -67,8 +66,6 @@ kotlin {
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose.mp)
                 implementation(libs.sqlDelight.coroutines.extensions)
-                api(libs.moko.resources.compose)
-                api(libs.moko.resources)
                 implementation(libs.atomicfu)
                 implementation(libs.kstore)
                 implementation(libs.stately.common)
@@ -134,14 +131,27 @@ kotlin {
     }
 }
 
-multiplatformResources {
-    disableStaticFrameworkWarning = true
-    multiplatformResourcesPackage = appPackageName // required
-//    multiplatformResourcesClassName = "Res" // optional, default MR
-//    multiplatformResourcesVisibility = MRVisibility.Internal // optional, default Public
-//    iosBaseLocalizationRegion = "ru" // optional, default "en"
-//    multiplatformResourcesSourceSet = "commonClientMain"  // optional, default "commonMain"
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class).all {
+    kotlinOptions {
+        freeCompilerArgs = freeCompilerArgs.toMutableList().apply {
+            add("-opt-in=org.jetbrains.compose.resources.ExperimentalResourceApi")
+            add("-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi")
+            add("-Xexpect-actual-classes")
+        }
+    }
 }
+
+/*tasks.withType<Jar>().configureEach {
+    manifest {
+        attributes += sortedMapOf(
+            "Built-By" to System.getProperty("user.name"),
+            "Build-Jdk" to System.getProperty("java.version"),
+            "Implementation-Vendor" to "JetBrains s.r.o.",
+            "Implementation-Version" to archiveVersion.get(),
+            "Created-By" to GradleVersion.current()
+        )
+    }
+}*/
 
 android {
     namespace = appPackageName
@@ -282,20 +292,14 @@ sqldelight {
     val packName = "${appPackageName}.db"
     databases {
         create("ProdCalendarDb") {
-            // Database configuration here.
-            // https://cashapp.github.io/sqldelight
             packageName.set(packName)
             srcDirs("src/commonMain/sqldelight/prodCalendar")
         }
         create("AccuweatherDb") {
-            // Database configuration here.
-            // https://cashapp.github.io/sqldelight
             packageName.set(packName)
             srcDirs("src/commonMain/sqldelight/accuweather")
         }
         create("OpenWeatherMapDb") {
-            // Database configuration here.
-            // https://cashapp.github.io/sqldelight
             packageName.set(packName)
             srcDirs("src/commonMain/sqldelight/openweathermap")
         }

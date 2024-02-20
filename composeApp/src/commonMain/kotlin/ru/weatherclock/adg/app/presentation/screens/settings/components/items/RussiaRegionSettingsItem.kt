@@ -20,8 +20,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.icerock.moko.resources.compose.stringResource
-import ru.weatherclock.adg.MR
+import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.setting_prod_calendar_dialog_select_region_title
+import homeweatherclock.composeapp.generated.resources.setting_prod_calendar_region_all_russia
+import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.domain.model.russiaRegions
 import ru.weatherclock.adg.app.domain.model.settings.RussiaRegionSetting
 import ru.weatherclock.adg.app.domain.model.toRegion
@@ -37,7 +39,7 @@ fun LazyItemScope.RussiaRegionSettingsItem(item: RussiaRegionSetting) {
     val description = item.settingsKey.getDescription()
     val alpha = if (item.isEnabled) 1f else ContentAlpha.disabled
     val colorsPalette = LocalCustomColorsPalette.current
-    val allRegionsStr = stringResource(MR.strings.setting_prod_calendar_region_all_russia)
+    val allRegionsStr = stringResource(Res.string.setting_prod_calendar_region_all_russia)
     val title = item.settingsKey.getName()
     val titleStr = buildString {
         append(title)
@@ -55,7 +57,8 @@ fun LazyItemScope.RussiaRegionSettingsItem(item: RussiaRegionSetting) {
     if (showRegionsDialog && item.isEnabled) {
         russiaRegions.keys
             .toList()
-            .RadioGroupDialog(title = stringResource(MR.strings.setting_prod_calendar_dialog_select_region_title),
+            .RadioGroupDialog(
+                title = stringResource(Res.string.setting_prod_calendar_dialog_select_region_title),
                 converter = {
                     val numbers = russiaRegions[it]?.sorted()?.joinToString(separator = ", ")
                     if (numbers?.toIntOrNull() == 0) allRegionsStr

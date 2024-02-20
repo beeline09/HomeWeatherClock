@@ -11,28 +11,28 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import HomeWeatherClock.composeApp.BuildConfig
 import com.jthemedetecor.OsThemeDetector
-import dev.icerock.moko.resources.compose.stringResource
+import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.app_window_name
 import io.kamel.core.config.KamelConfig
 import io.kamel.core.config.takeFrom
 import io.kamel.image.config.Default
 import io.kamel.image.config.batikSvgDecoder
 import io.kamel.image.config.resourcesFetcher
 import net.harawata.appdirs.AppDirsFactory
+import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.App
-import ru.weatherclock.adg.MR
 import ru.weatherclock.adg.app.domain.di.initKoin
 import ru.weatherclock.adg.platformSpecific.appStorage
 
 fun main() = application {
-    appStorage = AppDirsFactory.getInstance()
-        .getUserDataDir(
-            BuildConfig.APP_NAME,
-            BuildConfig.APP_PACKAGE_NAME,
-            BuildConfig.APP_AUTHOR
-        )
+    appStorage = AppDirsFactory.getInstance().getUserDataDir(
+        BuildConfig.APP_NAME,
+        BuildConfig.APP_PACKAGE_NAME,
+        BuildConfig.APP_AUTHOR
+    )
     initKoin()
     Window(
-        title = stringResource(MR.strings.app_window_name),
+        title = stringResource(Res.string.app_window_name),
         state = rememberWindowState(
             width = 1000.dp,
             height = 700.dp,

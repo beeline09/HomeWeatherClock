@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalResourceApi::class)
+
 package ru.weatherclock.adg.app.presentation.components.calendar
 
 import kotlinx.datetime.DayOfWeek
@@ -5,8 +7,11 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import dev.icerock.moko.resources.compose.stringResource
-import ru.weatherclock.adg.MR
+import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.day_description_standard
+import homeweatherclock.composeapp.generated.resources.day_description_weekend
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.domain.model.calendar.DayType
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.typeText
@@ -82,9 +87,9 @@ fun ProdCalendarDay?.stringForToast(
             }
         } else if (selectedDate != null) {
             if (selectedDate.isWeekend()) {
-                append(stringResource(MR.strings.day_description_weekend))
+                append(stringResource(Res.string.day_description_weekend))
             } else {
-                append(stringResource(MR.strings.day_description_standard))
+                append(stringResource(Res.string.day_description_standard))
             }
         }
     }

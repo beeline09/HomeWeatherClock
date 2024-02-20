@@ -1,15 +1,12 @@
 package ru.weatherclock.adg.app.presentation.screens.settings.components.items
 
 import kotlinx.coroutines.delay
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -23,9 +20,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -43,8 +37,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.icerock.moko.resources.compose.stringResource
-import ru.weatherclock.adg.MR
+import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.dialog_api_keys_add_button
+import homeweatherclock.composeapp.generated.resources.dialog_edittext_hint_enter_new_value
+import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.domain.model.settings.StringListSetting
 import ru.weatherclock.adg.app.presentation.components.dialog.ClockAlertDialog
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getDescription
@@ -157,7 +153,7 @@ private fun EditableListString(
         }
 
         //Кнопка добавления нового ключа
-        Text(text = stringResource(MR.strings.dialog_api_keys_add_button),
+        Text(text = stringResource(Res.string.dialog_api_keys_add_button),
             modifier = Modifier
                 .clickable {
                     if (items.none { it.isBlank() }) {
@@ -170,36 +166,6 @@ private fun EditableListString(
             fontSize = 18.sp,
             textAlign = TextAlign.Center,
             color = colorsPalette.alertDialogDismissButton)
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DismissBackground(dismissState: DismissState) {
-    val color = when (dismissState.dismissDirection) {
-        DismissDirection.StartToEnd -> Color(0xFFFF1744)
-        DismissDirection.EndToStart -> Color(0xFF1DE9B6)
-        null -> Color.Transparent
-    }
-    val direction = dismissState.dismissDirection
-
-    Row(
-        modifier = Modifier.fillMaxSize().background(color).padding(
-            12.dp,
-            8.dp
-        ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        if (direction == DismissDirection.StartToEnd) Icon(
-            Icons.Default.Delete,
-            contentDescription = "delete"
-        )
-        Spacer(modifier = Modifier)
-        if (direction == DismissDirection.EndToStart) Icon(
-            Icons.Default.Delete,
-            contentDescription = "delete"
-        )
     }
 }
 
@@ -238,7 +204,7 @@ private fun ListItem(
             },
             label = {
                 androidx.compose.material3.Text(
-                    text = stringResource(MR.strings.dialog_edittext_hint_enter_new_value),
+                    text = stringResource(Res.string.dialog_edittext_hint_enter_new_value),
                     color = colorsPalette.toolbarColor
                 )
             },
@@ -258,19 +224,17 @@ private fun ListItem(
                 }
                 .padding(all = 8.dp),
         ) {
-            Icon(
-                modifier = Modifier
-                    .wrapContentHeight(align = Alignment.CenterVertically)
-                    .wrapContentWidth(align = Alignment.CenterHorizontally)
-                    .align(Alignment.Center),
+            Icon(modifier = Modifier
+                .wrapContentHeight(align = Alignment.CenterVertically)
+                .wrapContentWidth(align = Alignment.CenterHorizontally)
+                .align(Alignment.Center),
                 imageVector = Icons.Default.Delete,
                 contentDescription = "delete",
                 tint = Color.Red.let {
                     if (message.value.isBlank()) {
                         it.copy(alpha = 0.5f)
                     } else it
-                }
-            )
+                })
         }
     }
 
@@ -298,7 +262,7 @@ private fun ListItem(
                         },
                         label = {
                             androidx.compose.material3.Text(
-                                text = stringResource(MR.strings.dialog_edittext_hint_enter_new_value),
+                                text = stringResource(Res.string.dialog_edittext_hint_enter_new_value),
                                 color = colorsPalette.toolbarColor
                             )
                         },

@@ -1,6 +1,7 @@
 package ru.weatherclock.adg.app.data.remote.query.accuweather.base
 
-import ru.weatherclock.adg.app.data.remote.query.base.ApiQuery
+import io.ktor.http.encodeURLQueryComponent
+import ru.weatherclock.adg.app.data.remote.query.ApiQuery
 
 abstract class AccuweatherQuery(
     private val apiKey: String,
@@ -9,20 +10,29 @@ abstract class AccuweatherQuery(
 
     abstract fun accuweatherService(): String
 
-    abstract fun queryParams(): String
+    abstract fun queryParams(): Map<String, String>
 
     final override fun buildUrl(): String = buildString {
-        val query = queryParams()
+        val params = queryParams()
         append("https://dataservice.accuweather.com/")
         append(accuweatherService())
-        append("?apikey=")
-        append(apiKey)
-        append("&language=")
-        append(language)
-        if (query.isNotBlank()) {
+        append("?")
+        if (params.isNotEmpty()) {
+            val keys = params.keys
+            keys.forEachIndexed { index, param ->
+                append(param)
+                append("=")
+                append(params[param].orEmpty().encodeURLQueryComponent())
+                if (index < keys.size - 1) {
+                    append("&")
+                }
+            }
             append("&")
-            append(query)
         }
+        append("apikey=")
+        append(apiKey.encodeURLQueryComponent())
+        append("&language=")
+        append(language.encodeURLQueryComponent())
     }
 
 }

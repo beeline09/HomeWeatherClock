@@ -21,11 +21,9 @@
         name="setting_title_hide_elements_by_hours_range">Интервал часов между которыми скрывать выбранные элементы
     </string>
     <string name="setting_title_hide_weather_by_time">Скрывать погоду по времени</string>
-    <string
-        name="setting_title_hide_text_calendar_by_time">Скрывать текстовый календарь по времени
+    <string name="setting_title_hide_text_calendar_by_time">Скрывать текстовый календарь по времени
     </string>
-    <string
-        name="setting_title_hide_grid_calendar_by_time">Скрывать табличный календарь по времени
+    <string name="setting_title_hide_grid_calendar_by_time">Скрывать табличный календарь по времени
     </string>
 
 
@@ -46,8 +44,7 @@
     <string
         name="setting_description_hours_with_leading_zero">Если включено, часы меньше 10 будут отображаться с нулём. Например: 08.
     </string>
-    <string
-        name="setting_description_weather_server">Изменение этих данных повлечет затирание остальных настроек погоды, включая API ключи. Действуйте очень осторожно!
+    <string name="setting_description_weather_server">Не забудьте изменить соответствующий API ключ(и) для выбранного сервера
     </string>
     <string name="setting_title_dots_flash_enabled">Включить мигание точками секунд</string>
     <string name="setting_title_dots_flash_animated">Анимировать мигание точек секунд</string>

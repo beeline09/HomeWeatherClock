@@ -1,5 +1,8 @@
 package ru.weatherclock.adg.app.presentation.components.player
 
+import java.io.File
+import java.io.FileOutputStream
+import kotlinx.coroutines.runBlocking
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
@@ -140,11 +143,22 @@ actual class AudioPlayer actual constructor(
         mediaPlayer.removeListener(listener)
     }
 
+    private fun ByteArray.file(path: String): File {
+        val fileName = path.substringAfterLast("/")
+        val file = File("${AndroidApp.INSTANCE.cacheDir}/$fileName")
+        val fos = FileOutputStream(file)
+        fos.write(this)
+        fos.close()
+        return file
+    }
+
     actual fun play(resource: ResourceWrapper) {
-        val mediaPlayer = MediaPlayer()
-        mediaPlayer.setDataSource(resource.path)
-        mediaPlayer.prepare()
-        mediaPlayer.start()
+        runBlocking {
+            val mediaPlayer = MediaPlayer()
+            mediaPlayer.setDataSource(resource.toByteArray().file(resource.path).path)
+            mediaPlayer.prepare()
+            mediaPlayer.start()
+        }
     }
 
 }

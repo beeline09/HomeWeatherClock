@@ -13,12 +13,10 @@ class Daily5DaysForecastQuery(
     language
 ) {
 
-    override fun queryParams(): String = buildString {
-        append("details=")
-        if (detailed) append("true") else append("false")
-        append("&metric=")
-        if (withMetrics) append("true") else append("false")
-    }
+    override fun queryParams(): Map<String, String> = mapOf(
+        "details" to if (detailed) "true" else "false",
+        "metric" to if (withMetrics) "true" else "false"
+    )
 
     override fun buildDailyForecastUrl(): String {
         return "5day/${cityKey}"
