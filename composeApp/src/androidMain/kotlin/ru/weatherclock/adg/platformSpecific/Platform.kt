@@ -5,10 +5,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import android.content.res.Resources
 import androidx.core.os.ConfigurationCompat
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.android.Android
-import org.koin.dsl.module
 
-actual fun platformModule() = module { single { Android.create() } }
+actual val defaultHttpClientEngine: HttpClientEngine by lazy {
+    Android.create()
+}
 
 actual val ioDispatcher: CoroutineDispatcher
     get() = Dispatchers.IO

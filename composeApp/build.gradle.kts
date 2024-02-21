@@ -1,6 +1,7 @@
 
 import java.time.LocalDateTime
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -45,6 +46,7 @@ kotlin {
 
         all {
             languageSettings.optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
+            languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
         }
 
         val commonMain by getting {
@@ -131,14 +133,18 @@ kotlin {
     }
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class).all {
-    kotlinOptions {
-        freeCompilerArgs = freeCompilerArgs.toMutableList().apply {
-            add("-opt-in=org.jetbrains.compose.resources.ExperimentalResourceApi")
-            add("-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi")
-            add("-Xexpect-actual-classes")
-        }
-    }
+tasks.withType<KotlinCompile<*>> {
+    kotlinOptions.freeCompilerArgs += listOf(
+        "-Xallow-kotlin-package",
+        "-Xexpect-actual-classes",
+        "-opt-in=kotlin.ExperimentalMultiplatform",
+        "-opt-in=kotlin.contracts.ExperimentalContracts",
+        "-opt-in=kotlin.RequiresOptIn",
+        "-opt-in=kotlin.ExperimentalUnsignedTypes",
+        "-opt-in=kotlin.ExperimentalStdlibApi",
+        "-opt-in=kotlinx.cinterop.BetaInteropApi",
+        "-opt-in=kotlinx.cinterop.ExperimentalForeignApi",
+    )
 }
 
 /*tasks.withType<Jar>().configureEach {
@@ -187,7 +193,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.4"
+        kotlinCompilerExtensionVersion = "1.5.9"
     }
     packaging {
         resources {
@@ -216,7 +222,8 @@ compose.desktop {
                 TargetFormat.Dmg,
                 TargetFormat.Msi,
                 TargetFormat.Exe,
-                TargetFormat.Deb
+                TargetFormat.Deb,
+                TargetFormat.Rpm,
             )
             appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
 

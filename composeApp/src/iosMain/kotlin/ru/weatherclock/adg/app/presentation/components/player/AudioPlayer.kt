@@ -1,12 +1,12 @@
-@file:OptIn(ExperimentalResourceApi::class)
-
 package ru.weatherclock.adg.app.presentation.components.player
 
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import kotlinx.cinterop.CValue
-import kotlinx.cinterop.ExperimentalForeignApi
-import org.jetbrains.compose.resources.ExperimentalResourceApi
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.convert
+import kotlinx.cinterop.usePinned
+import kotlinx.coroutines.runBlocking
 import platform.AVFAudio.AVAudioPlayer
 import platform.AVFAudio.AVAudioSession
 import platform.AVFAudio.AVAudioSessionCategoryPlayback
@@ -29,17 +29,14 @@ import platform.AVFoundation.timeControlStatus
 import platform.CoreMedia.CMTime
 import platform.CoreMedia.CMTimeGetSeconds
 import platform.CoreMedia.CMTimeMakeWithSeconds
+import platform.Foundation.NSData
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
 import platform.Foundation.NSURL
-import platform.Foundation.NSURL.Companion.URLWithString
+import platform.Foundation.create
 import platform.darwin.Float64
 import platform.darwin.NSEC_PER_SEC
 
-@OptIn(
-    ExperimentalForeignApi::class,
-    ExperimentalResourceApi::class
-)
 actual class AudioPlayer actual constructor(
     private val playerState: PlayerState
 ) {
@@ -129,7 +126,6 @@ actual class AudioPlayer actual constructor(
     }
 
     actual fun addSongsUrls(songsUrl: List<String>) {
-        //TODO: report bad url
         val converted = songsUrl.map {
             NSURL.URLWithString(URLString = it)!!
         }
@@ -197,29 +193,40 @@ actual class AudioPlayer actual constructor(
         stop()
     }
 
-    actual fun play(resource: ResourceWrapper) {
-        try {
-            AVAudioSession
-                .sharedInstance()
-                .setCategory(
-                    category = AVAudioSessionCategoryPlayback,
-                    mode = AVAudioSessionModeDefault,
-                    options = 0u,
-                    error = null
-                )
-            AVAudioSession
-                .sharedInstance()
-                .setActive(
-                    active = true,
-                    error = null
-                )
-            val player = AVAudioPlayer(
-                contentsOfURL = URLWithString(resource.path)!!,
-                error = null
+    private fun ByteArray.toNsData(): NSData {
+        return this.usePinned {
+            NSData.create(
+                it.addressOf(0),
+                this.size.convert()
             )
-            player.play()
-        } catch (e: Exception) {
-            e.printStackTrace()
+        }
+    }
+
+    actual fun play(resource: ResourceWrapper) {
+        runBlocking {
+            try {
+                AVAudioSession
+                    .sharedInstance()
+                    .setCategory(
+                        category = AVAudioSessionCategoryPlayback,
+                        mode = AVAudioSessionModeDefault,
+                        options = 0u,
+                        error = null
+                    )
+                AVAudioSession
+                    .sharedInstance()
+                    .setActive(
+                        active = true,
+                        error = null
+                    )
+                val player = AVAudioPlayer(
+                    data = resource.toByteArray().toNsData(),
+                    error = null
+                )
+                player.play()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 

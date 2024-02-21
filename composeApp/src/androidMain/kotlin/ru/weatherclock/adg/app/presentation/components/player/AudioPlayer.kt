@@ -146,9 +146,11 @@ actual class AudioPlayer actual constructor(
     private fun ByteArray.file(path: String): File {
         val fileName = path.substringAfterLast("/")
         val file = File("${AndroidApp.INSTANCE.cacheDir}/$fileName")
-        val fos = FileOutputStream(file)
-        fos.write(this)
-        fos.close()
+        if (!file.exists() || file.length() < 100) {
+            val fos = FileOutputStream(file)
+            fos.write(this)
+            fos.close()
+        }
         return file
     }
 

@@ -30,7 +30,7 @@ sqlDelight = "2.0.1"
 kermit = "2.0.0-RC4"
 kstore = "0.7.1"
 java-appdirs = "1.2.2"
-kamelImageLoader = "0.9.1"
+kamelImageLoader = "0.9.2"
 annotationJvm = "1.7.1"
 
 [libraries]

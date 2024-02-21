@@ -1,3 +1,4 @@
+
 import java.awt.Dimension
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
@@ -14,6 +15,7 @@ import com.jthemedetecor.OsThemeDetector
 import homeweatherclock.composeapp.generated.resources.Res
 import homeweatherclock.composeapp.generated.resources.app_window_name
 import io.kamel.core.config.KamelConfig
+import io.kamel.core.config.httpFetcher
 import io.kamel.core.config.takeFrom
 import io.kamel.image.config.Default
 import io.kamel.image.config.batikSvgDecoder
@@ -23,6 +25,7 @@ import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.App
 import ru.weatherclock.adg.app.domain.di.initKoin
 import ru.weatherclock.adg.platformSpecific.appStorage
+import ru.weatherclock.adg.platformSpecific.defaultHttpClientEngine
 
 fun main() = application {
     appStorage = AppDirsFactory.getInstance().getUserDataDir(
@@ -53,6 +56,7 @@ fun main() = application {
                 takeFrom(KamelConfig.Default)
                 resourcesFetcher()
                 batikSvgDecoder()
+                httpFetcher(defaultHttpClientEngine)
             }
         }
 
