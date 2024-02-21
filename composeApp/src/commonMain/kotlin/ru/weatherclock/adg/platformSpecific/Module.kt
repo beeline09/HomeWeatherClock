@@ -5,7 +5,7 @@ import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.SqlSchema
-import org.koin.core.module.Module
+import io.ktor.client.engine.HttpClientEngine
 import ru.weatherclock.adg.db.Accuweather.AirAndPollen
 import ru.weatherclock.adg.db.Accuweather.DegreeDaySummary
 import ru.weatherclock.adg.db.Accuweather.Evapotranspiration
@@ -131,7 +131,7 @@ fun createOpenWeatherMapDb(): OpenWeatherMapDb {
     )
 }
 
-expect fun platformModule(): Module
+expect val defaultHttpClientEngine: HttpClientEngine
 
 expect val ioDispatcher: CoroutineDispatcher
 

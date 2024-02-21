@@ -64,7 +64,7 @@ import ru.weatherclock.adg.platformSpecific.appSettingsKStore
 import ru.weatherclock.adg.platformSpecific.createAccuweatherDb
 import ru.weatherclock.adg.platformSpecific.createOpenWeatherMapDb
 import ru.weatherclock.adg.platformSpecific.createProdCalendarDb
-import ru.weatherclock.adg.platformSpecific.platformModule
+import ru.weatherclock.adg.platformSpecific.defaultHttpClientEngine
 
 fun initKoin(
     enableNetworkLogs: Boolean = false,
@@ -87,6 +87,8 @@ fun commonModule(
     enableNetworkLogs: Boolean,
 ) =
     platformModule() + settingsRepoModule() + getDataModule(enableNetworkLogs) + getUseCaseModule() + getScreenModelModule()
+
+private fun platformModule() = module { single { defaultHttpClientEngine } }
 
 fun getScreenModelModule() = module {
     single {
