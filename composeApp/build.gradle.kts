@@ -1,4 +1,3 @@
-
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 import java.time.LocalDateTime
@@ -32,9 +31,7 @@ kotlin {
     jvm()
 
     listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
+        iosX64(), iosArm64(), iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
             baseName = "ComposeApp"
@@ -55,7 +52,7 @@ kotlin {
                 implementation(compose.material3)
                 api(compose.material)
                 implementation(compose.materialIconsExtended)
-                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class) implementation(compose.components.resources)
+                implementation(compose.components.resources)
                 implementation(libs.kermit)
                 implementation(libs.bundles.voyager.common)
                 implementation(libs.composeImageLoader)
@@ -177,10 +174,8 @@ android {
         manifest.srcFile("src/androidMain/AndroidManifest.xml")
         res.srcDirs("src/androidMain/resources")
         res.srcDirs(
-            "src/androidMain/res",
-            "src/commonMain/resources"
+            "src/androidMain/res", "src/commonMain/resources"
         )
-//        resources.exclude("src/commonMain/resources/MR")
     }
     compileOptions {
         //Нужно для работы kotlinx.datetime на версии Android ниже 7
@@ -235,13 +230,9 @@ compose.desktop {
 //            packageName = "HomeWeatherClock"
 //            packageVersion = "1.0.0"
             modules += listOf(
-                "java.compiler",
-                "java.instrument",
-                "jdk.unsupported",
-                "java.naming",
-                "java.sql"
+                "java.compiler", "java.instrument", "jdk.unsupported", "java.naming", "java.sql"
             )
-            copyright = "© ${LocalDateTime.now()} Rasul Ismailov. All rights reserved."
+            copyright = "© ${LocalDateTime.now().year} Rasul Ismailov. All rights reserved."
 
             linux {
                 iconFile.set(iconsRoot.resolve("launcher_icons/linux.png"))
@@ -271,27 +262,17 @@ dependencies {
 
 buildConfig {
     buildConfigField(
-        "String",
-        "APP_NAME",
-        "\"${appName}\""
+        "String", "APP_NAME", "\"${appName}\""
     )
     buildConfigField(
-        "String",
-        "APP_PACKAGE_NAME",
-        "\"${appPackageName}\""
+        "String", "APP_PACKAGE_NAME", "\"${appPackageName}\""
     )
-    buildConfigField("String",
-        "APP_VERSION",
-        provider { "\"${appVersionName}\"" })
+    buildConfigField("String", "APP_VERSION", provider { "\"${appVersionName}\"" })
     buildConfigField(
-        "String",
-        "APP_AUTHOR",
-        "\"beeline09\""
+        "String", "APP_AUTHOR", "\"beeline09\""
     )
     buildConfigField(
-        "long",
-        "BUILD_TIME",
-        "${System.currentTimeMillis()}L"
+        "long", "BUILD_TIME", "${System.currentTimeMillis()}L"
     )
 }
 
