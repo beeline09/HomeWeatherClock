@@ -1,7 +1,7 @@
 
-import java.time.LocalDateTime
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
+import java.time.LocalDateTime
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -180,7 +180,7 @@ android {
             "src/androidMain/res",
             "src/commonMain/resources"
         )
-        resources.exclude("src/commonMain/resources/MR")
+//        resources.exclude("src/commonMain/resources/MR")
     }
     compileOptions {
         //Нужно для работы kotlinx.datetime на версии Android ниже 7
@@ -193,7 +193,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.9"
+        kotlinCompilerExtensionVersion = "1.5.10"
     }
     packaging {
         resources {

@@ -14,3 +14,4 @@ Pods/
 *.jks
 *yarn.lock
 /composeApp/release/
+/.kotlin/
