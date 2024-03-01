@@ -1,6 +1,5 @@
 package ru.weatherclock.adg.platformSpecific
 
-import kotlinx.cinterop.ExperimentalForeignApi
 import io.github.xxfast.kstore.KStore
 import io.github.xxfast.kstore.file.storeOf
 import okio.Path.Companion.toPath
@@ -17,12 +16,9 @@ actual val appSettingsKStore: KStore<AppSettings> by lazy {
     )
 }
 
-@OptIn(ExperimentalForeignApi::class)
 private fun iosDirPath(folder: String): String {
     val paths = NSSearchPathForDirectoriesInDomains(
-        NSApplicationSupportDirectory,
-        NSUserDomainMask,
-        true
+        NSApplicationSupportDirectory, NSUserDomainMask, true
     );
     val documentsDirectory = paths[0] as String;
 
@@ -31,10 +27,7 @@ private fun iosDirPath(folder: String): String {
     val fileManager = NSFileManager.defaultManager()
 
     if (!fileManager.fileExistsAtPath(databaseDirectory)) fileManager.createDirectoryAtPath(
-        databaseDirectory,
-        true,
-        null,
-        null
+        databaseDirectory, true, null, null
     ); //Create folder
 
     return databaseDirectory
