@@ -1,15 +1,13 @@
 package ru.weatherclock.adg.app.data.repository.settings.implementation
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import io.github.xxfast.kstore.KStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
-import io.github.xxfast.kstore.KStore
 import ru.weatherclock.adg.app.data.dto.AppSettings
 import ru.weatherclock.adg.app.data.dto.TimeConfig
 import ru.weatherclock.adg.app.data.dto.orDefault
 import ru.weatherclock.adg.app.data.repository.settings.TimeSettingsRepository
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class TimeSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>):
     TimeSettingsRepository {
 

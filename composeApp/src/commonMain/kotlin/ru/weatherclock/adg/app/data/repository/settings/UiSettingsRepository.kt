@@ -7,8 +7,9 @@ import ru.weatherclock.adg.app.data.dto.UiConfig
 
 interface UiSettingsRepository {
 
-    val allConfig: Flow<AppSettings>
-    val uiConfig: Flow<UiConfig>
+    val allConfigFlow: Flow<AppSettings>
+    suspend fun getAllConfig(): AppSettings
+    val uiConfigFlow: Flow<UiConfig>
     suspend fun getConfig(): UiConfig
     suspend fun saveConfig(callback: UiConfig.() -> UiConfig)
 

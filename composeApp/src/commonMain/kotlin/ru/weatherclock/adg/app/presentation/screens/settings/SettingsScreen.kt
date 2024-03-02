@@ -36,46 +36,38 @@ fun SettingsScreen(screenModel: SettingsScreenViewModel = koinInject()) {
     val colorsPalette = LocalCustomColorsPalette.current
     val state by screenModel.state.collectAsState(SettingsScreenState())
     val settings = state.settings
-    Scaffold(
-        modifier = Modifier.background(color = colorsPalette.background),
-        topBar = {
-            TopAppBar(
-                backgroundColor = colorsPalette.toolbarColor,
-                title = {
-                    Text(
-                        text = stringResource(Res.string.settings_toolbar),
-                        color = colorsPalette.background
-                    )
-                },
-                navigationIcon = navigator.backIcon()
-            )
-        },
-        content = {
-            Box(
-                modifier = Modifier.background(color = colorsPalette.background).fillMaxSize()
+    Scaffold(modifier = Modifier.background(color = colorsPalette.background), topBar = {
+        TopAppBar(
+            backgroundColor = colorsPalette.toolbarColor, title = {
+                Text(
+                    text = stringResource(Res.string.settings_toolbar),
+                    color = colorsPalette.background
+                )
+            }, navigationIcon = navigator.backIcon()
+        )
+    }, content = {
+        Box(
+            modifier = Modifier.background(color = colorsPalette.background).fillMaxSize()
+        ) {
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    start = 16.dp, end = 16.dp
+                )
             ) {
-                LazyColumn(
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp
-                    )
-                ) {
-                    itemsIndexed(items = settings,
-                        key = { _, item -> item.settingsKey }) { index, item: BaseSettingItem ->
-                        SettingsListItem(item)
-                        if (index < settings.lastIndex && index > 0 && item.settingsKey !in SettingKey.headers) {
-                            val nextItem = settings[index + 1]
-                            if (nextItem.settingsKey !in SettingKey.headers) {
-                                Spacer(
-                                    modifier = Modifier.fillMaxWidth().height(1.dp).padding(
-                                        start = 16.dp,
-                                        end = 16.dp
-                                    ).background(color = colorsPalette.divider)
-                                )
-                            }
+                itemsIndexed(items = settings) { index, item: BaseSettingItem ->
+                    SettingsListItem(item)
+                    if (index < settings.lastIndex && index > 0 && item.settingsKey !in SettingKey.headers) {
+                        val nextItem = settings[index + 1]
+                        if (nextItem.settingsKey !in SettingKey.headers) {
+                            Spacer(
+                                modifier = Modifier.fillMaxWidth().height(1.dp).padding(
+                                    start = 16.dp, end = 16.dp
+                                ).background(color = colorsPalette.divider)
+                            )
                         }
                     }
                 }
             }
-        })
+        }
+    })
 }
