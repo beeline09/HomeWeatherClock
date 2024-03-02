@@ -1,16 +1,14 @@
 package ru.weatherclock.adg.app.data.repository.settings.implementation
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import io.github.xxfast.kstore.KStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
-import io.github.xxfast.kstore.KStore
 import ru.weatherclock.adg.app.data.dto.AppSettings
 import ru.weatherclock.adg.app.data.dto.ProdCalendarConfig
 import ru.weatherclock.adg.app.data.dto.orDefault
 import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
 
-@OptIn(ExperimentalCoroutinesApi::class)
-class ProdCalendarSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>):
+class ProdCalendarSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>) :
     ProdCalendarSettingsRepository {
 
     override val config: Flow<ProdCalendarConfig>

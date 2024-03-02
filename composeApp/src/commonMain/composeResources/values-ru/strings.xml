@@ -12,7 +12,8 @@
     <string name="setting_title_text_calendar_enabled">Отображать текстовый календарь</string>
     <string name="setting_title_grid_calendar_enabled">Отображать табличный календарь</string>
 
-
+    <string name="setting_title_system">Система</string>
+    <string name="setting_description_system">Автозапуск после загрузки системы</string>
     <string name="setting_title_hide_elements_by_time">Скрывать элементы по времени</string>
     <string
         name="setting_description_hide_elements_by_time">Скрытие некоторых элементов так же помогает бороться с проблемой выгорания дисплея, когда статичные элементы долго находятся в одном месте. Отключение некоторых элементов когда они вам не нужны, например, когда вы спите, позитивно повлияет на срок службы дисплея.

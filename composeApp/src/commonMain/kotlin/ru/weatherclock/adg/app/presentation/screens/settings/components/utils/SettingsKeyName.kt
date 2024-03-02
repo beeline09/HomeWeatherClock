@@ -2,6 +2,7 @@ package ru.weatherclock.adg.app.presentation.screens.settings.components.utils
 
 import androidx.compose.runtime.Composable
 import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.setting_description_system
 import homeweatherclock.composeapp.generated.resources.setting_title_dots_flash_animated
 import homeweatherclock.composeapp.generated.resources.setting_title_dots_flash_enabled
 import homeweatherclock.composeapp.generated.resources.setting_title_grid_calendar_enabled
@@ -21,6 +22,7 @@ import homeweatherclock.composeapp.generated.resources.setting_title_hours_with_
 import homeweatherclock.composeapp.generated.resources.setting_title_prod_calendar_day_description_enabled
 import homeweatherclock.composeapp.generated.resources.setting_title_prod_calendar_is_russia
 import homeweatherclock.composeapp.generated.resources.setting_title_prod_calendar_russia_region
+import homeweatherclock.composeapp.generated.resources.setting_title_system
 import homeweatherclock.composeapp.generated.resources.setting_title_text_calendar_enabled
 import homeweatherclock.composeapp.generated.resources.setting_title_theme
 import homeweatherclock.composeapp.generated.resources.setting_title_weather_api_keys
@@ -59,4 +61,6 @@ fun SettingKey.getName(): String = when (this) {
     SettingKey.HideGridCalendarByTime -> stringResource(Res.string.setting_title_hide_grid_calendar_by_time)
     SettingKey.HoursWithLeadingZero -> stringResource(Res.string.setting_title_hours_with_leading_zero)
     SettingKey.WeatherServers -> stringResource(Res.string.setting_title_weather_server)
+    SettingKey.HeaderSystem -> stringResource(Res.string.setting_title_system)
+    SettingKey.AutoStart -> stringResource(Res.string.setting_description_system)
 }

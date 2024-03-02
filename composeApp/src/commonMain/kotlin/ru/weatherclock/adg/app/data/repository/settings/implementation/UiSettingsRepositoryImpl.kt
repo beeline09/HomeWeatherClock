@@ -1,22 +1,24 @@
 package ru.weatherclock.adg.app.data.repository.settings.implementation
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import io.github.xxfast.kstore.KStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
-import io.github.xxfast.kstore.KStore
 import ru.weatherclock.adg.app.data.dto.AppSettings
 import ru.weatherclock.adg.app.data.dto.ColorTheme
 import ru.weatherclock.adg.app.data.dto.UiConfig
 import ru.weatherclock.adg.app.data.dto.orDefault
 import ru.weatherclock.adg.app.data.repository.settings.UiSettingsRepository
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class UiSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>): UiSettingsRepository {
 
-    override val allConfig: Flow<AppSettings>
+    override val allConfigFlow: Flow<AppSettings>
         get() = appSettings.updates.mapLatest { it.orDefault() }
 
-    override val uiConfig: Flow<UiConfig>
+    override suspend fun getAllConfig(): AppSettings {
+        return appSettings.get().orDefault()
+    }
+
+    override val uiConfigFlow: Flow<UiConfig>
         get() = appSettings.updates.mapLatest { it.orDefault().uiConfig }
 
     override suspend fun getConfig(): UiConfig {

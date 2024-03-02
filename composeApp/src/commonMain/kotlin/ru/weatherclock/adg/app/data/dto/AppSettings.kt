@@ -13,7 +13,13 @@ data class AppSettings(
     val weatherConfig: WeatherConfig = WeatherConfig(),
     val calendarConfig: CalendarConfig = CalendarConfig(),
     val timeConfig: TimeConfig = TimeConfig(),
-    val uiConfig: UiConfig = UiConfig()
+    val uiConfig: UiConfig = UiConfig(),
+    val systemConfig: SystemConfig = SystemConfig(),
+)
+
+@Serializable
+data class SystemConfig(
+    val autoStartEnabled: Boolean = false
 )
 
 @Serializable
@@ -38,43 +44,31 @@ enum class WeatherServer {
 
 @Serializable
 data class CityConfig(
-    @SerialName("latitude")
-    val latitude: Double = 44.6062079,
-    @SerialName("longitude")
-    val longitude: Double = 40.104053,
-    @SerialName("name")
-    val name: String = "Майкоп",
-    @SerialName("region")
-    val region: String = "Республика Адыгея",
-    @SerialName("country")
-    val country: String = "Россия",
-    @SerialName("key")
-    val key: String = "291658",
+    @SerialName("latitude") val latitude: Double = 44.6062079,
+    @SerialName("longitude") val longitude: Double = 40.104053,
+    @SerialName("name") val name: String = "Майкоп",
+    @SerialName("region") val region: String = "Республика Адыгея",
+    @SerialName("country") val country: String = "Россия",
+    @SerialName("key") val key: String = "291658",
 )
 
 @Serializable
 data class WeatherConfig(
-    @SerialName("enabled")
-    val weatherEnabled: Boolean = true,
+    @SerialName("enabled") val weatherEnabled: Boolean = true,
 
-    @SerialName("server")
-    val server: WeatherServer = WeatherServer.Accuweather,
+    @SerialName("server") val server: WeatherServer = WeatherServer.Accuweather,
 
-    @SerialName("city")
-    val city: CityConfig = CityConfig(),
+    @SerialName("city") val city: CityConfig = CityConfig(),
 
-    @SerialName("language")
-    val weatherApiLanguage: WeatherApiLanguage = WeatherApiLanguage.System,
+    @SerialName("language") val weatherApiLanguage: WeatherApiLanguage = WeatherApiLanguage.System,
 
-    @SerialName("apiKeys")
-    val weatherApiKeys: List<String> = listOf(
+    @SerialName("apiKeys") val weatherApiKeys: List<String> = listOf(
         "GSWo67YCWgJ6raZqsluqkuhxsl2zJAOK",
         "JZz9kz4ElQp8VVKLiF3KVSpDtyllS7CC",
 //        "8f064b7cdab87c6cde5acd33b4d24a44" //Openweathermap
     ),
 
-    @SerialName("units")
-    val units: WeatherUnits = WeatherUnits.Metric,
+    @SerialName("units") val units: WeatherUnits = WeatherUnits.Metric,
 )
 
 @Serializable
@@ -95,17 +89,13 @@ data class ProdCalendarConfig(
 @Serializable(with = ColorThemeSerializer::class)
 enum class ColorTheme {
 
-    Day,
-    Night,
-    System
+    Day, Night, System
 }
 
 @Serializable(with = WeatherApiLanguageSerializer::class)
 enum class WeatherApiLanguage(val code: String) {
 
-    Russian("ru-ru"),
-    English("en-us"),
-    System(systemLocale)
+    Russian("ru-ru"), English("en-us"), System(systemLocale)
 }
 
 @Serializable

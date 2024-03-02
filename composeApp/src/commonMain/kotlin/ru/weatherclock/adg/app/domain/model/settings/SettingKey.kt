@@ -27,6 +27,8 @@ enum class SettingKey {
     HeaderCalendarConfig,
     HeaderProdCalendarConfig,
     HeaderTheme,
+    HeaderSystem,
+    AutoStart,
     Theme;
 
     companion object {

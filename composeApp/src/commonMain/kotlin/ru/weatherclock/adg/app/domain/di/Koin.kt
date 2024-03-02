@@ -35,12 +35,14 @@ import ru.weatherclock.adg.app.data.repository.db.prodCalendar.implementation.Pr
 import ru.weatherclock.adg.app.data.repository.settings.AllSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.CalendarSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.SystemSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.TimeSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.UiSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.implementation.AllSettingsRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.settings.implementation.CalendarSettingsRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.settings.implementation.ProdCalendarSettingsRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.settings.implementation.SystemSettingsRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.settings.implementation.TimeSettingsRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.settings.implementation.UiSettingsRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.settings.implementation.WeatherSettingsRepositoryImpl
@@ -93,7 +95,7 @@ fun getScreenModelModule() = module {
         )
     }
     single {
-        SettingsScreenViewModel(get())
+        SettingsScreenViewModel(settingsUseCase = get())
     }
 }
 
@@ -136,7 +138,7 @@ fun getDataModule(
         AppHttpClient(httpClient = get())
     }
 
-    single<ProdCalendarDbRepository> { ProdCalendarDbRepositoryImpl(get()) }
+    single<ProdCalendarDbRepository> { ProdCalendarDbRepositoryImpl(database = get()) }
 
     single<ProdCalendarDb> { createProdCalendarDb() }
     single<AccuweatherDb> { createAccuweatherDb() }
@@ -145,12 +147,13 @@ fun getDataModule(
 
 fun settingsRepoModule() = module {
     single<KStore<AppSettings>> { appSettings }
-    single<CalendarSettingsRepository> { CalendarSettingsRepositoryImpl(get()) }
-    single<UiSettingsRepository> { UiSettingsRepositoryImpl(get()) }
-    single<ProdCalendarSettingsRepository> { ProdCalendarSettingsRepositoryImpl(get()) }
-    single<TimeSettingsRepository> { TimeSettingsRepositoryImpl(get()) }
-    single<WeatherSettingsRepository> { WeatherSettingsRepositoryImpl(get()) }
-    single<AllSettingsRepository> { AllSettingsRepositoryImpl(get()) }
+    single<CalendarSettingsRepository> { CalendarSettingsRepositoryImpl(appSettings = get()) }
+    single<UiSettingsRepository> { UiSettingsRepositoryImpl(appSettings = get()) }
+    single<ProdCalendarSettingsRepository> { ProdCalendarSettingsRepositoryImpl(appSettings = get()) }
+    single<TimeSettingsRepository> { TimeSettingsRepositoryImpl(appSettings = get()) }
+    single<WeatherSettingsRepository> { WeatherSettingsRepositoryImpl(appSettings = get()) }
+    single<AllSettingsRepository> { AllSettingsRepositoryImpl(appSettings = get()) }
+    single<SystemSettingsRepository> { SystemSettingsRepositoryImpl(appSettings = get()) }
 }
 
 fun getUseCaseModule() = module {
@@ -165,7 +168,9 @@ fun getUseCaseModule() = module {
     }
     single {
         CalendarUseCase(
-            get(), get(), get()
+            calendarRemoteRepository = get(),
+            prodCalendarDbRepository = get(),
+            prodCalendarSettingsRepository = get()
         )
     }
     single {
@@ -174,14 +179,15 @@ fun getUseCaseModule() = module {
             calendarRepo = get(),
             prodCalendarRepo = get(),
             weatherRepo = get(),
-            mainSettingsRepo = get(),
+            uiSettingsRepository = get(),
+            systemSettingsRepository = get(),
         )
     }
 }
 
 fun createHttpClient(
     httpClientEngine: HttpClientEngine, json: Json, enableNetworkLogs: Boolean
-) = HttpClient(httpClientEngine) {
+) = HttpClient(engine = httpClientEngine) {
 
     // exception handling
     install(HttpTimeout) {

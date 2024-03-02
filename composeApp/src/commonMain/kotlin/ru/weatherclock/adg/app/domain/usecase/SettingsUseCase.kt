@@ -8,6 +8,7 @@ import ru.weatherclock.adg.app.data.dto.AppSettings
 import ru.weatherclock.adg.app.data.dto.WeatherServer
 import ru.weatherclock.adg.app.data.repository.settings.CalendarSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.SystemSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.TimeSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.UiSettingsRepository
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
@@ -23,6 +24,7 @@ import ru.weatherclock.adg.app.domain.model.settings.StringListSetting
 import ru.weatherclock.adg.app.domain.model.settings.StringSetting
 import ru.weatherclock.adg.app.domain.model.settings.WeatherApiLanguageSetting
 import ru.weatherclock.adg.app.domain.model.settings.WeatherApiListSetting
+import ru.weatherclock.adg.platformSpecific.AutoStartHelper
 import ru.weatherclock.adg.platformSpecific.PlatformHelper.ioDispatcher
 
 class SettingsUseCase(
@@ -30,7 +32,8 @@ class SettingsUseCase(
     private val calendarRepo: CalendarSettingsRepository,
     private val prodCalendarRepo: ProdCalendarSettingsRepository,
     private val weatherRepo: WeatherSettingsRepository,
-    private val mainSettingsRepo: UiSettingsRepository,
+    private val uiSettingsRepository: UiSettingsRepository,
+    private val systemSettingsRepository: SystemSettingsRepository,
 ) {
 
     private fun safeUpdate(callback: suspend CoroutineScope.() -> Unit) {
@@ -45,7 +48,11 @@ class SettingsUseCase(
     }
 
     fun getAllSettingsFlow(): Flow<AppSettings> {
-        return mainSettingsRepo.allConfig
+        return uiSettingsRepository.allConfigFlow
+    }
+
+    suspend fun getAllSettings(): AppSettings {
+        return uiSettingsRepository.getAllConfig()
     }
 
     fun getSettingsFlow(): Flow<List<BaseSettingItem>> =
@@ -56,13 +63,30 @@ class SettingsUseCase(
             val prodCalendarConfig = calendarConfig.prodCalendarConfig
             val uiConfig = settings.uiConfig
             mutableListOf<BaseSettingItem>().apply {
+                if (AutoStartHelper.isSupported) {
+                    add(SettingsHeader(settingsKey = SettingKey.HeaderSystem))
+                    add(
+                        BooleanSetting(settingsKey = SettingKey.AutoStart,
+                            currentValue = systemSettingsRepository.getConfig().autoStartEnabled && AutoStartHelper.isEnabled,
+                            onChange = {
+                                safeUpdate {
+                                    systemSettingsRepository.saveConfig {
+                                        copy(autoStartEnabled = it)
+                                    }
+                                }
+                                if (it && !AutoStartHelper.isEnabled) {
+                                    AutoStartHelper.enable()
+                                }
+                            })
+                    )
+                }
                 add(SettingsHeader(settingsKey = SettingKey.HeaderTheme))
                 add(
                     ColorsThemeSetting(settingsKey = SettingKey.Theme,
                         currentValue = uiConfig.colorTheme,
                         onChange = {
                             safeUpdate {
-                                mainSettingsRepo.setColorTheme(it)
+                                uiSettingsRepository.setColorTheme(it)
                             }
                         })
                 )
@@ -73,21 +97,21 @@ class SettingsUseCase(
                     BooleanSetting(settingsKey = SettingKey.HideWeatherByTime,
                         currentValue = uiConfig.isWeatherHidden,
                         onChange = {
-                            safeUpdate { mainSettingsRepo.setWeatherHiddenByTime(hidden = it) }
+                            safeUpdate { uiSettingsRepository.setWeatherHiddenByTime(hidden = it) }
                         })
                 )
                 add(
                     BooleanSetting(settingsKey = SettingKey.HideTextCalendarByTime,
                         currentValue = uiConfig.isTextCalendarHidden,
                         onChange = {
-                            safeUpdate { mainSettingsRepo.setTextCalendarHiddenByTime(hidden = it) }
+                            safeUpdate { uiSettingsRepository.setTextCalendarHiddenByTime(hidden = it) }
                         })
                 )
                 add(
                     BooleanSetting(settingsKey = SettingKey.HideGridCalendarByTime,
                         currentValue = uiConfig.isGridCalendarHidden,
                         onChange = {
-                            safeUpdate { mainSettingsRepo.setGridCalendarHiddenByTime(hidden = it) }
+                            safeUpdate { uiSettingsRepository.setGridCalendarHiddenByTime(hidden = it) }
                         })
                 )
                 add(
@@ -96,8 +120,8 @@ class SettingsUseCase(
                         currentValue = uiConfig.hideStartHour to uiConfig.hideEndHour,
                         onChange = {
                             safeUpdate {
-                                mainSettingsRepo.setElementsHideStartHour(it.first)
-                                mainSettingsRepo.setElementsHideEndHour(it.second)
+                                uiSettingsRepository.setElementsHideStartHour(it.first)
+                                uiSettingsRepository.setElementsHideEndHour(it.second)
                             }
                         })
                 )
