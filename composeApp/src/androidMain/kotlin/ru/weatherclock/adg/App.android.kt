@@ -2,7 +2,6 @@ package ru.weatherclock.adg
 
 import android.app.Application
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -21,8 +20,7 @@ import io.kamel.image.config.Default
 import io.kamel.image.config.resourcesFetcher
 import org.koin.android.BuildConfig
 import ru.weatherclock.adg.app.domain.di.initKoin
-import ru.weatherclock.adg.platformSpecific.appStorage
-import ru.weatherclock.adg.platformSpecific.defaultHttpClientEngine
+import ru.weatherclock.adg.platformSpecific.PlatformHelper
 
 class AndroidApp : Application() {
     companion object {
@@ -33,8 +31,6 @@ class AndroidApp : Application() {
     override fun onCreate() {
         super.onCreate()
         INSTANCE = this
-        appStorage = filesDir.path
-
         initKoin(enableNetworkLogs = BuildConfig.DEBUG) {
             //  androidLogger()
             // androidContext(this@App)
@@ -52,7 +48,7 @@ class AppActivity : ComponentActivity() {
                 KamelConfig {
                     takeFrom(KamelConfig.Default)
                     resourcesFetcher(this@AppActivity)
-                    httpFetcher(defaultHttpClientEngine)
+                    httpFetcher(PlatformHelper.defaultHttpClientEngine)
                 }
             }
             App(
@@ -86,14 +82,4 @@ class AppActivity : ComponentActivity() {
             }
         }
     }
-}
-
-internal actual fun openUrl(url: String?) {
-    val uri = url?.let { Uri.parse(it) } ?: return
-    val intent = Intent().apply {
-        action = Intent.ACTION_VIEW
-        data = uri
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
-    AndroidApp.INSTANCE.startActivity(intent)
 }

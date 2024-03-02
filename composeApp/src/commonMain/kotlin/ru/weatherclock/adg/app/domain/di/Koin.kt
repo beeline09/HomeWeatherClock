@@ -1,12 +1,5 @@
-@file:OptIn(
-    ExperimentalCoroutinesApi::class,
-    ExperimentalCoroutinesApi::class
-)
-
 package ru.weatherclock.adg.app.domain.di
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.serialization.json.Json
 import io.github.xxfast.kstore.KStore
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
@@ -21,6 +14,7 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
@@ -60,11 +54,11 @@ import ru.weatherclock.adg.app.presentation.screens.settings.SettingsScreenViewM
 import ru.weatherclock.adg.db.AccuweatherDb
 import ru.weatherclock.adg.db.OpenWeatherMapDb
 import ru.weatherclock.adg.db.ProdCalendarDb
-import ru.weatherclock.adg.platformSpecific.appSettingsKStore
-import ru.weatherclock.adg.platformSpecific.createAccuweatherDb
-import ru.weatherclock.adg.platformSpecific.createOpenWeatherMapDb
-import ru.weatherclock.adg.platformSpecific.createProdCalendarDb
-import ru.weatherclock.adg.platformSpecific.defaultHttpClientEngine
+import ru.weatherclock.adg.platformSpecific.DbHelper.createAccuweatherDb
+import ru.weatherclock.adg.platformSpecific.DbHelper.createOpenWeatherMapDb
+import ru.weatherclock.adg.platformSpecific.DbHelper.createProdCalendarDb
+import ru.weatherclock.adg.platformSpecific.PlatformHelper.appSettings
+import ru.weatherclock.adg.platformSpecific.PlatformHelper.defaultHttpClientEngine
 
 fun initKoin(
     enableNetworkLogs: Boolean = false,
@@ -134,9 +128,7 @@ fun getDataModule(
 
     single {
         createHttpClient(
-            httpClientEngine = get(),
-            json = get(),
-            enableNetworkLogs = enableNetworkLogs
+            httpClientEngine = get(), json = get(), enableNetworkLogs = enableNetworkLogs
         )
     }
 
@@ -152,7 +144,7 @@ fun getDataModule(
 }
 
 fun settingsRepoModule() = module {
-    single<KStore<AppSettings>> { appSettingsKStore }
+    single<KStore<AppSettings>> { appSettings }
     single<CalendarSettingsRepository> { CalendarSettingsRepositoryImpl(get()) }
     single<UiSettingsRepository> { UiSettingsRepositoryImpl(get()) }
     single<ProdCalendarSettingsRepository> { ProdCalendarSettingsRepositoryImpl(get()) }
@@ -173,9 +165,7 @@ fun getUseCaseModule() = module {
     }
     single {
         CalendarUseCase(
-            get(),
-            get(),
-            get()
+            get(), get(), get()
         )
     }
     single {
@@ -190,9 +180,7 @@ fun getUseCaseModule() = module {
 }
 
 fun createHttpClient(
-    httpClientEngine: HttpClientEngine,
-    json: Json,
-    enableNetworkLogs: Boolean
+    httpClientEngine: HttpClientEngine, json: Json, enableNetworkLogs: Boolean
 ) = HttpClient(httpClientEngine) {
 
     // exception handling

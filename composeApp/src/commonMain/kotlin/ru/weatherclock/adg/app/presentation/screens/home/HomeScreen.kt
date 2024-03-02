@@ -1,6 +1,5 @@
 package ru.weatherclock.adg.app.presentation.screens.home
 
-import kotlinx.datetime.LocalDateTime
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
@@ -53,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlinx.datetime.LocalDateTime
 import org.koin.compose.koinInject
 import ru.weatherclock.adg.app.data.dto.isHourInRangeForHide
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
@@ -66,7 +66,6 @@ import ru.weatherclock.adg.app.presentation.components.calendar.stringForToast
 import ru.weatherclock.adg.app.presentation.components.calendar.toMessageDateString
 import ru.weatherclock.adg.app.presentation.components.player.AudioPlayer
 import ru.weatherclock.adg.app.presentation.components.player.ResourceWrapper
-import ru.weatherclock.adg.app.presentation.components.player.rememberPlayerState
 import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.app.presentation.components.util.getColor
 import ru.weatherclock.adg.app.presentation.components.util.padStart
@@ -100,8 +99,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
             val dotsColorAnimated: Color by animateColorAsState(
                 if (state.dotsShowed) colorPalette.clockText else colorPalette.background,
                 animationSpec = tween(
-                    400,
-                    easing = LinearEasing
+                    400, easing = LinearEasing
                 )
             )
             dotsColorAnimated
@@ -123,11 +121,10 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val gridCalendarVisible =
         (!isHourInRangeForHide || !uiConfig.isGridCalendarHidden) && calendarConfig.gridCalendarEnabled
 
-    val playerState = rememberPlayerState()
+
     LaunchedEffect(state.hourlyBeepIncrement) {
         if (state.hourlyBeepIncrement > 0) {
-            val player = AudioPlayer(playerState)
-            player.play(ResourceWrapper("files/casiohour.mp3"))
+            AudioPlayer.play(ResourceWrapper("files/casiohour.mp3"))
         }
     }
 
@@ -136,8 +133,6 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
         screenModel.catch {
             showToast(text = it.message.orEmpty())
         }
-        val player = AudioPlayer(playerState)
-        player.play()
     }
 
     var dateSelected by remember {
@@ -162,11 +157,8 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.safeDrawing)
-            .background(colorPalette.background),
-        verticalArrangement = Arrangement.Center
+        modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)
+            .background(colorPalette.background), verticalArrangement = Arrangement.Center
     ) {
 
         Row(
@@ -218,8 +210,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                                 onClick = {
                                     screenModel.intent(HomeScreenIntent.Settings.Hide)
                                     navigator.push(SettingsTab)
-                                },
-                                modifier = Modifier.align(Alignment.Center)
+                                }, modifier = Modifier.align(Alignment.Center)
                             ) {
                                 Icon(
                                     Icons.Filled.Settings,
@@ -236,9 +227,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         color = state.headlineSeverity.getColor(),
                         text = headline,
                         maxLines = 1,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(all = 5.dp)
+                        modifier = Modifier.fillMaxWidth().padding(all = 5.dp)
                             .wrapContentHeight(align = Alignment.CenterVertically),
                         minTextSize = 5.sp,
                         maxTextSize = 25.sp,
@@ -253,10 +242,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                 Column(modifier = Modifier.aspectRatio(0.4f).align(Alignment.CenterVertically)) {
                     if (textCalendarVisible) {
                         TextCalendar(
-                            modifier = Modifier
-                                .weight(0.5f)
-                                .wrapContentWidth()
-                                .fillMaxHeight()
+                            modifier = Modifier.weight(0.5f).wrapContentWidth().fillMaxHeight()
                                 .padding(horizontal = 5.dp),
                             dayOfMonth = date.dayOfMonth,
                             month = date.monthNumber,
@@ -272,9 +258,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                                 maxTextSize = 22.sp,
                                 minTextSize = 6.sp,
                                 alignment = Alignment.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentHeight()
+                                modifier = Modifier.fillMaxWidth().wrapContentHeight()
                                     .padding(horizontal = 5.dp),
                                 color = currentProdCalendarDay?.color() ?: colorPalette.dateDay
                             )
@@ -285,12 +269,8 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                     }
                     if (gridCalendarVisible) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .wrapContentWidth()
-                                .weight(0.3f)
-                                .align(Alignment.CenterHorizontally)
-                                .padding(horizontal = 5.dp),
+                            modifier = Modifier.fillMaxHeight().wrapContentWidth().weight(0.3f)
+                                .align(Alignment.CenterHorizontally).padding(horizontal = 5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Calendar(
@@ -298,8 +278,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                                 dateHolder = DateInput.SingleDate(),
                                 onDateSelected = { s, p ->
                                     dateSelected = true to CalendarCallbackData(
-                                        selectedDate = s,
-                                        prodCalendarDay = p
+                                        selectedDate = s, prodCalendarDay = p
                                     )
                                 },
                                 prodCalendarDays = prodCalendarDays
@@ -318,8 +297,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                     Box(modifier = Modifier.fillMaxSize().weight(1f)) {
                         Column(modifier = Modifier.fillMaxSize()) {
                             WeatherCell(
-                                forecast = dailyForecast,
-                                weatherConfigData = weatherConfig
+                                forecast = dailyForecast, weatherConfigData = weatherConfig
                             )
                         }
                     }

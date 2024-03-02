@@ -1,4 +1,4 @@
-package ru.weatherclock.adg.platformSpecific
+package ru.weatherclock.adg.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
