@@ -1,7 +1,6 @@
 package ru.weatherclock.adg.app.domain.usecase
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
@@ -24,9 +23,8 @@ import ru.weatherclock.adg.app.domain.model.settings.StringListSetting
 import ru.weatherclock.adg.app.domain.model.settings.StringSetting
 import ru.weatherclock.adg.app.domain.model.settings.WeatherApiLanguageSetting
 import ru.weatherclock.adg.app.domain.model.settings.WeatherApiListSetting
-import ru.weatherclock.adg.platformSpecific.ioDispatcher
+import ru.weatherclock.adg.platformSpecific.PlatformHelper.ioDispatcher
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class SettingsUseCase(
     private val timeRepo: TimeSettingsRepository,
     private val calendarRepo: CalendarSettingsRepository,

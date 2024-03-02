@@ -1,6 +1,5 @@
 package ru.weatherclock.adg
 
-import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -19,6 +18,7 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import co.touchlab.kermit.Logger
 import io.kamel.core.config.KamelConfig
 import io.kamel.image.config.LocalKamelConfig
+import kotlinx.coroutines.launch
 import ru.weatherclock.adg.app.presentation.tabs.HomeTab
 import ru.weatherclock.adg.theme.AppTheme
 
@@ -81,5 +81,3 @@ internal fun App(
         }
     }
 }
-
-internal expect fun openUrl(url: String?)

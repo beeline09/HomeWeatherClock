@@ -6,7 +6,7 @@ import ru.weatherclock.adg.app.data.WeatherUnits
 import ru.weatherclock.adg.app.data.serialization.ColorThemeSerializer
 import ru.weatherclock.adg.app.data.serialization.WeatherApiLanguageSerializer
 import ru.weatherclock.adg.app.data.util.isInHours
-import ru.weatherclock.adg.platformSpecific.systemLocale
+import ru.weatherclock.adg.platformSpecific.PlatformHelper.systemLocale
 
 @Serializable
 data class AppSettings(

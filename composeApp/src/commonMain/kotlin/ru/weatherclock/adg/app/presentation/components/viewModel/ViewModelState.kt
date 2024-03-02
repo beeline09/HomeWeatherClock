@@ -1,6 +1,6 @@
 package ru.weatherclock.adg.app.presentation.components.viewModel
 
-import kotlin.coroutines.CoroutineContext
+import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,16 +13,16 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
-import cafe.adriel.voyager.core.model.ScreenModel
 import ru.weatherclock.adg.app.data.dto.AppSettings
 import ru.weatherclock.adg.app.data.dto.orDefault
-import ru.weatherclock.adg.platformSpecific.appSettingsKStore
+import ru.weatherclock.adg.platformSpecific.PlatformHelper.appSettings
+import kotlin.coroutines.CoroutineContext
 
-abstract class ViewModelState<STATE: State, INTENT: Intent>(
+abstract class ViewModelState<STATE : State, INTENT : Intent>(
     initialState: STATE
-): ScreenModel {
+) : ScreenModel {
 
-    private val viewModelScope: CoroutineScope = object: CoroutineScope {
+    private val viewModelScope: CoroutineScope = object : CoroutineScope {
         override val coroutineContext: CoroutineContext
             get() = SupervisorJob() + Dispatchers.IO
     }
@@ -36,9 +36,7 @@ abstract class ViewModelState<STATE: State, INTENT: Intent>(
     protected val safeScope: CoroutineScope = viewModelScope + errorHandling
 
     fun catch(block: (Throwable) -> Unit) = safeScope.launch {
-        _throwableState
-            .filterNotNull()
-            .collectLatest { block.invoke(it) }
+        _throwableState.filterNotNull().collectLatest { block.invoke(it) }
     }
 
     private val _state: MutableStateFlow<STATE> = MutableStateFlow(initialState)
@@ -55,9 +53,9 @@ abstract class ViewModelState<STATE: State, INTENT: Intent>(
     }
 
     protected fun updateSettings(block: AppSettings.() -> AppSettings) = safeScope.launch {
-        val currentState = appSettingsKStore.get().orDefault()
+        val currentState = appSettings.get().orDefault()
         val newState = block.invoke(currentState)
-        appSettingsKStore.update { newState }
+        appSettings.update { newState }
     }
 
     final override fun onDispose() {

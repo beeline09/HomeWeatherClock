@@ -1,4 +1,4 @@
-import kotlinx.cinterop.ExperimentalForeignApi
+
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.window.ComposeUIViewController
@@ -10,25 +10,23 @@ import io.kamel.core.config.KamelConfig
 import io.kamel.core.config.httpFetcher
 import io.kamel.core.config.takeFrom
 import io.kamel.image.config.Default
+import kotlinx.cinterop.ExperimentalForeignApi
 import okio.Path.Companion.toPath
 import platform.Foundation.NSCachesDirectory
 import platform.Foundation.NSFileManager
-import platform.Foundation.NSHomeDirectory
 import platform.Foundation.NSUserDomainMask
 import platform.UIKit.UIViewController
 import ru.weatherclock.adg.App
 import ru.weatherclock.adg.app.domain.util.commonConfig
-import ru.weatherclock.adg.platformSpecific.appStorage
-import ru.weatherclock.adg.platformSpecific.defaultHttpClientEngine
+import ru.weatherclock.adg.platformSpecific.PlatformHelper
 
 fun MainViewController(): UIViewController = ComposeUIViewController {
     CompositionLocalProvider(
         LocalImageLoader provides remember { generateImageLoader() },
     ) {
-        appStorage = NSHomeDirectory()
         val kamelConfig = KamelConfig {
             takeFrom(KamelConfig.Default)
-            httpFetcher(defaultHttpClientEngine)
+            httpFetcher(PlatformHelper.defaultHttpClientEngine)
         }
         App(isDarkThemeSupported = true, kamelConfig = kamelConfig)
     }

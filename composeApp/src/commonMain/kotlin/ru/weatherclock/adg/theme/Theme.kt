@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.dp
 import ru.weatherclock.adg.app.data.dto.AppSettings
 import ru.weatherclock.adg.app.data.dto.ColorTheme
 import ru.weatherclock.adg.app.data.dto.orDefault
-import ru.weatherclock.adg.platformSpecific.appSettingsKStore
-import ru.weatherclock.adg.platformSpecific.getTypography
+import ru.weatherclock.adg.platformSpecific.PlatformHelper.SystemAppearance
+import ru.weatherclock.adg.platformSpecific.PlatformHelper.appSettings
 
 private val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,
@@ -103,7 +103,7 @@ internal fun AppTheme(
     content: @Composable () -> Unit
 ) {
     val isDarkState = remember { mutableStateOf(systemIsDark) }
-    val settings by appSettingsKStore.updates.collectAsState(AppSettings())
+    val settings by appSettings.updates.collectAsState(AppSettings())
     val isDark = when (settings.orDefault().uiConfig.colorTheme) {
         ColorTheme.Day -> false
         ColorTheme.Night -> true
@@ -119,8 +119,7 @@ internal fun AppTheme(
     else LightCustomColorsPalette
 
     CompositionLocalProvider(
-        LocalThemeIsDark provides isDarkState,
-        LocalCustomColorsPalette provides customColorsPalette
+        LocalThemeIsDark provides isDarkState, LocalCustomColorsPalette provides customColorsPalette
     ) {
         SystemAppearance(isDark)
         MaterialTheme(colorScheme = if (isDark || !isDarkThemeSupported) DarkColorScheme else LightColorScheme,
@@ -131,6 +130,3 @@ internal fun AppTheme(
             })
     }
 }
-
-@Composable
-internal expect fun SystemAppearance(isDark: Boolean)
