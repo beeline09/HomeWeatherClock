@@ -8,7 +8,7 @@
 
     <string name="setting_title_weather_enabled">Show weather</string>
     <string name="setting_title_weather_api_keys">Accuweather API-Key</string>
-    <string name="setting_title_weather_city_key">Location code</string>
+    <string name="setting_title_weather_city_key">City</string>
     <string name="setting_title_weather_language">Weather and search city queries language</string>
     <string name="setting_title_text_calendar_enabled">Show text calendar</string>
     <string name="setting_title_grid_calendar_enabled">Show table calendar</string>
@@ -57,8 +57,14 @@
     <string name="setting_title_header_theme">Appearance</string>
     <string name="setting_title_theme">Select theme</string>
 
-    <string
-        name="setting_description_weather_api_keys">The application uses the accuweather server to display the weather. To have access to the API, you need to obtain a key for the application on the website https://developer.accuweather.com/user/me/apps \n\nYou can enter several API Keys to avoid blocking from the API, because the maximum number of requests per day is 50.
+    <string name="setting_description_city">Current value: %1$s</string>
+    <string name="setting_description_city_empty">Please select your city</string>
+    <string name="setting_autocomplete_city_name_hint">Enter city name</string>
+    <string name="setting_autocomplete_city_name_error_min_length">Enter 3 or more chars</string>
+
+    <string name="setting_description_weather_api_keys_accuweather">The application uses the accuweather server to display the weather. To have access to the API, you need to obtain a key for the application on the website https://developer.accuweather.com/user/me/apps\n\nYou can enter several API Keys to avoid blocking from the API, because the maximum number of requests per day for each key is 50.
+    </string>
+    <string name="setting_description_weather_api_keys_openweathermap">The application uses openweathermap servers to display the weather. To have access to the API, you need to obtain a key for the application on the website https://home.openweathermap.org/api_keys\n\nYou can enter several API Keys to avoid blocking from the API, because the maximum number of requests per day for each key is 50.
     </string>
     <string name="setting_description_weather_city_key_1">Click to select a location</string>
     <string

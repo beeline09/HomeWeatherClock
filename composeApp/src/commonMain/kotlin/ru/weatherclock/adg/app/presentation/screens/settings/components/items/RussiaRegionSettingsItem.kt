@@ -9,11 +9,7 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -73,9 +69,11 @@ fun LazyItemScope.RussiaRegionSettingsItem(item: RussiaRegionSetting) {
                 },
                 dismissRequest = {
                     showRegionsDialog = false
-                    val selectedRegionNumber =
-                        russiaRegions[it]?.sorted()?.firstOrNull()?.toIntOrNull() ?: 0
-                    item.onChange.invoke(selectedRegionNumber)
+                    if (!it.isNullOrBlank()) {
+                        val selectedRegionNumber =
+                            russiaRegions[it]?.sorted()?.firstOrNull()?.toIntOrNull() ?: 0
+                        item.onChange.invoke(selectedRegionNumber)
+                    }
                 },
                 isEnabled = { true },
                 isChecked = {

@@ -50,7 +50,22 @@ data class CityConfig(
     @SerialName("region") val region: String = "Республика Адыгея",
     @SerialName("country") val country: String = "Россия",
     @SerialName("key") val key: String = "291658",
-)
+    val localizedName: String? = null,
+) {
+    fun getNames(): String = buildString {
+        when {
+            localizedName.isNullOrBlank() && name.isBlank() -> return ""
+            !localizedName.isNullOrBlank() -> return localizedName
+            name.isNotBlank() -> return name
+            else -> {
+                append(localizedName)
+                append(" (")
+                append(name)
+                append(")")
+            }
+        }
+    }
+}
 
 @Serializable
 data class WeatherConfig(

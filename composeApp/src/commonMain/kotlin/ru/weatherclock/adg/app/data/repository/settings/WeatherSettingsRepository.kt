@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import ru.weatherclock.adg.app.data.WeatherUnits
 import ru.weatherclock.adg.app.data.dto.WeatherApiLanguage
 import ru.weatherclock.adg.app.data.dto.WeatherConfig
+import ru.weatherclock.adg.app.data.dto.WeatherServer
 
 interface WeatherSettingsRepository {
 
@@ -32,5 +33,8 @@ interface WeatherSettingsRepository {
 
     suspend fun getUnitType(): WeatherUnits
     suspend fun setUnitType(type: WeatherUnits)
+
+    suspend fun getWeatherServer(): WeatherServer
+    suspend fun setWeatherServer(server: WeatherServer)
 
 }

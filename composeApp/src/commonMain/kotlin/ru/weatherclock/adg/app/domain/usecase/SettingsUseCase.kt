@@ -1,32 +1,22 @@
 package ru.weatherclock.adg.app.domain.usecase
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.weatherclock.adg.app.data.dto.AppSettings
+import ru.weatherclock.adg.app.data.dto.CityConfig
 import ru.weatherclock.adg.app.data.dto.WeatherServer
-import ru.weatherclock.adg.app.data.repository.settings.CalendarSettingsRepository
-import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
-import ru.weatherclock.adg.app.data.repository.settings.SystemSettingsRepository
-import ru.weatherclock.adg.app.data.repository.settings.TimeSettingsRepository
-import ru.weatherclock.adg.app.data.repository.settings.UiSettingsRepository
-import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
+import ru.weatherclock.adg.app.data.repository.location.LocationRepository
+import ru.weatherclock.adg.app.data.repository.location.implementation.AccuweatherLocationRepoImpl
+import ru.weatherclock.adg.app.data.repository.location.implementation.OpenWeatherMapLocationRepoImpl
+import ru.weatherclock.adg.app.data.repository.settings.*
 import ru.weatherclock.adg.app.data.util.isInHours
-import ru.weatherclock.adg.app.domain.model.settings.BaseSettingItem
-import ru.weatherclock.adg.app.domain.model.settings.BooleanSetting
-import ru.weatherclock.adg.app.domain.model.settings.ColorsThemeSetting
-import ru.weatherclock.adg.app.domain.model.settings.HoursRangeSetting
-import ru.weatherclock.adg.app.domain.model.settings.RussiaRegionSetting
-import ru.weatherclock.adg.app.domain.model.settings.SettingKey
-import ru.weatherclock.adg.app.domain.model.settings.SettingsHeader
-import ru.weatherclock.adg.app.domain.model.settings.StringListSetting
-import ru.weatherclock.adg.app.domain.model.settings.StringSetting
-import ru.weatherclock.adg.app.domain.model.settings.WeatherApiLanguageSetting
-import ru.weatherclock.adg.app.domain.model.settings.WeatherApiListSetting
+import ru.weatherclock.adg.app.domain.model.settings.*
 import ru.weatherclock.adg.platformSpecific.AutoStartHelper
 import ru.weatherclock.adg.platformSpecific.PlatformHelper.ioDispatcher
 
+@OptIn(FlowPreview::class)
 class SettingsUseCase(
     private val timeRepo: TimeSettingsRepository,
     private val calendarRepo: CalendarSettingsRepository,
@@ -34,7 +24,38 @@ class SettingsUseCase(
     private val weatherRepo: WeatherSettingsRepository,
     private val uiSettingsRepository: UiSettingsRepository,
     private val systemSettingsRepository: SystemSettingsRepository,
+    private val accuweatherLocationRepoImpl: AccuweatherLocationRepoImpl,
+    private val openWeatherMapLocationRepoImpl: OpenWeatherMapLocationRepoImpl,
 ) {
+
+    private val autocompleteSearchResults: MutableSharedFlow<List<CityConfig>> = MutableSharedFlow()
+    val text = MutableStateFlow("")
+
+    init {
+        text.debounce(2000).distinctUntilChanged().mapLatest {
+            autocompleteSearch(it)
+        }.launchIn(CoroutineScope(ioDispatcher))
+    }
+
+    private suspend fun autocompleteSearch(query: String) {
+        if (query.length < 3) {
+            autocompleteSearchResults.emit(emptyList())
+        } else {
+            val list = getLocationRepository().autocompleteSearch(
+                apiKeys = weatherRepo.getApiKeys(),
+                language = weatherRepo.getWeatherLanguage().code,
+                query = query
+            )
+            autocompleteSearchResults.emit(list)
+        }
+    }
+
+    private suspend fun getLocationRepository(): LocationRepository =
+        if (weatherRepo.getWeatherServer() == WeatherServer.Accuweather) {
+            accuweatherLocationRepoImpl
+        } else {
+            openWeatherMapLocationRepoImpl
+        }
 
     private fun safeUpdate(callback: suspend CoroutineScope.() -> Unit) {
         CoroutineScope(ioDispatcher).launch {
@@ -138,16 +159,21 @@ class SettingsUseCase(
                 add(
                     WeatherApiListSetting(settingsKey = SettingKey.WeatherServers,
                         currentValue = weatherSettings.server,
+                        isEnabled = weatherSettings.weatherEnabled,
                         onChange = {
                             safeUpdate {
-                                weatherRepo.saveConfig {
-                                    copy(server = it)
-                                }
+                                weatherRepo.setWeatherServer(it)
                             }
                         })
                 )
+                val settingKeyServer = if (weatherSettings.server == WeatherServer.Accuweather) {
+                    SettingKey.WeatherApiKeysAccuweather
+                } else {
+                    SettingKey.WeatherApiKeysOpenweathermap
+                }
                 add(
-                    StringListSetting(settingsKey = SettingKey.WeatherApiKeys,
+                    StringListSetting(
+                        settingsKey = settingKeyServer,
                         isEnabled = weatherSettings.weatherEnabled,
                         currentValue = weatherSettings.weatherApiKeys,
                         onChange = {
@@ -168,24 +194,25 @@ class SettingsUseCase(
                 )
                 val weatherEnabled =
                     weatherSettings.weatherEnabled && weatherSettings.weatherApiKeys.isNotEmpty()
-                when (weatherSettings.server) {
-                    WeatherServer.Accuweather -> {
-                        add(
-                            StringSetting(settingsKey = if (weatherEnabled) SettingKey.WeatherCityKey1 else SettingKey.WeatherCityKey2,
-                                currentValue = weatherSettings.city.key,
-                                isEnabled = weatherEnabled,
-                                onChange = { s ->
-                                    if (s.isNotBlank()) {
-                                        safeUpdate {
-                                            weatherRepo.setCityKey(s)
-                                        }
-                                    }
-                                })
-                        )
-                    }
-
-                    WeatherServer.OpenWeatherMap -> {}
-                }
+                add(
+                    AutoCompleteSearchSetting(
+                        settingsKey = SettingKey.WeatherCityKeySearch,
+                        isEnabled = weatherEnabled,
+                        onChange = {
+                            safeUpdate {
+                                weatherRepo.saveConfig {
+                                    copy(city = it)
+                                }
+                            }
+                        },
+                        currentValue = weatherSettings.city,
+                        onSearchTextChanged = {
+                            text.value = it
+                        },
+                        searchResults = autocompleteSearchResults,
+                        currentServer = weatherSettings.server
+                    )
+                )
                 add(SettingsHeader(settingsKey = SettingKey.HeaderTimeConfig))
                 add(
                     BooleanSetting(settingsKey = SettingKey.HoursWithLeadingZero,
