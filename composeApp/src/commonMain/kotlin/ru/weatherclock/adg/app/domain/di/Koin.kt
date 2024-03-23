@@ -1,19 +1,13 @@
 package ru.weatherclock.adg.app.domain.di
 
 import io.github.xxfast.kstore.KStore
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.plugins.HttpCallValidator
-import io.ktor.client.plugins.HttpRequestRetry
-import io.ktor.client.plugins.HttpRequestTimeoutException
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.plugins.logging.SIMPLE
-import io.ktor.http.isSuccess
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.*
+import io.ktor.client.engine.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
@@ -32,20 +26,10 @@ import ru.weatherclock.adg.app.data.repository.db.forecast.implementation.Accuwe
 import ru.weatherclock.adg.app.data.repository.db.forecast.implementation.OpenWeatherMapDbRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.ProdCalendarDbRepository
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.implementation.ProdCalendarDbRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.settings.AllSettingsRepository
-import ru.weatherclock.adg.app.data.repository.settings.CalendarSettingsRepository
-import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
-import ru.weatherclock.adg.app.data.repository.settings.SystemSettingsRepository
-import ru.weatherclock.adg.app.data.repository.settings.TimeSettingsRepository
-import ru.weatherclock.adg.app.data.repository.settings.UiSettingsRepository
-import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
-import ru.weatherclock.adg.app.data.repository.settings.implementation.AllSettingsRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.settings.implementation.CalendarSettingsRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.settings.implementation.ProdCalendarSettingsRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.settings.implementation.SystemSettingsRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.settings.implementation.TimeSettingsRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.settings.implementation.UiSettingsRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.settings.implementation.WeatherSettingsRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.location.implementation.AccuweatherLocationRepoImpl
+import ru.weatherclock.adg.app.data.repository.location.implementation.OpenWeatherMapLocationRepoImpl
+import ru.weatherclock.adg.app.data.repository.settings.*
+import ru.weatherclock.adg.app.data.repository.settings.implementation.*
 import ru.weatherclock.adg.app.data.repository.weather.implementation.AccuweatherForecastRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.weather.implementation.OpenWeatherMapForecastRepositoryImpl
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
@@ -154,6 +138,8 @@ fun settingsRepoModule() = module {
     single<WeatherSettingsRepository> { WeatherSettingsRepositoryImpl(appSettings = get()) }
     single<AllSettingsRepository> { AllSettingsRepositoryImpl(appSettings = get()) }
     single<SystemSettingsRepository> { SystemSettingsRepositoryImpl(appSettings = get()) }
+    single { AccuweatherLocationRepoImpl(ktorService = get()) }
+    single { OpenWeatherMapLocationRepoImpl(ktorService = get()) }
 }
 
 fun getUseCaseModule() = module {
@@ -181,6 +167,8 @@ fun getUseCaseModule() = module {
             weatherRepo = get(),
             uiSettingsRepository = get(),
             systemSettingsRepository = get(),
+            accuweatherLocationRepoImpl = get(),
+            openWeatherMapLocationRepoImpl = get()
         )
     }
 }

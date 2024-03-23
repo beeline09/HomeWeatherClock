@@ -4,13 +4,10 @@ import io.github.xxfast.kstore.KStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
 import ru.weatherclock.adg.app.data.WeatherUnits
-import ru.weatherclock.adg.app.data.dto.AppSettings
-import ru.weatherclock.adg.app.data.dto.WeatherApiLanguage
-import ru.weatherclock.adg.app.data.dto.WeatherConfig
-import ru.weatherclock.adg.app.data.dto.orDefault
+import ru.weatherclock.adg.app.data.dto.*
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
 
-class WeatherSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>):
+class WeatherSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>) :
     WeatherSettingsRepository {
 
     override suspend fun getConfig(): WeatherConfig = appSettings.get().orDefault().weatherConfig
@@ -102,6 +99,16 @@ class WeatherSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>
     override suspend fun setUnitType(type: WeatherUnits) {
         saveConfig {
             copy(units = type)
+        }
+    }
+
+    override suspend fun getWeatherServer(): WeatherServer {
+        return getConfig().server
+    }
+
+    override suspend fun setWeatherServer(server: WeatherServer) {
+        saveConfig {
+            copy(server = server)
         }
     }
 

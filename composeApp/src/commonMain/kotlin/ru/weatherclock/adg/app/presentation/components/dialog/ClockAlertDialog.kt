@@ -1,11 +1,7 @@
 package ru.weatherclock.adg.app.presentation.components.dialog
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +24,7 @@ fun ClockAlertDialog(
     positiveButtonText: String = stringResource(Res.string.dialog_button_ok),
     onPositiveClick: (() -> Unit)? = null,
     positiveButtonEnabled: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
     val colorsPalette = LocalCustomColorsPalette.current
     androidx.compose.material3.AlertDialog(
