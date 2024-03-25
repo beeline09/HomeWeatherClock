@@ -88,10 +88,6 @@ kotlin {
                 implementation(libs.sqlDelight.driver.android)
                 implementation(libs.androidx.media3.exoplayer)
                 implementation(libs.kstore.file)
-//                implementation (libs.desugar.jdk.libs)
-//                coreLibraryDesugaring (libs.desugar.jdk.libs)
-//                implementation(libs.kotlinx.datetime)
-//                implementation(libs.androidx.preferences)
             }
         }
 
