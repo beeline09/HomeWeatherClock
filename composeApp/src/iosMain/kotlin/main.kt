@@ -6,6 +6,7 @@ import com.seiko.imageloader.ImageLoader
 import com.seiko.imageloader.LocalImageLoader
 import com.seiko.imageloader.cache.memory.maxSizePercent
 import com.seiko.imageloader.component.setupDefaultComponents
+import com.seiko.imageloader.intercept.bitmapMemoryCacheConfig
 import io.kamel.core.config.KamelConfig
 import io.kamel.core.config.httpFetcher
 import io.kamel.core.config.takeFrom
@@ -40,8 +41,7 @@ private fun generateImageLoader(): ImageLoader {
         commonConfig()
         components { setupDefaultComponents() }
         interceptor {
-            memoryCacheConfig {
-                // Set the max size to 25% of the app's available memory.
+            bitmapMemoryCacheConfig {
                 maxSizePercent(0.25)
             }
             diskCacheConfig {
