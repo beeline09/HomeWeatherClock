@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import kotlinx.coroutines.runBlocking
+import org.koin.core.context.stopKoin
 import ru.weatherclock.adg.app.domain.di.initKoin
 import ru.weatherclock.adg.app.domain.usecase.SettingsUseCase
 
@@ -14,6 +15,7 @@ class BootUpReceiver : BroadcastReceiver() {
     @SuppressLint("UnsafeProtectedBroadcastReceiver")
     override fun onReceive(context: Context, intent: Intent) {
         runBlocking {
+            stopKoin()
             if (initKoin().koin.get<SettingsUseCase>()
                     .getAllSettings().systemConfig.autoStartEnabled
             ) {

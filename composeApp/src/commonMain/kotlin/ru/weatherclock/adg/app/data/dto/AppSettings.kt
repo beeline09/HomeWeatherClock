@@ -44,12 +44,12 @@ enum class WeatherServer {
 
 @Serializable
 data class CityConfig(
-    @SerialName("latitude") val latitude: Double = 44.6062079,
-    @SerialName("longitude") val longitude: Double = 40.104053,
-    @SerialName("name") val name: String = "Майкоп",
-    @SerialName("region") val region: String = "Республика Адыгея",
-    @SerialName("country") val country: String = "Россия",
-    @SerialName("key") val key: String = "291658",
+    @SerialName("latitude") val latitude: Double = 0.0,
+    @SerialName("longitude") val longitude: Double = 0.0,
+    @SerialName("name") val name: String = "",
+    @SerialName("region") val region: String = "",
+    @SerialName("country") val country: String = "",
+    @SerialName("key") val key: String = "",
     val localizedName: String? = null,
 ) {
     fun getNames(): String = buildString {
@@ -77,11 +77,7 @@ data class WeatherConfig(
 
     @SerialName("language") val weatherApiLanguage: WeatherApiLanguage = WeatherApiLanguage.System,
 
-    @SerialName("apiKeys") val weatherApiKeys: List<String> = listOf(
-        "GSWo67YCWgJ6raZqsluqkuhxsl2zJAOK",
-        "JZz9kz4ElQp8VVKLiF3KVSpDtyllS7CC",
-//        "8f064b7cdab87c6cde5acd33b4d24a44" //Openweathermap
-    ),
+    @SerialName("apiKeys") val weatherApiKeys: List<String> = emptyList(),
 
     @SerialName("units") val units: WeatherUnits = WeatherUnits.Metric,
 )
