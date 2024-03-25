@@ -1,5 +1,7 @@
 # Multi-platform digital clock app with weather and work calendar
 
+Для русскоговорящих есть [Readme_ru.MD](README.MD)
+
 The idea to create such an application arose quite a long time ago, because... At home there is a
 lot of outdated equipment that is a pity to throw away because it still works. So why not hang some
 old tablet on the wall so that it displays useful information?
