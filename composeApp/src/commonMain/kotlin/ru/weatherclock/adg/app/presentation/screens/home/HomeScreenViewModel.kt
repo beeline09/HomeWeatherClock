@@ -1,6 +1,5 @@
 package ru.weatherclock.adg.app.presentation.screens.home
 
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -16,7 +15,6 @@ import ru.weatherclock.adg.app.data.util.atEndOfDay
 import ru.weatherclock.adg.app.data.util.atStartOfDay
 import ru.weatherclock.adg.app.data.util.isEqualsByDayOfMonth
 import ru.weatherclock.adg.app.data.util.isEqualsByHour
-import ru.weatherclock.adg.app.data.util.isEqualsByMinute
 import ru.weatherclock.adg.app.data.util.isEqualsByMonthNumber
 import ru.weatherclock.adg.app.domain.model.forecast.Severity
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
@@ -25,6 +23,7 @@ import ru.weatherclock.adg.app.domain.usecase.SettingsUseCase
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.tickerFlow
 import ru.weatherclock.adg.app.presentation.components.viewModel.ViewModelState
+import kotlin.time.Duration.Companion.seconds
 
 class HomeScreenViewModel(
     private val forecastUseCase: ForecastUseCase,
@@ -135,11 +134,11 @@ class HomeScreenViewModel(
                     minute = it.minute
                 )
             }
-            val s = state.value
+            val days = state.value.prodCalendarDaysForCurrentMonth
             val condition1 =
-                s.prodCalendarDaysForCurrentMonth.isEmpty() && !it.isEqualsByMinute(oneMinuteTime)
+                days.isEmpty() && !it.isEqualsByHour(oneMinuteTime)
             val condition2 =
-                s.prodCalendarDaysForCurrentMonth.isNotEmpty() && !it.isEqualsByDayOfMonth(oneMinuteTime)
+                days.isNotEmpty() && !it.isEqualsByDayOfMonth(oneMinuteTime)
             if (condition1 || condition2) {
                 oneMinuteTime = it
                 refreshCalendarData()
