@@ -1,3 +1,4 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 import java.time.LocalDateTime
@@ -9,6 +10,8 @@ plugins {
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.sqlDelight)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 apply(from = "${rootProject.projectDir}/composeApp/constants.gradle.kts")
@@ -188,6 +191,12 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            isMinifyEnabled = true
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
+        }
         getByName("release") {
             isMinifyEnabled = false
             proguardFiles(
@@ -208,6 +217,9 @@ android {
     dependencies {
         //Нужно для работы kotlinx.datetime на версии Android ниже 7
         coreLibraryDesugaring(libs.desugar.jdk.libs)
+        implementation(platform(libs.firebase.bom))
+        implementation(libs.firebase.analytics)
+        implementation(libs.firebase.crashlytics)
     }
 }
 

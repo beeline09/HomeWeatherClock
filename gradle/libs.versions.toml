@@ -6,12 +6,12 @@ desugar_jdk_libs = "2.0.4"
 jlayer = "1.0.2"
 jSystemThemeDetector = "3.6"
 kotlin = "2.0.0-Beta4"
-agp = "8.3.1"
+agp = "8.3.2"
 compose = "1.6.10-dev1523"
 androidx-appcompat = "1.6.1"
 androidx-activityCompose = "1.8.2"
-compose-uitooling = "1.6.3"
-media3Exoplayer = "1.3.0"
+compose-uitooling = "1.6.5"
+media3Exoplayer = "1.3.1"
 statelyCommon = "2.0.5"
 vlcj = "4.7.3"
 voyager = "1.0.0"
@@ -21,7 +21,7 @@ buildConfig = "4.1.1"
 kotlinx-coroutines = "1.8.0"
 ktor = "2.3.9"
 composeIcons = "1.1.0"
-kotlinx-serialization = "1.6.2"
+kotlinx-serialization = "1.6.3"
 kotlinx-datetime = "0.5.0"
 koin = "3.5.3"
 koin-compose-jb = "1.0.4"
@@ -32,6 +32,9 @@ kstore = "0.7.1"
 java-appdirs = "1.2.2"
 kamelImageLoader = "0.9.2"
 annotationJvm = "1.7.1"
+google-services = "4.4.1"
+firebase-bom = "32.8.0"
+firebase-crashlytics-plugin = "2.9.9"
 
 [libraries]
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
@@ -80,6 +83,9 @@ kstore-file = { module = "io.github.xxfast:kstore-file", version.ref = "kstore" 
 java-appdirs = { module = "net.harawata:appdirs", version.ref = "java-appdirs" }
 androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jvm", version.ref = "annotationJvm" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotationJvm" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 
 [bundles]
 ktor-common = [
@@ -105,4 +111,6 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 buildConfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildConfig" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
+google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-plugin" }
 

@@ -9,7 +9,7 @@ class ProdCalendarQuery(
 ): ApiQuery {
 
     override fun buildUrl(): String = buildString {
-        append("https://production-calendar.ru/get/ru/")
+        append("https://production-calendar.ru/get-period/REMOVED-PRODCALENDAR-TOKEN/ru/")
         append(year.padStart(4))
         append("/json?")
         if (region > 0) {
