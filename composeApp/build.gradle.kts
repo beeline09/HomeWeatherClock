@@ -1,6 +1,6 @@
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 import java.time.LocalDateTime
 
 plugins {
@@ -14,14 +14,13 @@ plugins {
     alias(libs.plugins.firebase.crashlytics)
 }
 
-apply(from = "${rootProject.projectDir}/composeApp/constants.gradle.kts")
-
-private val appName = extra["appName"].toString()
-private val appPackageName = extra["appPackageName"].toString()
-private val appVersionName = extra["appVersionName"].toString()
-private val appVersionCode = extra["appVersionCode"] as Int
+private val appName = libs.versions.app.name.get()
+private val appPackageName = libs.versions.app.packageName.get()
+private val appVersionName = libs.versions.app.version.name.get()
+private val appVersionCode = libs.versions.app.version.code.get().toInt()
 
 kotlin {
+
     androidTarget {
         compilations.all {
             kotlinOptions {
@@ -129,19 +128,27 @@ kotlin {
     }
 }
 
-tasks.withType<KotlinCompile<*>> {
-    kotlinOptions.freeCompilerArgs += listOf(
-        "-Xallow-kotlin-package",
-        "-Xexpect-actual-classes",
-        "-opt-in=kotlin.ExperimentalMultiplatform",
-        "-opt-in=kotlin.contracts.ExperimentalContracts",
-        "-opt-in=kotlin.RequiresOptIn",
-        "-opt-in=kotlin.ExperimentalUnsignedTypes",
-        "-opt-in=kotlin.ExperimentalStdlibApi",
-        "-opt-in=kotlinx.cinterop.BetaInteropApi",
-        "-opt-in=kotlinx.cinterop.ExperimentalForeignApi",
-    )
-}
+tasks
+    .withType<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile>()
+    .configureEach {
+        compilerOptions {
+            languageVersion.set(
+                org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0
+            )
+            freeCompilerArgs.addAll(
+                listOf(
+                    "-Xallow-kotlin-package",
+                    "-Xexpect-actual-classes",
+                    "-opt-in=kotlin.ExperimentalMultiplatform",
+                    "-opt-in=kotlin.contracts.ExperimentalContracts",
+                    "-opt-in=kotlin.RequiresOptIn",
+                    "-opt-in=kotlin.ExperimentalUnsignedTypes",
+                    "-opt-in=kotlin.ExperimentalStdlibApi",
+                )
+            )
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        }
+    }
 
 /*tasks.withType<Jar>().configureEach {
     manifest {
@@ -187,7 +194,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
+        kotlinCompilerExtensionVersion = "1.5.11"
     }
 
     buildTypes {
@@ -212,6 +219,18 @@ android {
             excludes += "META-INF/versions/**"
             excludes += "META-INF/*"
         }
+    }
+
+    applicationVariants.all {
+        val variant = this
+        variant.outputs
+            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+            .forEach { output ->
+                val outputFileName = "HomeWeatherClock${
+                    variant.flavorName.capitalized()
+                }${variant.buildType.name.capitalized()}_${appVersionName}(${appVersionCode}).apk"
+                output.outputFileName = outputFileName
+            }
     }
 
     dependencies {
@@ -242,7 +261,7 @@ compose.desktop {
             )
             appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
 
-            packageName = appName
+            packageName = appPackageName
             packageVersion = appVersionName
 
             version = appVersionCode
