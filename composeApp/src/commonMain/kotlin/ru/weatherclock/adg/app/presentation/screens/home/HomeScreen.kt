@@ -52,9 +52,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.weather_no_api_key_exception
 import kotlinx.datetime.LocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import ru.weatherclock.adg.app.data.dto.isHourInRangeForHide
+import ru.weatherclock.adg.app.data.error.NoWeatherApiKeyException
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.stringForCalendar
 import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
@@ -128,10 +132,15 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
         }
     }
 
+    val noWeatherApiKeysError = stringResource(Res.string.weather_no_api_key_exception)
     LaunchedEffect(Unit) {
         screenModel.onLaunch()
         screenModel.catch {
-            showToast(text = it.message.orEmpty())
+            if (it is NoWeatherApiKeyException) {
+                showToast(text = noWeatherApiKeysError)
+            } else {
+                showToast(text = it.message.orEmpty())
+            }
         }
     }
 

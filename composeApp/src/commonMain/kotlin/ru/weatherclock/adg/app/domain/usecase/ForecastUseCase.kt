@@ -4,7 +4,20 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import ru.weatherclock.adg.app.data.dto.WeatherServer
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.AccuweatherForecastDto
-import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.*
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.DetailDto
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbModel
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbModelEvapotranspiration
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbModelIce
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbModelRain
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbModelSnow
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbModelSolarIrradiance
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbModelTotalLiquid
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbModelWind
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbModelWindGust
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbRealFeelTemperature
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbRealFeelTemperatureShade
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbTemperature
+import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asDomainModel
 import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.OpenWeatherMapForecastDto
 import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail.PartOfDay
 import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail.asDbModel
@@ -16,7 +29,12 @@ import ru.weatherclock.adg.app.data.repository.weather.implementation.Accuweathe
 import ru.weatherclock.adg.app.data.repository.weather.implementation.OpenWeatherMapForecastRepositoryImpl
 import ru.weatherclock.adg.app.data.util.fromDbToLocalDateTime
 import ru.weatherclock.adg.app.data.util.isEqualsByHour
-import ru.weatherclock.adg.app.domain.model.forecast.*
+import ru.weatherclock.adg.app.domain.model.forecast.DayDetail
+import ru.weatherclock.adg.app.domain.model.forecast.DetailType
+import ru.weatherclock.adg.app.domain.model.forecast.Forecast
+import ru.weatherclock.adg.app.domain.model.forecast.ForecastDay
+import ru.weatherclock.adg.app.domain.model.forecast.Severity
+import ru.weatherclock.adg.app.domain.model.forecast.asDomainModel
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.db.OpenWeatherMap.ForecastItem
 import ru.weatherclock.adg.db.OpenWeatherMap.Rain
@@ -100,6 +118,7 @@ class ForecastUseCase(
             ) != true
         val us3 = lastUpdateServer != weatherSettingsRepository.getWeatherServer()
         val result = if (us0 || us1 || us2 || us3) {
+            lastUpdateForecast = currentTime
             return try {
                 getForecastRemote().also {
                     lastUpdateForecast = currentTime
