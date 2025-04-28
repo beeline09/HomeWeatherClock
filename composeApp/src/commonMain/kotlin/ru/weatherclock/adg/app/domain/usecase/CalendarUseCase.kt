@@ -1,6 +1,5 @@
 package ru.weatherclock.adg.app.domain.usecase
 
-import kotlinx.datetime.LocalDateTime
 import ru.weatherclock.adg.app.data.dto.productionCalendar.asDomainModel
 import ru.weatherclock.adg.app.data.repository.calendar.CalendarRemoteRepository
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.ProdCalendarDbRepository
@@ -8,7 +7,6 @@ import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepo
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.asDbModel
 import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 
 class CalendarUseCase(
     private val calendarRemoteRepository: CalendarRemoteRepository,
@@ -53,7 +51,7 @@ class CalendarUseCase(
     ).days.asDomainModel()
 
     suspend fun getProdCalendar(): List<ProdCalendarDay> {
-        return if (prodCalendarSettingsRepository.isRussia()) {
+        return /*if (prodCalendarSettingsRepository.isRussia()) {
             val year = LocalDateTime.now().year
             val region = prodCalendarSettingsRepository.getRussianRegionNumber()
             val prodCalendarDays = getProdCalendarForCurrentYearDb(
@@ -73,6 +71,6 @@ class CalendarUseCase(
                     )
                 }
             }
-        } else emptyList()
+        } else*/ emptyList()
     }
 }

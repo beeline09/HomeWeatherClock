@@ -10,11 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import homeweatherclock.composeapp.generated.resources.Res
@@ -26,40 +28,35 @@ import homeweatherclock.composeapp.generated.resources.day_name_short_thursday
 import homeweatherclock.composeapp.generated.resources.day_name_short_tuesday
 import homeweatherclock.composeapp.generated.resources.day_name_short_wednesday
 import org.jetbrains.compose.resources.stringResource
-import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @Composable
 fun weekHeader() {
     val colorPalette = LocalCustomColorsPalette.current
     Row(
-        Modifier
-            .fillMaxWidth().wrapContentHeight()
+        Modifier.fillMaxWidth().wrapContentHeight()
     ) {
         (0..6).toList().forEach { weekNumber ->
             if (weekNumber == 0) {
                 Spacer(Modifier.width(4.dp))
             }
-            AutoSizeText(
-                color = if (weekNumber < 5) colorPalette.calendarWeekdayWorkText else colorPalette.calendarWeekdayWeekendText,
-                text = weekNumber.toWeekName(),
-                minTextSize = 1.sp,
-                maxTextSize = 50.sp,
-                stepGranularityTextSize = 1.sp,
+
+            BasicText(
                 maxLines = 1,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 1.sp, maxFontSize = 50.sp, stepSize = 0.25.sp
+                ),
+                text = weekNumber.toWeekName(),
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = if (weekNumber < 5) colorPalette.calendarWeekdayWorkText else colorPalette.calendarWeekdayWeekendText,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.weight(1f).fillMaxWidth().aspectRatio(1f)
                     .clip(RoundedCornerShape(percent = 5))
 //                    .getPointerCursor()
                     .border(
-                        1.dp,
-                        colorPalette.calendarWeekdayBorder,
-                        RoundedCornerShape(percent = 5)
+                        1.dp, colorPalette.calendarWeekdayBorder, RoundedCornerShape(percent = 5)
                     ).padding(3.dp).clickable(false) {},
-                alignment = Alignment.Center
             )
             Spacer(Modifier.width(4.dp))
         }

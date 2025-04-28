@@ -1,10 +1,11 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.time.LocalDateTime
 
 plugins {
     alias(libs.plugins.multiplatform)
-    alias(libs.plugins.compose)
+    alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.android.application)
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.kotlinx.serialization)
@@ -20,11 +21,8 @@ private val appVersionCode = extra["appVersionCode"] as Int
 
 kotlin {
     androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "17"
-//                freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi::class"
-            }
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_19)
         }
     }
 
@@ -62,16 +60,18 @@ kotlin {
                 implementation(libs.composeIcons.featherIcons)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.datetime)
+                implementation(project.dependencies.platform(libs.koin.bom))
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose.mp)
                 implementation(libs.sqlDelight.coroutines.extensions)
                 implementation(libs.atomicfu)
                 implementation(libs.kstore)
+                implementation(libs.kstore.file)
                 implementation(libs.stately.common)
-                implementation(libs.kamelImageLoader)
                 implementation(libs.androidx.annotation)
                 implementation(kotlin("stdlib-common"))
                 implementation(kotlin("reflect"))
+                implementation(libs.bundles.coil)
             }
         }
 
@@ -98,13 +98,14 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation(libs.ktor.client.apache)
                 implementation(libs.ktor.java)
-                implementation(libs.koin.compose)
+//                implementation(libs.koin.compose)
                 implementation(libs.sqlDelight.driver.sqlite)
                 implementation(libs.vlcj)
                 implementation(libs.jlayer)
                 implementation(libs.kstore.file)
                 implementation(libs.java.appdirs)
                 implementation(libs.jSystemThemeDetector)
+//                implementation("media.kamel:kamel-fetcher-resources-jvm:1.0.3")
             }
         }
 
@@ -124,41 +125,31 @@ kotlin {
         }
 
     }
-}
 
-tasks.withType<KotlinCompile<*>> {
-    kotlinOptions.freeCompilerArgs += listOf(
-        "-Xallow-kotlin-package",
-        "-Xexpect-actual-classes",
-        "-opt-in=kotlin.ExperimentalMultiplatform",
-        "-opt-in=kotlin.contracts.ExperimentalContracts",
-        "-opt-in=kotlin.RequiresOptIn",
-        "-opt-in=kotlin.ExperimentalUnsignedTypes",
-        "-opt-in=kotlin.ExperimentalStdlibApi",
-        "-opt-in=kotlinx.cinterop.BetaInteropApi",
-        "-opt-in=kotlinx.cinterop.ExperimentalForeignApi",
-    )
-}
-
-/*tasks.withType<Jar>().configureEach {
-    manifest {
-        attributes += sortedMapOf(
-            "Built-By" to System.getProperty("user.name"),
-            "Build-Jdk" to System.getProperty("java.version"),
-            "Implementation-Vendor" to "JetBrains s.r.o.",
-            "Implementation-Version" to archiveVersion.get(),
-            "Created-By" to GradleVersion.current()
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            listOf(
+                "-Xallow-kotlin-package",
+                "-Xexpect-actual-classes",
+                "-opt-in=kotlin.ExperimentalMultiplatform",
+                "-opt-in=kotlin.contracts.ExperimentalContracts",
+                "-opt-in=kotlin.RequiresOptIn",
+                "-opt-in=kotlin.ExperimentalUnsignedTypes",
+                "-opt-in=kotlin.ExperimentalStdlibApi",
+                "-opt-in=kotlinx.cinterop.BetaInteropApi",
+                "-opt-in=kotlinx.cinterop.ExperimentalForeignApi",
+            )
         )
     }
-}*/
+}
 
 android {
     namespace = appPackageName
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 34
+        targetSdk = 36
 
         applicationId = appPackageName
         versionCode = appVersionCode
@@ -173,18 +164,21 @@ android {
             "src/androidMain/res", "src/commonMain/resources"
         )
     }
+
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.10"
+    }
+
     compileOptions {
         //Нужно для работы kotlinx.datetime на версии Android ниже 7
         isCoreLibraryDesugaringEnabled = true
 
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
+        sourceCompatibility = JavaVersion.VERSION_19
+        targetCompatibility = JavaVersion.VERSION_19
     }
 
     buildTypes {

@@ -6,17 +6,25 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import io.kamel.core.Resource
-import io.kamel.image.asyncPainterResource
+import coil3.compose.AsyncImagePainter
+import coil3.compose.LocalPlatformContext
+import coil3.compose.rememberAsyncImagePainter
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import ru.weatherclock.adg.app.data.dto.WeatherConfig
 import ru.weatherclock.adg.app.domain.model.forecast.DayDetail
 import ru.weatherclock.adg.app.domain.model.forecast.iconUrl
@@ -41,47 +49,61 @@ fun ColumnScope.WeatherIcon(
                 .fillMaxWidth()
                 .fillMaxHeight(),
         )
-    } else when (val p =
-        asyncPainterResource(data = detail.iconUrl(weatherConfig = weatherConfigData))) {
-        is Resource.Failure -> {
-            val p1 = rememberVectorPainter(image = Icons.Filled.Error)
-            Icon(
-                painter = rememberVectorPainter(image = Icons.Filled.Error),
-                contentDescription = "Erro",
+    } else {
+        val model = ImageRequest.Builder(LocalPlatformContext.current)
+            .data(data = detail.iconUrl(weatherConfig = weatherConfigData))
+            .crossfade(true)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .build()
+        val painter = rememberAsyncImagePainter(model = model)
+        val state by painter.state.collectAsState()
+        when (state) {
+            is AsyncImagePainter.State.Error -> {
+                val p1 = rememberVectorPainter(image = Icons.Filled.Error)
+                Icon(
+                    painter = rememberVectorPainter(image = Icons.Filled.Error),
+                    contentDescription = "Erro",
+                    modifier = Modifier
+                        .aspectRatio(
+                            ratio = p1.intrinsicSize.height /
+                                    p1.intrinsicSize.width
+                        )
+                        .padding(5.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                )
+            }
+
+            is AsyncImagePainter.State.Empty,
+            is AsyncImagePainter.State.Loading -> CircularProgressIndicator(
                 modifier = Modifier
                     .aspectRatio(
-                        ratio = p1.intrinsicSize.height /
-                                p1.intrinsicSize.width
+                        ratio = 1f
                     )
                     .padding(5.dp)
                     .fillMaxWidth()
                     .fillMaxHeight(),
             )
+
+            is AsyncImagePainter.State.Success -> Image(
+                painter = painter,
+                contentDescription = "${detail}_WeatherIcon_${detail.icon}",
+                modifier = Modifier.run {
+                    val r = painter.intrinsicSize.height / painter.intrinsicSize.width
+                    if (r > 0) {
+                        aspectRatio(r)
+                    } else this
+                }
+                    .padding(5.dp)
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+                contentScale = ContentScale.Fit,
+                colorFilter = ColorFilter.tint(
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            )
+
+            AsyncImagePainter.State.Empty -> {}
         }
-
-        is Resource.Loading -> CircularProgressIndicator(
-            p.progress,
-            modifier = Modifier
-                .aspectRatio(
-                    ratio = 1f
-                )
-                .padding(5.dp)
-                .fillMaxWidth()
-                .fillMaxHeight(),
-        )
-
-        is Resource.Success -> Image(
-            painter = p.value,
-            contentDescription = "${detail}_WeatherIcon_${detail.icon}",
-            modifier = Modifier
-                .aspectRatio(
-                    ratio = p.value.intrinsicSize.height /
-                            p.value.intrinsicSize.width
-                )
-                .padding(5.dp)
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            contentScale = ContentScale.Fit
-        )
     }
 }

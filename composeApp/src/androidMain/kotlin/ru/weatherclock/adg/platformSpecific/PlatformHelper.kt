@@ -29,7 +29,8 @@ internal actual object PlatformHelper {
     actual val fsHelper: FsHelper by lazy { FsHelper() }
 
     actual val appSettings: KStore<AppSettings> by lazy {
-        storeOf(file = "${fsHelper.appStoragePath}/weather_settings.json".toPath(),
+        storeOf(
+            file = "${fsHelper.appStoragePath}/weather_settings.json".toPath(),
             default = AppSettings(),
             json = Json {
                 ignoreUnknownKeys = true
@@ -58,7 +59,8 @@ internal actual object PlatformHelper {
     actual fun createDbDriver(
         dbName: String, schema: SqlSchema<QueryResult.Value<Unit>>
     ): SqlDriver {
-        return AndroidSqliteDriver(schema = schema,
+        return AndroidSqliteDriver(
+            schema = schema,
             context = AndroidApp.INSTANCE,
             name = dbName,
             callback = object : AndroidSqliteDriver.Callback(schema) {

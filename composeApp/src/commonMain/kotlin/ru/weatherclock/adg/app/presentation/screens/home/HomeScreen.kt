@@ -28,11 +28,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.foundation.text.TextAutoSizeDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +49,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,7 +69,6 @@ import ru.weatherclock.adg.app.presentation.components.calendar.stringForToast
 import ru.weatherclock.adg.app.presentation.components.calendar.toMessageDateString
 import ru.weatherclock.adg.app.presentation.components.player.AudioPlayer
 import ru.weatherclock.adg.app.presentation.components.player.ResourceWrapper
-import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.app.presentation.components.util.getColor
 import ru.weatherclock.adg.app.presentation.components.util.padStart
 import ru.weatherclock.adg.app.presentation.components.weather.WeatherCell
@@ -178,8 +180,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         screenModel.intent(HomeScreenIntent.Settings.Show)
                     }
                 }) {
-                    AutoSizeText(
-                        color = colorPalette.clockText,
+                    BasicText(
                         text = buildAnnotatedString {
                             if (timeConfig.hourWithLeadingZero) {
                                 append(state.hour.padStart(2))
@@ -192,11 +193,15 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                             append(state.minute.padStart(2))
                         },
                         maxLines = 1,
-                        modifier = Modifier.fillMaxSize(),
-                        minTextSize = 5.sp,
-                        maxTextSize = 1000.sp,
-                        alignment = Alignment.Center,
-                        style = MaterialTheme.typography.bodyLarge,
+                        autoSize = TextAutoSize.StepBased(
+                            maxFontSize = 1000.sp,
+                            minFontSize = TextAutoSizeDefaults.MinFontSize,
+                            stepSize = 0.25.sp
+                        ),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            color = colorPalette.clockText, textAlign = TextAlign.Center
+                        ),
+                        modifier = Modifier.fillMaxSize().align(Alignment.Center),
                     )
                     columnScope.AnimatedVisibility(
                         visible = state.settingsButtonShowed,
@@ -210,30 +215,30 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                                 onClick = {
                                     screenModel.intent(HomeScreenIntent.Settings.Hide)
                                     navigator.push(SettingsTab)
-                                }, modifier = Modifier.align(Alignment.Center)
+                                }, modifier = Modifier.align(Alignment.Center).size(150.dp)
                             ) {
                                 Icon(
                                     Icons.Filled.Settings,
                                     contentDescription = "Settings",
                                     tint = Color.LightGray,
-                                    modifier = Modifier.size(150.dp)
+                                    modifier = Modifier.fillMaxSize()
                                 )
                             }
                         }
                     }
                 }
                 if (!headline.isNullOrBlank() && weatherVisible) {
-                    AutoSizeText(
-                        color = state.headlineSeverity.getColor(),
+                    BasicText(
                         text = headline,
+                        autoSize = TextAutoSize.StepBased(
+                            minFontSize = 5.sp, maxFontSize = 25.sp, stepSize = 0.25.sp
+                        ),
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = state.headlineSeverity.getColor(), textAlign = TextAlign.Start
+                        ),
                         maxLines = 1,
                         modifier = Modifier.fillMaxWidth().padding(all = 5.dp)
                             .wrapContentHeight(align = Alignment.CenterVertically),
-                        minTextSize = 5.sp,
-                        maxTextSize = 25.sp,
-                        stepGranularityTextSize = 1.sp,
-                        alignment = Alignment.BottomStart,
-                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
             }
@@ -252,15 +257,18 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                     }
                     if ((textCalendarVisible || gridCalendarVisible) && prodCalendarConfig.dayDescriptionEnabled) {
                         if (!currentProdCalendarDayStr.isNullOrBlank()) {
-                            AutoSizeText(
+                            BasicText(
                                 text = currentProdCalendarDayStr,
+                                autoSize = TextAutoSize.StepBased(
+                                    minFontSize = 6.sp, maxFontSize = 22.sp, stepSize = 0.25.sp
+                                ),
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = currentProdCalendarDay?.color() ?: colorPalette.dateDay,
+                                    textAlign = TextAlign.Center
+                                ),
                                 maxLines = 1,
-                                maxTextSize = 22.sp,
-                                minTextSize = 6.sp,
-                                alignment = Alignment.Center,
                                 modifier = Modifier.fillMaxWidth().wrapContentHeight()
                                     .padding(horizontal = 5.dp),
-                                color = currentProdCalendarDay?.color() ?: colorPalette.dateDay
                             )
                             Spacer(modifier = Modifier.height(10.dp))
                         } else {
@@ -303,9 +311,9 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                     }
                     //Vertical divider avoiding the last cell in each row
                     if ((index + 1) % forecast5Days.size != 0) {
-                        Divider(
-                            color = colorPalette.divider,
+                        Spacer(
                             modifier = Modifier.fillMaxHeight().width(1.dp)
+                                .background(color = colorPalette.divider),
                         )
                     }
                 }

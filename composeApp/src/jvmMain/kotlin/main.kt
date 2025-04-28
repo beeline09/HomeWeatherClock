@@ -11,16 +11,9 @@ import androidx.compose.ui.window.rememberWindowState
 import com.jthemedetecor.OsThemeDetector
 import homeweatherclock.composeapp.generated.resources.Res
 import homeweatherclock.composeapp.generated.resources.app_window_name
-import io.kamel.core.config.KamelConfig
-import io.kamel.core.config.httpFetcher
-import io.kamel.core.config.takeFrom
-import io.kamel.image.config.Default
-import io.kamel.image.config.batikSvgDecoder
-import io.kamel.image.config.resourcesFetcher
 import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.App
 import ru.weatherclock.adg.app.domain.di.initKoin
-import ru.weatherclock.adg.platformSpecific.PlatformHelper.defaultHttpClientEngine
 import java.awt.Dimension
 
 fun main() = application {
@@ -41,14 +34,6 @@ fun main() = application {
         window.minimumSize = Dimension(
             350, 600
         )
-        val kamelConfig = remember {
-            KamelConfig {
-                takeFrom(KamelConfig.Default)
-                resourcesFetcher()
-                batikSvgDecoder()
-                httpFetcher(defaultHttpClientEngine)
-            }
-        }
 
         val isDark = remember { mutableStateOf(false) }
         val dark = isSystemInDarkTheme()
@@ -61,7 +46,7 @@ fun main() = application {
         }
 
         App(
-            isDarkThemeSupported = true, kamelConfig = kamelConfig, systemIsDark = isDark.value
+            isDarkThemeSupported = true, systemIsDark = isDark.value
         )
     }
 }

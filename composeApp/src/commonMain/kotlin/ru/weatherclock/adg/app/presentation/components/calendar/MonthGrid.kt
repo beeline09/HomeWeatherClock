@@ -1,6 +1,5 @@
 package ru.weatherclock.adg.app.presentation.components.calendar
 
-import kotlinx.datetime.LocalDateTime
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,8 +12,10 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -23,18 +24,18 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.datetime.LocalDateTime
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateInput
 import ru.weatherclock.adg.app.presentation.components.calendar.styles.getPointerCursor
-import ru.weatherclock.adg.app.presentation.components.text.AutoSizeText
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -55,8 +56,7 @@ fun MonthGrid(
                 val selected by derivedStateOf {
                     date?.let {
                         dateHolder.checkIfSelected(
-                            date,
-                            dateTime
+                            date, dateTime
                         )
                     } ?: false
                 }
@@ -86,78 +86,56 @@ fun MonthGrid(
                 }
 
                 val rippleColor = Color.White
-                val indication1 = CustomIndication(
-                    pressColor = colorPalette.calendarDaySelectedBackground,
-                    alpha = .5f,
-                )
                 val textColor =
                     if (date in prodCalendarDays.map { it.date.dayOfMonth } && !selected) {
                         val prodDay = prodCalendarDays.firstOrNull { it.date.dayOfMonth == date }
                         prodDay?.color() ?: defColor
                     } else defColor
 
-                AutoSizeText(
-                    text = (date?.toString() ?: ""),
-                    minTextSize = 5.sp,
-                    maxTextSize = 50.sp,
-                    stepGranularityTextSize = 5.sp,
+
+                BasicText(
+                    text = (date?.toString().orEmpty()),
                     maxLines = 1,
-                    style = MaterialTheme.typography.bodySmall,
-//                                fontSize = 12.sp,
-                    color = textColor,
-                    modifier = Modifier
-                        .also {
-                            if (date != null) {
-                                it.getPointerCursor()
-                            }
+                    autoSize = TextAutoSize.StepBased(
+                        minFontSize = 5.sp, maxFontSize = 50.sp, stepSize = 0.25.sp
+                    ),
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        textAlign = TextAlign.Center, color = textColor
+                    ),
+                    modifier = Modifier.also {
+                        if (date != null) {
+                            it.getPointerCursor()
                         }
-                        .weight(1f)
-                        .aspectRatio(1f)
-//                                    .fillMaxSize()
-                        .clip(RoundedCornerShape(percent = 50))
-                        .border(
-                            1.dp,
-                            borderColor,
-                            RoundedCornerShape(percent = 50)
-                        )
+                    }.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(percent = 50)).border(
+                        1.dp, borderColor, RoundedCornerShape(percent = 50)
+                    )
 //                                    .background(Color.Blue)
                         .onPointerEvent(eventType = PointerEventType.Enter) {
                             date?.let { hovered = true }
-                        }
-                        .onPointerEvent(eventType = PointerEventType.Exit) {
+                        }.onPointerEvent(eventType = PointerEventType.Exit) {
                             date?.let { hovered = false }
-                        }
-                        .clickable(
+                        }.clickable(
                             enabled = date != null,
                             interactionSource = interactionSource1,
-                            indication = indication1,
+                            indication = ripple(
+                                color = colorPalette.calendarDaySelectedBackground,
+                            ),
                         ) {
                             dateHolder.select(
-                                date!!,
-                                dateTime,
-                                mutableStateOf(CalendarWindowState.CALENDAR)
+                                date!!, dateTime, mutableStateOf(CalendarWindowState.CALENDAR)
                             )
-                            (dateHolder as? DateInput.SingleDate)?.date?.value
-                                ?.let {
-                                    onDateSelected(
-                                        it,
-                                        currentProdDay
-                                    )
-                                }
-                        }
-                        .indication(
-                            interactionSource = interactionSource1,
-                            indication = rememberRipple(
-                                color = rippleColor,
-                                radius = 8.dp
+                            (dateHolder as? DateInput.SingleDate)?.date?.value?.let {
+                                onDateSelected(
+                                    it, currentProdDay
+                                )
+                            }
+                        }.indication(
+                            interactionSource = interactionSource1, indication = ripple(
+                                color = rippleColor, radius = 8.dp
                             )
-                        )
-                        .background(
+                        ).background(
                             if (selected) Color.Red else Color.Transparent
-                        )
-                        .padding(vertical = 2.dp),
-                    alignment = Alignment.Center,
-//                                textAlign = TextAlign.Center
+                        ).padding(vertical = 2.dp),
                 )
             }
         }

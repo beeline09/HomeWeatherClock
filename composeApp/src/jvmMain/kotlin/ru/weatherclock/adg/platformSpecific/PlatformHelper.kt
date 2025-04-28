@@ -54,7 +54,8 @@ internal actual object PlatformHelper {
         if (!dir.exists()) {
             dir.mkdirs()
         }
-        return JdbcSqliteDriver(url = "jdbc:sqlite:${dirPath}$dbName",
+        return JdbcSqliteDriver(
+            url = "jdbc:sqlite:${dirPath}$dbName",
             properties = Properties().apply {
                 put(
                     "foreign_keys",

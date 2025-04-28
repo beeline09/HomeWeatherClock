@@ -10,15 +10,8 @@ import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.remember
-import io.kamel.core.config.KamelConfig
-import io.kamel.core.config.httpFetcher
-import io.kamel.core.config.takeFrom
-import io.kamel.image.config.Default
-import io.kamel.image.config.resourcesFetcher
-import org.koin.android.BuildConfig
+import androidx.activity.enableEdgeToEdge
 import ru.weatherclock.adg.app.domain.di.initKoin
-import ru.weatherclock.adg.platformSpecific.PlatformHelper
 
 class AndroidApp : Application() {
     companion object {
@@ -29,7 +22,7 @@ class AndroidApp : Application() {
     override fun onCreate() {
         super.onCreate()
         INSTANCE = this
-        initKoin(enableNetworkLogs = BuildConfig.DEBUG) {
+        initKoin(enableNetworkLogs = true) {
             //  androidLogger()
             // androidContext(this@App)
         }
@@ -47,19 +40,7 @@ class AppActivity : ComponentActivity() {
         INSTANCE = this
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
-        setContent {
-            val kamelConfig = remember {
-                KamelConfig {
-                    takeFrom(KamelConfig.Default)
-                    resourcesFetcher(this@AppActivity)
-                    httpFetcher(PlatformHelper.defaultHttpClientEngine)
-                }
-            }
-            App(
-                isDarkThemeSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q,
-                kamelConfig = kamelConfig
-            )
-        }
+        enableEdgeToEdge()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         @Suppress("DEPRECATION")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -79,6 +60,11 @@ class AppActivity : ComponentActivity() {
             uiVisibility = uiVisibility or View.SYSTEM_UI_FLAG_IMMERSIVE
             uiVisibility = uiVisibility or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             decorView.systemUiVisibility = uiVisibility
+        }
+        setContent {
+            App(
+                isDarkThemeSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q,
+            )
         }
     }
 }
