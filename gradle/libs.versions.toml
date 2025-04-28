@@ -25,6 +25,8 @@ kotlinx-datetime = "0.6.2"
 koin-bom = "4.1.0-Beta7"
 sqlDelight = "2.0.2"
 kermit = "2.0.5"
+#На новых версиях (0.9.1) вылет на Android 7 при сохранении настроек
+#noinspection NewerVersionAvailable
 kstore = "0.7.1"
 java-appdirs = "1.4.0"
 annotationJvm = "1.9.1"
