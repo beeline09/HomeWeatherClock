@@ -1,18 +1,20 @@
+@file:OptIn(ExperimentalTime::class)
+
 package ru.weatherclock.adg.app.presentation.components.calendar.dateTypes
 
-import kotlinx.datetime.Clock
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import ru.weatherclock.adg.app.presentation.components.calendar.CalendarWindowState
 import ru.weatherclock.adg.app.presentation.components.calendar.getLastDayOfMonth
 import ru.weatherclock.adg.app.presentation.components.calendar.stringAnnotation.displayDate
 import ru.weatherclock.adg.app.presentation.components.calendar.stringAnnotation.displayDateTime
 import ru.weatherclock.adg.app.presentation.components.calendar.styles.DateInputDefaults
+import kotlin.time.ExperimentalTime
 
 sealed class DateInput {
 
@@ -306,11 +308,12 @@ fun initializeInput(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 fun LocalDateTime.Companion.now(): LocalDateTime =
-    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    kotlin.time.Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
 fun LocalDate.Companion.now(): LocalDate =
-    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    kotlin.time.Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
 fun LocalDateTime.withDayOfMonth(day: Int) = LocalDateTime(
     year,

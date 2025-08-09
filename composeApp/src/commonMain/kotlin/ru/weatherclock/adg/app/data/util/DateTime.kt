@@ -1,7 +1,5 @@
 package ru.weatherclock.adg.app.data.util
 
-import kotlin.math.abs
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -9,9 +7,12 @@ import kotlinx.datetime.atTime
 import kotlinx.datetime.toLocalDateTime
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.util.padStart
+import kotlin.math.abs
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 fun Long.epochSecondsToLocalDateTime(): LocalDateTime {
-    return Instant
+    return kotlin.time.Instant
         .fromEpochSeconds(epochSeconds = this)
         .toLocalDateTime(TimeZone.currentSystemDefault())
 }

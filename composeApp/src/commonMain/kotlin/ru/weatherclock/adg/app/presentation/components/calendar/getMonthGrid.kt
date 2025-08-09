@@ -40,9 +40,9 @@ internal fun LocalDateTime.getMonthGrid(): List<List<Int?>> {
     while (week.size < 7) {
         week.add(null)
     }
-    grid.add(week.toList())
-    if (grid.last().all { it == null }) {
-        grid.removeLast()
+    val weekList = week.toList()
+    if (weekList.any { it != null }) {
+        grid.add(week.toList())
     }
     return grid.toList()
 }
