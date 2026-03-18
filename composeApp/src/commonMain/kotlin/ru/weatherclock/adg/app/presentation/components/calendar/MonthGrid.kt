@@ -65,7 +65,7 @@ fun MonthGrid(
                     dayPosInWeek in 5..6 -> colorPalette.calendarWeekdayWeekendText
                     else -> colorPalette.calendarDayDefaultText
                 }
-                val currentProdDay = prodCalendarDays.firstOrNull { it.date.dayOfMonth == date }
+                val currentProdDay = prodCalendarDays.firstOrNull { it.date.day == date }
                 val borderColor = when {
                     hovered -> colorPalette.calendarDayHover
                     date.isCurrentDay(dateTime) -> colorPalette.calendarWeekdayBorder
@@ -87,8 +87,8 @@ fun MonthGrid(
 
                 val rippleColor = Color.White
                 val textColor =
-                    if (date in prodCalendarDays.map { it.date.dayOfMonth } && !selected) {
-                        val prodDay = prodCalendarDays.firstOrNull { it.date.dayOfMonth == date }
+                    if (date in prodCalendarDays.map { it.date.day } && !selected) {
+                        val prodDay = prodCalendarDays.firstOrNull { it.date.day == date }
                         prodDay?.color() ?: defColor
                     } else defColor
 

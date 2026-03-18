@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import ru.weatherclock.adg.app.presentation.components.calendar.CalendarWindowState
@@ -24,17 +25,17 @@ sealed class DateInput {
         override val format: String = "ддммггггддммгггг",
         val startDate: MutableState<LocalDateTime?> = mutableStateOf(null),
         val endDate: MutableState<LocalDateTime?> = mutableStateOf(null),
-    ): DateInput()
+    ) : DateInput()
 
     data class SingleDate(
         override val format: String = "ддммгггг",
         val date: MutableState<LocalDateTime?> = mutableStateOf(null),
-    ): DateInput()
+    ) : DateInput()
 
     data class SingleDateTime(
         override val format: String = "ддммгггг----",
         val dateTime: MutableState<LocalDateTime?> = mutableStateOf(null),
-    ): DateInput()
+    ) : DateInput()
 
     fun displayInput(): String {
         return when (this) {
@@ -96,7 +97,7 @@ sealed class DateInput {
                 if (actualDateEnd == null) {
                     val current = LocalDateTime(
                         dateTime.year,
-                        dateTime.monthNumber,
+                        dateTime.month.number,
                         date,
                         0,
                         0
@@ -105,7 +106,7 @@ sealed class DateInput {
                 }
                 val current = LocalDateTime(
                     dateTime.year,
-                    dateTime.monthNumber,
+                    dateTime.month.number,
                     date,
                     dateTime.hour,
                     dateTime.minute

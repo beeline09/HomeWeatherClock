@@ -78,9 +78,9 @@ data class WeatherConfig(
     @SerialName("language") val weatherApiLanguage: WeatherApiLanguage = WeatherApiLanguage.System,
 
     @SerialName("apiKeys") val weatherApiKeys: List<String> = listOf(
-        "REMOVED-WEATHERAPI-KEY",
-        "REMOVED-WEATHERAPI-KEY",
-//        "REMOVED-OWM-KEY" //Openweathermap
+//        "REMOVED-WEATHERAPI-KEY",
+//        "REMOVED-WEATHERAPI-KEY",
+        "REMOVED-OWM-KEY" //Openweathermap
     ),
 
     @SerialName("units") val units: WeatherUnits = WeatherUnits.Metric,

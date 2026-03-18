@@ -4,6 +4,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.util.padStart
@@ -121,8 +122,8 @@ fun LocalDateTime.secondStr(withLeadingZero: Boolean = true) = buildString {
 
 fun LocalDateTime.isEqualsBySecond(other: LocalDateTime): Boolean {
     if (year != other.year) return false
-    if (monthNumber != other.monthNumber) return false
-    if (dayOfMonth != other.dayOfMonth) return false
+    if (month.number != other.month.number) return false
+    if (day != other.day) return false
     if (hour != other.hour) return false
     if (minute != other.minute) return false
     return second == other.second
@@ -130,8 +131,8 @@ fun LocalDateTime.isEqualsBySecond(other: LocalDateTime): Boolean {
 
 fun LocalDateTime.isEqualsByMinute(other: LocalDateTime): Boolean {
     if (year != other.year) return false
-    if (monthNumber != other.monthNumber) return false
-    if (dayOfMonth != other.dayOfMonth) return false
+    if (month.number != other.month.number) return false
+    if (day != other.day) return false
     if (hour != other.hour) return false
     return minute == other.minute
 }
@@ -148,20 +149,20 @@ fun LocalDateTime.isEqualsByHour(
     countsOfHour: Int
 ): Boolean {
     if (year != other.year) return false
-    if (monthNumber != other.monthNumber) return false
-    if (dayOfMonth != other.dayOfMonth) return false
+    if (month.number != other.month.number) return false
+    if (day != other.day) return false
     return abs(hour - other.hour) <= countsOfHour
 }
 
 fun LocalDateTime.isEqualsByDayOfMonth(other: LocalDateTime): Boolean {
     if (year != other.year) return false
-    if (monthNumber != other.monthNumber) return false
-    return dayOfMonth == other.dayOfMonth
+    if (month.number != other.month.number) return false
+    return day == other.day
 }
 
 fun LocalDateTime.isEqualsByMonthNumber(other: LocalDateTime): Boolean {
     if (year != other.year) return false
-    return monthNumber == other.monthNumber
+    return month.number == other.month.number
 }
 
 fun LocalDateTime.isEqualsByYear(other: LocalDateTime): Boolean {
@@ -170,13 +171,13 @@ fun LocalDateTime.isEqualsByYear(other: LocalDateTime): Boolean {
 
 fun LocalDate.isEqualsByDayOfMonth(other: LocalDate): Boolean {
     if (year != other.year) return false
-    if (monthNumber != other.monthNumber) return false
-    return dayOfMonth == other.dayOfMonth
+    if (month.number != other.month.number) return false
+    return day == other.day
 }
 
 fun LocalDate.isEqualsByMonthNumber(other: LocalDate): Boolean {
     if (year != other.year) return false
-    return monthNumber == other.monthNumber
+    return month.number == other.month.number
 }
 
 fun LocalDate.isEqualsByYear(other: LocalDate): Boolean {
@@ -184,7 +185,7 @@ fun LocalDate.isEqualsByYear(other: LocalDate): Boolean {
 }
 
 fun LocalDate.toDbFormat(): Long {
-    return "${year.padStart(4)}${monthNumber.padStart(2)}${dayOfMonth.padStart(2)}".toLong()
+    return "${year.padStart(4)}${month.number.padStart(2)}${day.padStart(2)}".toLong()
 }
 
 fun Long.fromDbToLocalDate(): LocalDate {
@@ -204,15 +205,15 @@ fun Long.fromDbToLocalDate(): LocalDate {
     ).toInt()
     return LocalDate(
         year = year,
-        monthNumber = month,
-        dayOfMonth = day
+        month = month,
+        day = day
     )
 }
 
 fun LocalDateTime.toDbFormat(): Long {
     val year = year.padStart(4)
-    val month = monthNumber.padStart(2)
-    val day = dayOfMonth.padStart(2)
+    val month = month.number.padStart(2)
+    val day = day.padStart(2)
     val hour = hour.padStart(2)
     val minute = minute.padStart(2)
     val second = second.padStart(2)
@@ -248,10 +249,10 @@ fun Long.fromDbToLocalDateTime(): LocalDateTime {
     ).toInt()
     return LocalDateTime(
         year = year,
-        monthNumber = month,
-        dayOfMonth = day,
+        month = month,
+        day = day,
         hour = hour,
         minute = minute,
-        second = second,
+        second = second
     )
 }

@@ -8,7 +8,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-object RussianDateSerializer: KSerializer<LocalDate> {
+object RussianDateSerializer : KSerializer<LocalDate> {
 
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor(
@@ -32,8 +32,8 @@ object RussianDateSerializer: KSerializer<LocalDate> {
         ).toIntOrNull() ?: 0
         return LocalDate(
             year = year,
-            monthNumber = month,
-            dayOfMonth = day
+            month = month,
+            day = day
         )
     }
 

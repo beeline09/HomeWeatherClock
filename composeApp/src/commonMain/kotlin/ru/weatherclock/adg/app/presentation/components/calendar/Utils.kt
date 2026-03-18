@@ -2,14 +2,15 @@
 
 package ru.weatherclock.adg.app.presentation.components.calendar
 
-import kotlinx.datetime.DayOfWeek
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import homeweatherclock.composeapp.generated.resources.Res
 import homeweatherclock.composeapp.generated.resources.day_description_standard
 import homeweatherclock.composeapp.generated.resources.day_description_weekend
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.number
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.domain.model.calendar.DayType
@@ -52,13 +53,13 @@ fun ProdCalendarDay.color(): Color {
 
 @Composable
 fun LocalDateTime.toMessageDateString(): String {
-    val day = date.dayOfMonth
+    val day = date.day
         .toString()
         .padStart(
             2,
             '0'
         )
-    val month = date.monthNumber.toMonthName()
+    val month = date.month.number.toMonthName()
     val year = date.year
     return "$day $month $year"
 }
