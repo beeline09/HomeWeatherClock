@@ -1,7 +1,9 @@
 package ru.weatherclock.adg.app.presentation.components.dialog
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,17 +39,23 @@ fun ClockBottomSheetDialog(
         shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
         dragHandle = null,
     ) {
-        Text(
-            text = title,
-            fontSize = 20.sp,
-            textAlign = TextAlign.Center,
-            color = colorsPalette.clockText,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        content()
-        Spacer(modifier = Modifier.navigationBarsPadding())
+        //Сразу на всю высоту: контент с изменяемой высотой (списки) не «прыгает»
+        Column(
+            modifier = Modifier.fillMaxHeight().fillMaxWidth()
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = title,
+                fontSize = 20.sp,
+                textAlign = TextAlign.Center,
+                color = colorsPalette.clockText,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            content()
+            Spacer(modifier = Modifier.navigationBarsPadding())
+        }
     }
 }

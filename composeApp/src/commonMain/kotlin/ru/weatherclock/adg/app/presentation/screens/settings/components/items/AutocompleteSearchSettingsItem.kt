@@ -66,8 +66,7 @@ fun LazyItemScope.AutocompleteSearchSettingsItem(item: AutoCompleteSearchSetting
                     item.onChange.invoke(it)
                 }
             },
-            onTextChange = item.onSearchTextChanged,
-            initialValue = item.currentValue.localizedName ?: item.currentValue.name
+            onTextChange = item.onSearchTextChanged
         )
     }
 
@@ -75,6 +74,8 @@ fun LazyItemScope.AutocompleteSearchSettingsItem(item: AutoCompleteSearchSetting
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth().wrapContentHeight(align = Alignment.CenterVertically)
             .clickable(enabled = item.isEnabled) {
+                //Открываем с пустым инпутом и Idle (без автопоиска текущего города)
+                item.onSearchTextChanged("")
                 showRegionsDialog = true
             },
     ) {

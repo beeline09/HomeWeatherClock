@@ -52,22 +52,19 @@ import ru.weatherclock.adg.theme.LocalCustomColorsPalette
  */
 @Composable
 fun CitySearchState.LocationsDialog(
-    initialValue: String,
     title: String,
     onTextChange: (String) -> Unit,
     dismissRequest: (CityConfig?) -> Unit
 ) {
     val colorsPalette = LocalCustomColorsPalette.current
-    var text by remember { mutableStateOf(initialValue) }
+    //Инпут всегда пустой при открытии; автозапрос предзаполненного города
+    //не делаем (состояние поиска сбрасывается при открытии — см. item)
+    var text by remember { mutableStateOf("") }
     var isError by rememberSaveable { mutableStateOf(false) }
     val charLimit = 3
 
     fun validate(value: String) {
         isError = value.length < charLimit
-    }
-
-    if (initialValue.isNotBlank() && initialValue == text) {
-        onTextChange.invoke(initialValue)
     }
 
     ClockBottomSheetDialog(title = title, onDismiss = { dismissRequest(null) }) {
