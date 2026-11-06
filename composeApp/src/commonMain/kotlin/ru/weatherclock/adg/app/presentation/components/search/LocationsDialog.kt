@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,7 +58,7 @@ fun CitySearchState.LocationsDialog(
     dismissRequest: (CityConfig?) -> Unit
 ) {
     val colorsPalette = LocalCustomColorsPalette.current
-    var text by mutableStateOf(initialValue)
+    var text by remember { mutableStateOf(initialValue) }
     var isError by rememberSaveable { mutableStateOf(false) }
     val charLimit = 3
 
@@ -73,6 +74,7 @@ fun CitySearchState.LocationsDialog(
         Column(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = 16.dp)
                     .wrapContentHeight(align = Alignment.CenterVertically),
                 value = text,
                 onValueChange = {
@@ -174,6 +176,7 @@ private fun ColumnScope.CityResultRow(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
+            .padding(horizontal = 16.dp)
             .wrapContentHeight(align = Alignment.CenterVertically)
             .clickable(onClick = onClick),
     ) {
@@ -181,7 +184,7 @@ private fun ColumnScope.CityResultRow(
             color = colorsPalette.clockText,
             fontSize = 18.sp,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = 16.dp)
                 .wrapContentHeight(align = Alignment.CenterVertically).let {
                     if (country.isBlank()) {
@@ -210,7 +213,7 @@ private fun ColumnScope.CityResultRow(
                 color = colorsPalette.clockText,
                 fontStyle = FontStyle.Italic,
                 style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                modifier = Modifier.fillMaxWidth()
                     .padding(bottom = 16.dp, top = 8.dp)
                     .wrapContentHeight(align = Alignment.CenterVertically)
             )

@@ -35,6 +35,7 @@ fun ClockBottomSheetDialog(
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = colorsPalette.alertDialogBackground,
         shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
+        dragHandle = null,
     ) {
         Text(
             text = title,
