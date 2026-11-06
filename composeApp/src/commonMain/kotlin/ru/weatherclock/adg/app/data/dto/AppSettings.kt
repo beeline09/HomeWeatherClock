@@ -1,5 +1,6 @@
 package ru.weatherclock.adg.app.data.dto
 
+import HomeWeatherClock.composeApp.BuildConfig
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import ru.weatherclock.adg.app.data.WeatherUnits
@@ -77,7 +78,8 @@ data class WeatherConfig(
 
     @SerialName("language") val weatherApiLanguage: WeatherApiLanguage = WeatherApiLanguage.System,
 
-    @SerialName("apiKeys") val weatherApiKeys: List<String> = emptyList(),
+    @SerialName("apiKeys") val weatherApiKeys: List<String> =
+        BuildConfig.WEATHER_API_KEY.takeIf { it.isNotBlank() }?.let(::listOf) ?: emptyList(),
 
     @SerialName("units") val units: WeatherUnits = WeatherUnits.Metric,
 )

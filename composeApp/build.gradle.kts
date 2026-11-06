@@ -1,8 +1,10 @@
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
-import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.time.LocalDateTime
+import java.util.Properties
+
+private fun String.capitalized(): String = replaceFirstChar { it.uppercaseChar() }
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -20,6 +22,15 @@ private val appName = libs.versions.app.name.get()
 private val appPackageName = libs.versions.app.packageName.get()
 private val appVersionName = libs.versions.app.version.name.get()
 private val appVersionCode = libs.versions.app.version.code.get().toInt()
+
+// Секреты читаются из local.properties (не коммитится, см. local.properties.example)
+val localProperties = Properties().apply {
+    val localPropsFile = rootProject.file("local.properties")
+    if (localPropsFile.exists()) {
+        localPropsFile.inputStream().use { stream -> load(stream) }
+    }
+}
+val weatherApiKey: String = localProperties.getProperty("weatherApiKey").orEmpty()
 
 kotlin {
 
@@ -302,6 +313,13 @@ buildConfig {
     buildConfigField(
         "long", "BUILD_TIME", "${System.currentTimeMillis()}L"
     )
+    // Ключ погодного API из local.properties. Прокидывается во все source set'ы,
+    // но androidMain ниже переопределяет его пустой строкой: Android-сборки
+    // (в т.ч. публичные release) ключа не содержат — он вводится в настройках приложения.
+    buildConfigField("String", "WEATHER_API_KEY", provider { "\"$weatherApiKey\"" })
+    sourceSets.named("androidMain") {
+        buildConfigField("String", "WEATHER_API_KEY", "\"\"")
+    }
 }
 
 sqldelight {

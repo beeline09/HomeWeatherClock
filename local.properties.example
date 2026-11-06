@@ -1,0 +1,19 @@
+# Шаблон local.properties — скопируйте в local.properties и заполните.
+# local.properties НЕ коммитится (см. .gitignore) и хранит все секреты проекта.
+
+# Расположение Android SDK (обязательно для сборки Android).
+sdk.dir=/path/to/Android/sdk
+
+# Ключ погодного API (OpenWeatherMap). Подставляется в desktop/iOS-сборки
+# через BuildConfig.WEATHER_API_KEY. В Android-сборки не подставляется:
+# ключ вводится на экране настроек приложения.
+weatherApiKey=
+
+# Подпись release-сборки Android. Если поля пусты — release подписывается
+# debug-ключом (только для локальной проверки, в стор не загружать).
+# До ротации подписи в RuStore здесь должен быть указан старый ключ
+# (9e261c6e...), после ротации — prod.jks.
+signing.storeFile=
+signing.storePassword=
+signing.keyAlias=
+signing.keyPassword=
