@@ -57,8 +57,10 @@ fun ColumnScope.WeatherIcon(
             .build()
         val painter = rememberAsyncImagePainter(model = model)
         val state by painter.state.collectAsState()
-        when (state) {
+        when (val currentState = state) {
             is AsyncImagePainter.State.Error -> {
+                println("WeatherIcon load failed: ${detail.iconUrl(weatherConfig = weatherConfigData)}")
+                currentState.result.throwable.printStackTrace()
                 val p1 = rememberVectorPainter(image = Icons.Filled.Error)
                 Icon(
                     painter = rememberVectorPainter(image = Icons.Filled.Error),

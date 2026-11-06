@@ -2,7 +2,9 @@ package ru.weatherclock.adg.app.data.repository.settings.implementation
 
 import io.github.xxfast.kstore.KStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onStart
 import ru.weatherclock.adg.app.data.dto.AppSettings
 import ru.weatherclock.adg.app.data.dto.ColorTheme
 import ru.weatherclock.adg.app.data.dto.UiConfig
@@ -11,8 +13,17 @@ import ru.weatherclock.adg.app.data.repository.settings.UiSettingsRepository
 
 class UiSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>): UiSettingsRepository {
 
+    /**
+     * kstore 0.7.1 `updates` (при enableCache=false, как на desktop) отдаёт
+     * начальное значение ненадёжно — иногда UI оставался на дефолтах
+     * (server=Accuweather при данных OpenWeatherMap) до конца сессии.
+     * Читаем файл явно в onStart и убираем дубли.
+     */
     override val allConfigFlow: Flow<AppSettings>
-        get() = appSettings.updates.mapLatest { it.orDefault() }
+        get() = appSettings.updates
+            .onStart { emit(appSettings.get()) }
+            .mapLatest { it.orDefault() }
+            .distinctUntilChanged()
 
     override suspend fun getAllConfig(): AppSettings {
         return appSettings.get().orDefault()
