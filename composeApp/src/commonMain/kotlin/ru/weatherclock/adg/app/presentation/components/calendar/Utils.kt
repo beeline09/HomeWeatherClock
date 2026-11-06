@@ -5,6 +5,9 @@ package ru.weatherclock.adg.app.presentation.components.calendar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import homeweatherclock.composeapp.generated.resources.Res
+import homeweatherclock.composeapp.generated.resources.day_description_day_off
+import homeweatherclock.composeapp.generated.resources.day_description_holiday
+import homeweatherclock.composeapp.generated.resources.day_description_preholiday
 import homeweatherclock.composeapp.generated.resources.day_description_standard
 import homeweatherclock.composeapp.generated.resources.day_description_weekend
 import kotlinx.datetime.DayOfWeek
@@ -15,6 +18,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.domain.model.calendar.DayType
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
+import ru.weatherclock.adg.app.domain.model.calendar.stringForCalendar
 import ru.weatherclock.adg.app.domain.model.calendar.typeText
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.text.toMonthName
@@ -93,5 +97,23 @@ fun ProdCalendarDay?.stringForToast(
                 append(stringResource(Res.string.day_description_standard))
             }
         }
+    }
+}
+
+/**
+ * Описание текущего дня производственного календаря для подписи на главном
+ * экране. У федерального календаря (xmlcalendar.ru) нет названий праздников,
+ * поэтому для них подставляется локализованный текст по типу дня.
+ */
+@Composable
+fun ProdCalendarDay?.localizedDescription(): String? {
+    val noted = this?.stringForCalendar()
+    if (!noted.isNullOrBlank()) return noted
+    return when (this?.type) {
+        is DayType.NationalHoliday -> stringResource(Res.string.day_description_holiday)
+        is DayType.RegionalHoliday -> stringResource(Res.string.day_description_holiday)
+        is DayType.PreHoliday -> stringResource(Res.string.day_description_preholiday)
+        is DayType.AdditionalDayOff -> stringResource(Res.string.day_description_day_off)
+        else -> null
     }
 }

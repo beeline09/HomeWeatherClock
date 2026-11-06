@@ -15,7 +15,6 @@ fun SettingKey.getDescription(): String = when (this) {
     SettingKey.TextCalendarEnabled -> stringResource(Res.string.setting_description_text_calendar_enabled)
     SettingKey.GridCalendarEnabled -> stringResource(Res.string.setting_description_grid_calendar_enabled)
     SettingKey.ProdCalendarIsRussia -> stringResource(Res.string.setting_description_prod_calendar_is_russia)
-    SettingKey.ProdCalendarRussiaRegion -> stringResource(Res.string.setting_description_prod_calendar_russia_region)
     SettingKey.ProdCalendarDayDescriptionEnabled -> stringResource(Res.string.setting_description_prod_calendar_day_description_enabled)
     SettingKey.DotsFlashAnimated -> stringResource(Res.string.setting_description_dots_flash_animated)
     SettingKey.HourlyBeepEnabled -> stringResource(Res.string.setting_description_hourly_beep_enabled)

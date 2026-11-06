@@ -291,16 +291,6 @@ class SettingsUseCase(
                         })
                 )
                 add(
-                    RussiaRegionSetting(settingsKey = SettingKey.ProdCalendarRussiaRegion,
-                        isEnabled = prodCalendarConfig.isRussia,
-                        currentValue = prodCalendarConfig.russiaRegion,
-                        onChange = {
-                            safeUpdate {
-                                prodCalendarRepo.setRussianRegionNumber(it)
-                            }
-                        })
-                )
-                add(
                     BooleanSetting(settingsKey = SettingKey.ProdCalendarDayDescriptionEnabled,
                         currentValue = prodCalendarConfig.dayDescriptionEnabled,
                         isEnabled = prodCalendarConfig.isRussia,

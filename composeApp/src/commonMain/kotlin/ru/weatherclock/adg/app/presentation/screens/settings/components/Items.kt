@@ -14,7 +14,6 @@ fun LazyItemScope.SettingsListItem(item: BaseSettingItem) {
         is StringListSetting -> ListStringSettingsItem(item)
         is StringSetting -> StringSettingsItem(item)
         is ColorsThemeSetting -> ColorsThemeSettingItem(item)
-        is RussiaRegionSetting -> RussiaRegionSettingsItem(item)
         is WeatherApiLanguageSetting -> ApiLanguageSettingsItem(item)
         is WeatherApiListSetting -> ApiServerSettingsItem(item)
         is AutoCompleteSearchSetting -> AutocompleteSearchSettingsItem(item)

@@ -1,5 +1,6 @@
 package ru.weatherclock.adg.app.domain.usecase
 
+import kotlinx.datetime.LocalDate
 import ru.weatherclock.adg.app.data.dto.productionCalendar.asDomainModel
 import ru.weatherclock.adg.app.data.repository.calendar.CalendarRemoteRepository
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.ProdCalendarDbRepository
@@ -7,6 +8,7 @@ import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepo
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.asDbModel
 import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel
+import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 
 class CalendarUseCase(
     private val calendarRemoteRepository: CalendarRemoteRepository,
@@ -14,63 +16,44 @@ class CalendarUseCase(
     private val prodCalendarSettingsRepository: ProdCalendarSettingsRepository,
 ) {
 
-    private suspend fun getProdCalendarForCurrentYearDb(
-        region: Int,
-        year: Int
-    ): List<ProdCalendarDay> {
-        return prodCalendarDbRepository.getByRegionAndYear(
-            region = region,
-            year = year
-        ).map { it.asDomainModel() }
-    }
-
-    suspend fun insert(
-        day: ProdCalendarDay,
-        region: Int
-    ) {
-        prodCalendarDbRepository.insert(day.asDbModel(region = region))
-    }
-
-    suspend fun insert(
-        days: List<ProdCalendarDay>,
-        region: Int
-    ) {
-        prodCalendarDbRepository.insert(days = days.map { it.asDbModel(region = region) })
-    }
-
     suspend fun isProdCalendarEnabled(): Boolean {
         return prodCalendarSettingsRepository.isRussia()
     }
 
-    private suspend fun getProductionCalendarForPeriodRemote(
-        year: Int,
-        region: Int
-    ): List<ProdCalendarDay> = calendarRemoteRepository.getProductionCalendar(
-        year = year,
-        region = region
-    ).days.asDomainModel()
+    private suspend fun getProdCalendarForCurrentYearDb(year: Int): List<ProdCalendarDay> {
+        return prodCalendarDbRepository.getByRegionAndYear(
+            region = FEDERAL_REGION,
+            year = year
+        ).map { it.asDomainModel() }
+    }
 
+    suspend fun insert(days: List<ProdCalendarDay>) {
+        prodCalendarDbRepository.insert(days = days.map { it.asDbModel(region = FEDERAL_REGION) })
+    }
+
+    private suspend fun getProductionCalendarRemote(year: Int): List<ProdCalendarDay> {
+        return calendarRemoteRepository.getProductionCalendar(year = year).asDomainModel()
+    }
+
+    /**
+     * Федеральный производственный календарь РФ (без региональных праздников)
+     * на текущий год. Сначала читается кеш из БД, при отсутствии — загрузка
+     * с xmlcalendar.ru и сохранение в БД.
+     */
     suspend fun getProdCalendar(): List<ProdCalendarDay> {
-        return /*if (prodCalendarSettingsRepository.isRussia()) {
-            val year = LocalDateTime.now().year
-            val region = prodCalendarSettingsRepository.getRussianRegionNumber()
-            val prodCalendarDays = getProdCalendarForCurrentYearDb(
-                year = year,
-                region = region
-            )
-            prodCalendarDays.ifEmpty {
-                println("DatabaseProdCalendar is empty or old. Request from network...")
-                getProductionCalendarForPeriodRemote(
-                    year = year,
-                    region
-                ).also { days ->
-                    println("NetworkProdCalendar downloaded. Days count: ${days.size}. Saving into DB...")
-                    insert(
-                        days = days,
-                        region = region
-                    )
-                }
+        val year = LocalDate.now().year
+        val daysFromDb = getProdCalendarForCurrentYearDb(year = year)
+        return daysFromDb.ifEmpty {
+            println("DatabaseProdCalendar is empty or old. Request from network...")
+            getProductionCalendarRemote(year = year).also { days ->
+                println("NetworkProdCalendar downloaded. Days count: ${days.size}. Saving into DB...")
+                insert(days = days)
             }
-        } else*/ emptyList()
+        }
+    }
+
+    companion object {
+        // 0 — «Вся Россия» (федеральный календарь)
+        const val FEDERAL_REGION = 0
     }
 }

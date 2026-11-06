@@ -17,7 +17,6 @@ enum class SettingKey {
     TextCalendarEnabled,
     GridCalendarEnabled,
     ProdCalendarIsRussia,
-    ProdCalendarRussiaRegion,
     ProdCalendarDayDescriptionEnabled,
     HoursWithLeadingZero,
     DotsFlashEnabled,

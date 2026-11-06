@@ -33,8 +33,6 @@
 
     <string name="setting_title_prod_calendar_is_russia">Show production calendar (only for Russia)
     </string>
-    <string name="setting_title_prod_calendar_russia_region">Region of the Russian Federation
-    </string>
     <string
         name="setting_title_prod_calendar_day_description_enabled">Display the name of the current holiday
     </string>
@@ -81,9 +79,6 @@
     </string>
     <string
         name="setting_description_prod_calendar_is_russia">Unfortunately, at the moment, it is possible to show the production calendar only for Russia
-    </string>
-    <string
-        name="setting_description_prod_calendar_russia_region">Click to select a region of the Russian Federation to display regional holidays in the production calendar
     </string>
     <string
         name="setting_description_prod_calendar_day_description_enabled">If enabled, the name of the holiday on the current day will be displayed between the text and table calendars, if there is one in the production calendar
@@ -161,6 +156,9 @@
 
     <string name="day_description_standard">Ordinary day</string>
     <string name="day_description_weekend">Weekend day</string>
+    <string name="day_description_holiday">Holiday</string>
+    <string name="day_description_preholiday">Pre-holiday day</string>
+    <string name="day_description_day_off">Day off</string>
 
     <string name="weather_no_api_key_exception">To display the weather, enter API keys in settings</string>
 </resources>

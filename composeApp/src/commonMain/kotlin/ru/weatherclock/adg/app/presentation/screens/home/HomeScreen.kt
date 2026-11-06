@@ -63,10 +63,10 @@ import org.koin.compose.koinInject
 import ru.weatherclock.adg.app.data.dto.isHourInRangeForHide
 import ru.weatherclock.adg.app.data.error.NoWeatherApiKeyException
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
-import ru.weatherclock.adg.app.domain.model.calendar.stringForCalendar
 import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.CalendarCallbackData
 import ru.weatherclock.adg.app.presentation.components.calendar.color
+import ru.weatherclock.adg.app.presentation.components.calendar.localizedDescription
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateInput
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.calendar.stringForToast
@@ -99,7 +99,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
     val date = dateTime.date
     val prodCalendarDays: List<ProdCalendarDay> = state.prodCalendarDaysForCurrentMonth
     val currentProdCalendarDay = state.currentProdDay
-    val currentProdCalendarDayStr = state.currentProdDay?.stringForCalendar()
+    val currentProdCalendarDayStr = state.currentProdDay?.localizedDescription()
     val dotsColor = when {
         timeConfig.dotsFlashEnabled && timeConfig.dotsFlashAnimated -> {
             val dotsColorAnimated: Color by animateColorAsState(

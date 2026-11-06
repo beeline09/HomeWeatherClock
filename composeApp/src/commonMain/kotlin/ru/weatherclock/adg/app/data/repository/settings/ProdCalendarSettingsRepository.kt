@@ -12,9 +12,6 @@ interface ProdCalendarSettingsRepository {
     suspend fun isRussia(): Boolean
     suspend fun setIsRussia(isRussia: Boolean)
 
-    suspend fun getRussianRegionNumber(): Int
-    suspend fun setRussianRegionNumber(number: Int)
-
     suspend fun isDayDescriptionEnabled(): Boolean
     suspend fun setDayDescriptionEnabled(enabled: Boolean)
 }

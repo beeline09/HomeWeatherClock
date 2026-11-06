@@ -94,8 +94,6 @@ data class CalendarConfig(
 @Serializable
 data class ProdCalendarConfig(
     val isRussia: Boolean = true,
-    //0 - Вся Россия
-    val russiaRegion: Int = 0,
     val dayDescriptionEnabled: Boolean = true,
 )
 
@@ -135,7 +133,8 @@ fun WeatherConfig.isAvailableToShow(): Boolean {
 }
 
 fun ProdCalendarConfig.isAvailableToShow(): Boolean {
-    return isRussia && russiaRegion > 0
+    // Федеральный календарь — регионы больше не выбираются
+    return isRussia
 }
 
 val UiConfig.isHideElementsByTimeEnabled: Boolean

@@ -40,7 +40,6 @@
     <string
         name="setting_title_prod_calendar_is_russia">Производственный календарь (только для России)
     </string>
-    <string name="setting_title_prod_calendar_russia_region">Регион РФ</string>
     <string
         name="setting_title_prod_calendar_day_description_enabled">Отображать название текущего праздника
     </string>
@@ -83,9 +82,6 @@
     </string>
     <string
         name="setting_description_prod_calendar_is_russia">К сожалению, на данный момент, есть возможность загружать производственный календарь только для России
-    </string>
-    <string
-        name="setting_description_prod_calendar_russia_region">Нажмите, чтобы выбрать регион РФ для отображения региональных праздников в производственном календаре
     </string>
     <string
         name="setting_description_prod_calendar_day_description_enabled">Если включено, между текстовым и табличным календарем будет отображаться название праздника в текущем дне, если таковой есть в производственном календаре
@@ -161,6 +157,9 @@
 
     <string name="day_description_standard">Обычный день</string>
     <string name="day_description_weekend">Выходной день</string>
+    <string name="day_description_holiday">Праздничный день</string>
+    <string name="day_description_preholiday">Предпраздничный день</string>
+    <string name="day_description_day_off">Нерабочий день</string>
 
     <string name="weather_no_api_key_exception">Для отображения погоды введите API-ключи в настройках</string>
 </resources>

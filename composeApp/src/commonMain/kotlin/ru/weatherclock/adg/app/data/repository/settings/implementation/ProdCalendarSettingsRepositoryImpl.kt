@@ -35,14 +35,6 @@ class ProdCalendarSettingsRepositoryImpl(private val appSettings: KStore<AppSett
         saveConfig { copy(isRussia = isRussia) }
     }
 
-    override suspend fun getRussianRegionNumber(): Int {
-        return getConfig().russiaRegion
-    }
-
-    override suspend fun setRussianRegionNumber(number: Int) {
-        saveConfig { copy(russiaRegion = number) }
-    }
-
     override suspend fun isDayDescriptionEnabled(): Boolean {
         return getConfig().dayDescriptionEnabled
     }

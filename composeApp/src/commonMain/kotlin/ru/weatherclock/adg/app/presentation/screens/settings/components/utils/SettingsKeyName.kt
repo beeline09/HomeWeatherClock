@@ -20,7 +20,6 @@ fun SettingKey.getName(): String = when (this) {
     SettingKey.TextCalendarEnabled -> stringResource(Res.string.setting_title_text_calendar_enabled)
     SettingKey.GridCalendarEnabled -> stringResource(Res.string.setting_title_grid_calendar_enabled)
     SettingKey.ProdCalendarIsRussia -> stringResource(Res.string.setting_title_prod_calendar_is_russia)
-    SettingKey.ProdCalendarRussiaRegion -> stringResource(Res.string.setting_title_prod_calendar_russia_region)
     SettingKey.ProdCalendarDayDescriptionEnabled -> stringResource(Res.string.setting_title_prod_calendar_day_description_enabled)
     SettingKey.DotsFlashEnabled -> stringResource(Res.string.setting_title_dots_flash_enabled)
     SettingKey.DotsFlashAnimated -> stringResource(Res.string.setting_title_dots_flash_animated)
