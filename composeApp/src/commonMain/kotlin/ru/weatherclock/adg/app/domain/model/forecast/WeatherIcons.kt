@@ -80,17 +80,17 @@ private fun meteoconsName(s: WeatherSemantic): String = when (s) {
     WeatherSemantic.SHOWERS -> "rain"
     WeatherSemantic.RAIN_DAY -> "partly-cloudy-day-rain"
     WeatherSemantic.RAIN_NIGHT -> "partly-cloudy-night-rain"
-    WeatherSemantic.OVERCAST_RAIN -> "overcast-rain"
+    WeatherSemantic.OVERCAST_RAIN -> "rain"
     WeatherSemantic.THUNDER_DAY -> "thunderstorms-day"
     WeatherSemantic.THUNDER_NIGHT -> "thunderstorms-night"
     WeatherSemantic.SNOW -> "snow"
-    WeatherSemantic.OVERCAST_SNOW -> "overcast-snow"
+    WeatherSemantic.OVERCAST_SNOW -> "snow"
     WeatherSemantic.SLEET -> "sleet"
-    WeatherSemantic.HAZE_DAY -> "partly-cloudy-day-haze"
-    WeatherSemantic.HAZE_NIGHT -> "partly-cloudy-night-haze"
+    WeatherSemantic.HAZE_DAY -> "haze-day"
+    WeatherSemantic.HAZE_NIGHT -> "haze-night"
     WeatherSemantic.WIND -> "wind"
-    WeatherSemantic.HOT -> "clear-day"
-    WeatherSemantic.COLD -> "snowflake"
+    WeatherSemantic.HOT -> "thermometer-warmer"
+    WeatherSemantic.COLD -> "thermometer-colder"
 }
 
 private fun twemojiName(s: WeatherSemantic): String = when (s) {
@@ -143,12 +143,8 @@ private fun WeatherIconSet.resourceDir(): String? = when (this) {
     WeatherIconSet.Official -> null
 }
 
-private fun WeatherIconSet.iconifyPrefix(): String = when (this) {
-    WeatherIconSet.MeteoconsFill, WeatherIconSet.MeteoconsLine -> "meteocons"
-    WeatherIconSet.Twemoji -> "twemoji"
-    WeatherIconSet.WiMono -> "wi"
-    WeatherIconSet.Official -> "meteocons"
-}
+/** Публичный SHA тега v2.0.0 репозитория Meteocons (для сетевого fallback). */
+private const val METEOCONS_TAG_SHA = "fdd19749b9"
 
 private fun WeatherIconSet.iconifyName(s: WeatherSemantic): String = when (this) {
     WeatherIconSet.MeteoconsFill -> meteoconsName(s) + "-fill"
@@ -209,8 +205,29 @@ object WeatherIconResolver {
         }
         val semantic = semanticOf(server, code) ?: WeatherSemantic.CLOUDY
         val effectiveSet = if (set == WeatherIconSet.Official) WeatherIconSet.MeteoconsFill else set
+        // Iconify-тела meteocons содержат <symbol>/<use>, которые SkSVG не
+        // отрисовывает — сетевой fallback для meteocons идёт на production-файлы
+        if (effectiveSet == WeatherIconSet.MeteoconsFill ||
+            effectiveSet == WeatherIconSet.MeteoconsLine
+        ) {
+            val sub = if (effectiveSet == WeatherIconSet.MeteoconsFill) "fill" else "line"
+            val dir = if (server == WeatherServer.OpenWeatherMap) {
+                "openweathermap/$code"
+            } else {
+                "all/${meteoconsName(semantic)}"
+            }
+            return Source.Network(
+                "https://raw.githubusercontent.com/basmilius/meteocons/$METEOCONS_TAG_SHA/" +
+                    "production/$sub/$dir.svg"
+            )
+        }
+        // остались только Twemoji и WiMono — плоские path-тела, SkSVG рендерит
+        val prefix = when (effectiveSet) {
+            WeatherIconSet.Twemoji -> "twemoji"
+            else -> "wi"
+        }
         return Source.Network(
-            "https://api.iconify.design/${effectiveSet.iconifyPrefix()}/" +
+            "https://api.iconify.design/$prefix/" +
                 "${effectiveSet.iconifyName(semantic)}.svg?height=256"
         )
     }

@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
-# Скачивание SVG-наборов погодных иконок с Iconify (api.iconify.design)
-# в composeResources/files/weather_icons/<set>/{owm-<код>.svg, accu-<код>.svg}
+# Скачивание наборов погодных иконок для bundled-ресурсов:
+#  - meteocons-fill / meteocons: оригинальные production-SVG Meteocons v2.0.0
+#    (raw.githubusercontent, SHA тега v2.0.0). Для OWM — официальная папка
+#    openweathermap (коды 01d..50n), для AccuWeather — all/ по семантике.
+#    ВАЖНО: тела из Iconify API НЕ годятся — там <symbol>+<use>, которые
+#    SkSVG (skiko/coil) парсит, но не отрисовывает (см. SvgRasterTest).
+#  - twemoji / wi: Iconify batch API (плоские path-тела, SkSVG рендерит).
 #
-# Маппинги здесь и в Kotlin (WeatherIcons.kt) должны оставаться синхронными:
-# количество файлов = 4 набора × (18 OWM + 44 AccuWeather) = 248.
-#
-# Использует батч-API Iconify (один запрос на набор) — не ловит rate-limit.
-# Использование: ./download_weather_icons.py [--dry]
+# Результат: composeResources/files/weather_icons/<set>/{owm-<код>,accu-<код>}.svg
+# Синхронно с маппингами в Kotlin (WeatherIcons.kt).
 import json
 import sys
+from typing import Optional
 import urllib.request
 from pathlib import Path
 
 DEST = Path(__file__).resolve().parent.parent / \
     "composeApp/src/commonMain/composeResources/files/weather_icons"
-BASE = "https://api.iconify.design"
+METEOCONS_SHA = "fdd19749b9"  # v2.0.0
+RAW = f"https://raw.githubusercontent.com/basmilius/meteocons/{METEOCONS_SHA}/production"
+ICONIFY = "https://api.iconify.design"
 
-# ---------- Коды OpenWeatherMap -> семантика ----------
+# ---------- Коды OpenWeatherMap -> семантика (для twemoji/wi и Kotlin) ----------
 OWM = {
     "01d": "CLEAR_DAY", "01n": "CLEAR_NIGHT",
     "02d": "PARTLY_CLOUDY_DAY", "02n": "PARTLY_CLOUDY_NIGHT",
@@ -45,20 +50,20 @@ ACCU = {
     43: "SNOW", 44: "OVERCAST_SNOW",
 }
 
-# ---------- Семантика -> имя иконки в наборе ----------
-MC = {  # базовое имя meteocons (fill добавит суффикс -fill)
+# ---------- Семантика -> имя файла в наборе ----------
+MC = {  # production/all (fill и line директории, имена одинаковые)
     "CLEAR_DAY": "clear-day", "CLEAR_NIGHT": "clear-night",
     "PARTLY_CLOUDY_DAY": "partly-cloudy-day", "PARTLY_CLOUDY_NIGHT": "partly-cloudy-night",
     "CLOUDY": "cloudy", "OVERCAST": "overcast",
     "FOG_DAY": "fog-day", "FOG_NIGHT": "fog-night",
     "SHOWERS": "rain",
     "RAIN_DAY": "partly-cloudy-day-rain", "RAIN_NIGHT": "partly-cloudy-night-rain",
-    "OVERCAST_RAIN": "overcast-rain",
+    "OVERCAST_RAIN": "rain",
     "THUNDER_DAY": "thunderstorms-day", "THUNDER_NIGHT": "thunderstorms-night",
-    "SNOW": "snow", "OVERCAST_SNOW": "overcast-snow",
+    "SNOW": "snow", "OVERCAST_SNOW": "snow",
     "SLEET": "sleet",
-    "HAZE_DAY": "partly-cloudy-day-haze", "HAZE_NIGHT": "partly-cloudy-night-haze",
-    "WIND": "wind", "HOT": "clear-day", "COLD": "snowflake",
+    "HAZE_DAY": "haze-day", "HAZE_NIGHT": "haze-night",
+    "WIND": "wind", "HOT": "thermometer-warmer", "COLD": "thermometer-colder",
 }
 
 TW = {
@@ -92,23 +97,22 @@ WI = {
 }
 
 
-def icons_for_set(set_name: str) -> dict:
-    """semantic -> имя иконки в iconify-наборе."""
-    if set_name == "meteocons-fill":
-        return {k: v + "-fill" for k, v in MC.items()}
-    if set_name == "meteocons":
-        return dict(MC)
-    if set_name == "twemoji":
-        return dict(TW)
-    if set_name == "wi":
-        return dict(WI)
-    raise ValueError(set_name)
+def fetch_url(url: str) -> Optional[bytes]:
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "HomeWeatherClock-assets/1.0 (build script)",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            data = r.read()
+        return data if len(data) > 100 else None
+    except Exception as e:
+        print(f"FAIL {url}: {e}")
+        return None
 
 
-def fetch_batch(prefix: str, names: list) -> tuple:
-    """Батч-запрос. Возвращает ({имя: {body,width,height}}, дефолтные_размеры_набора),
-    разрешая алиасы (например, twemoji '2600' -> 'sun')."""
-    url = f"{BASE}/{prefix}.json?icons={','.join(names)}"
+def iconify_batch(prefix: str, names: list) -> dict:
+    """Батч: {имя: {body, width, height}} с разрешением алиасов."""
+    url = f"{ICONIFY}/{prefix}.json?icons={','.join(names)}"
     req = urllib.request.Request(url, headers={
         "User-Agent": "HomeWeatherClock-assets/1.0 (build script)",
         "Accept": "application/json",
@@ -117,7 +121,7 @@ def fetch_batch(prefix: str, names: list) -> tuple:
         data = json.load(r)
     icons = data.get("icons", {})
     aliases = data.get("aliases", {})
-    set_defaults = (data.get("width", 16), data.get("height", 16))
+    defaults = (data.get("width", 16), data.get("height", 16))
 
     def resolve(name: str, depth: int = 0):
         if name in icons:
@@ -127,53 +131,76 @@ def fetch_batch(prefix: str, names: list) -> tuple:
             return resolve(parent, depth + 1)
         return None
 
-    return {n: resolve(n) for n in names}, set_defaults
+    return {n: resolve(n) for n in names}, defaults
 
 
-def build_svg(icon: dict, set_defaults: tuple) -> str:
-    """SVG с явными width/height (для декодера) и корректным viewBox
-    из размеров иконки (или дефолтов набора)."""
-    w = icon.get("width", set_defaults[0])
-    h = icon.get("height", set_defaults[1])
+def wrap_svg(body: str, w: int, h: int) -> str:
     return (f'<svg xmlns="http://www.w3.org/2000/svg" '
-            f'width="256" height="256" viewBox="0 0 {w} {h}">'
-            f'{icon["body"]}</svg>')
+            f'width="256" height="256" viewBox="0 0 {w} {h}">{body}</svg>')
 
 
 def main() -> int:
     dry = "--dry" in sys.argv
     ok = fails = 0
-    for set_name in ["meteocons-fill", "meteocons", "twemoji", "wi"]:
-        prefix = "meteocons" if set_name.startswith("meteocons") else set_name
-        sem_to_name = icons_for_set(set_name)
-        names = sorted(set(sem_to_name.values()))
-        try:
-            icons, set_defaults = fetch_batch(prefix, names)
-        except Exception as e:
-            print(f"FAIL batch {prefix}: {e}")
-            fails += len(OWM) + len(ACCU)
-            continue
-        set_dir = DEST / set_name
+    dest_all = DEST
+    if not dry:
+        dest_all.mkdir(parents=True, exist_ok=True)
+
+    # --- meteocons-fill и meteocons: production v2.0.0 ---
+    for set_name, sub in (("meteocons-fill", "fill"), ("meteocons", "line")):
+        set_dir = dest_all / set_name
+        if not dry:
+            set_dir.mkdir(parents=True, exist_ok=True)
+        # OWM: официальные файлы по кодам
+        for code in OWM:
+            url = f"{RAW}/{sub}/openweathermap/{code}.svg"
+            data = fetch_url(url)
+            if data is None:
+                fails += 1
+                continue
+            if dry:
+                ok += 1
+                continue
+            (set_dir / f"owm-{code}.svg").write_bytes(data)
+            ok += 1
+        # AccuWeather: семантика -> имя файла в all/
+        for code, sem in ACCU.items():
+            name = MC[sem]
+            url = f"{RAW}/{sub}/all/{name}.svg"
+            data = fetch_url(url)
+            if data is None:
+                print(f"FAIL {set_name}/accu-{code}: {name} не найден")
+                fails += 1
+                continue
+            if dry:
+                ok += 1
+                continue
+            (set_dir / f"accu-{code}.svg").write_bytes(data)
+            ok += 1
+
+    # --- twemoji и wi: Iconify batch ---
+    for set_name, prefix, table in (("twemoji", "twemoji", TW), ("wi", "wi", WI)):
+        names = sorted(set(table.values()))
+        icons, defaults = iconify_batch(prefix, names)
+        set_dir = dest_all / set_name
         if not dry:
             set_dir.mkdir(parents=True, exist_ok=True)
         for provider_map, tag in ((OWM, "owm"), (ACCU, "accu")):
             for code, sem in provider_map.items():
-                name = sem_to_name[sem]
-                icon = icons.get(name)
+                icon = icons.get(table[sem])
                 if icon is None:
-                    print(f"FAIL {set_name}/{tag}-{code}: нет '{name}' в ответе")
+                    print(f"FAIL {set_name}/{tag}-{code}")
                     fails += 1
                     continue
                 if dry:
                     ok += 1
                     continue
-                svg = build_svg(icon, set_defaults)
-                if len(svg) < 100:
-                    print(f"FAIL {set_name}/{tag}-{code}: подозрительно короткий svg")
-                    fails += 1
-                    continue
+                svg = wrap_svg(icon["body"],
+                               icon.get("width", defaults[0]),
+                               icon.get("height", defaults[1]))
                 (set_dir / f"{tag}-{code}.svg").write_text(svg, encoding="utf-8")
                 ok += 1
+
     print(f"OK={ok} FAILS={fails}")
     return 1 if fails else 0
 

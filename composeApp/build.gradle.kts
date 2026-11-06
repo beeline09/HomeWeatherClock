@@ -130,6 +130,12 @@ kotlin {
 //                implementation("media.kamel:kamel-fetcher-resources-jvm:1.0.3")
         }
 
+        getByName("jvmTest") {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+
         val iosArm64Main = getByName("iosArm64Main")
         val iosSimulatorArm64Main = getByName("iosSimulatorArm64Main")
         val iosMain = create("iosMain") {
