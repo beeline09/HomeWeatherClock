@@ -8,7 +8,7 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import io.github.xxfast.kstore.KStore
 import io.github.xxfast.kstore.file.storeOf
 import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.engine.apache.Apache
+import io.ktor.client.engine.apache5.Apache5
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
@@ -35,7 +35,7 @@ internal actual object PlatformHelper {
         )
     }
     actual val defaultHttpClientEngine: HttpClientEngine by lazy {
-        Apache.create()
+        Apache5.create()
     }
     actual val ioDispatcher: CoroutineDispatcher
         get() = Dispatchers.IO

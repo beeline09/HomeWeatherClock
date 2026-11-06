@@ -2,6 +2,7 @@ package ru.weatherclock.adg.app.presentation.components.text
 
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.number
 import androidx.compose.runtime.Composable
 import homeweatherclock.composeapp.generated.resources.Res
 import homeweatherclock.composeapp.generated.resources.april_f
@@ -45,10 +46,10 @@ fun Int.toMonthName(): String = when (this) {
 @Composable
 fun LocalDate.formatForWeatherCell(): String = buildString {
     val dayName = dayOfWeek.getDayNameFull().lowercase().replaceFirstChar { it.uppercaseChar() }
-    val monthName = monthNumber.toMonthName().lowercase()
+    val monthName = month.number.toMonthName().lowercase()
     append(dayName)
     append(", ")
-    append(dayOfMonth)
+    append(day)
     append(" ")
     append(monthName)
 }
@@ -62,5 +63,4 @@ fun DayOfWeek.getDayNameFull(): String = when (this) {
     DayOfWeek.FRIDAY -> stringResource(Res.string.day_name_full_friday)
     DayOfWeek.SATURDAY -> stringResource(Res.string.day_name_full_saturday)
     DayOfWeek.SUNDAY -> stringResource(Res.string.day_name_full_sunday)
-    else -> ""
 }

@@ -7,7 +7,7 @@ import ru.weatherclock.adg.app.presentation.components.calendar.styles.DateInput
 
 internal fun LocalDateTime.displayDate() =
     "${
-        this.dayOfMonth.trailZeros()
+        this.day.trailZeros()
     }${
         this.month.number.trailZeros()
     }${
@@ -16,7 +16,7 @@ internal fun LocalDateTime.displayDate() =
 
 internal fun LocalDateTime.displayDateTime() =
     "${
-        this.dayOfMonth.trailZeros()
+        this.day.trailZeros()
     }${
         this.month.number.trailZeros()
     }${
@@ -48,7 +48,6 @@ internal fun Month.toLocale(locale: DateInputDefaults.DateInputLocale) = when (l
         Month.OCTOBER -> "октября"
         Month.NOVEMBER -> "ноября"
         Month.DECEMBER -> "декабря"
-        else -> ""
     }.replaceFirstChar { it.titlecase() }
 
     DateInputDefaults.DateInputLocale.EN -> this.name

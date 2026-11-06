@@ -73,6 +73,6 @@ val DayType.typeText: String?
 
 fun ProdCalendarDay?.stringForCalendar(): String? {
     return if (!this?.note.isNullOrBlank()) {
-        this?.note
+        this.note
     } else this?.type?.typeText
 }

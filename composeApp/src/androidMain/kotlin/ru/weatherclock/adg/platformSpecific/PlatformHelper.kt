@@ -3,6 +3,7 @@ package ru.weatherclock.adg.platformSpecific
 import android.app.Activity
 import android.content.res.Resources
 import android.graphics.Color
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalView
@@ -77,8 +78,15 @@ internal actual object PlatformHelper {
         LaunchedEffect(isDark) {
             val window = (view.context as Activity).window
             WindowCompat.setDecorFitsSystemWindows(window, false)
-            window.statusBarColor = systemBarColor
-            window.navigationBarColor = systemBarColor
+            // Прозрачные системные панели нужны только до Android 15:
+            // начиная с API 35 edge-to-edge включён принудительно,
+            // системные панели всегда прозрачны, сеттеры — deprecated-нооп
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                @Suppress("DEPRECATION")
+                window.statusBarColor = systemBarColor
+                @Suppress("DEPRECATION")
+                window.navigationBarColor = systemBarColor
+            }
             WindowCompat.getInsetsController(window, window.decorView).apply {
                 isAppearanceLightStatusBars = isDark
                 isAppearanceLightNavigationBars = isDark

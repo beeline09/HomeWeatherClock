@@ -329,7 +329,7 @@ fun LocalDateTime.withDayOfMonth(day: Int) = LocalDateTime(
 fun LocalDateTime.withHour(hour: Int) = LocalDateTime(
     year,
     month,
-    dayOfMonth,
+    day,
     hour,
     minute,
     second,
@@ -339,7 +339,7 @@ fun LocalDateTime.withHour(hour: Int) = LocalDateTime(
 fun LocalDateTime.withMinute(minute: Int) = LocalDateTime(
     year,
     month,
-    dayOfMonth,
+    day,
     hour,
     minute,
     second,

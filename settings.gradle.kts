@@ -2,6 +2,7 @@
 
 rootProject.name = "HomeWeatherClock"
 include(":composeApp")
+include(":androidApp")
 
 pluginManagement {
     repositories {

@@ -58,6 +58,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import homeweatherclock.composeapp.generated.resources.Res
 import homeweatherclock.composeapp.generated.resources.weather_no_api_key_exception
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.number
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import ru.weatherclock.adg.app.data.dto.isHourInRangeForHide
@@ -258,8 +259,8 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                         TextCalendar(
                             modifier = Modifier.weight(0.5f).wrapContentWidth().fillMaxHeight()
                                 .padding(horizontal = 5.dp),
-                            dayOfMonth = date.dayOfMonth,
-                            month = date.monthNumber,
+                            dayOfMonth = date.day,
+                            month = date.month.number,
                             year = date.year,
                             currentProdCalendarDay
                         )

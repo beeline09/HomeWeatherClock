@@ -59,5 +59,5 @@ fun LocalDateTime.getLastDayOfMonth(): Int {
         .minus(
             1,
             DateTimeUnit.DAY
-        ).dayOfMonth
+        ).day
 }
