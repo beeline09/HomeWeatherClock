@@ -38,7 +38,7 @@ import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.data.dto.WeatherIconSet
 import ru.weatherclock.adg.app.data.dto.WeatherServer
 import ru.weatherclock.adg.app.domain.model.settings.WeatherIconSetSetting
-import ru.weatherclock.adg.app.presentation.components.dialog.ClockAlertDialog
+import ru.weatherclock.adg.app.presentation.components.dialog.ClockBottomSheetDialog
 import ru.weatherclock.adg.app.presentation.components.weather.rememberWeatherIconRequestData
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getDescription
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getName
@@ -69,6 +69,7 @@ fun LazyItemScope.WeatherIconSetSettingsItem(item: WeatherIconSetSetting) {
             onDismiss = { showDialog = false }
         )
     }
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -130,9 +131,9 @@ private fun WeatherIconSetDialog(
         listOf("1", "12", "15")
     }
 
-    ClockAlertDialog(
+    ClockBottomSheetDialog(
         title = SettingKeyTitle(),
-        dismissRequest = onDismiss
+        onDismiss = onDismiss
     ) {
         LazyColumn {
             items(items = WeatherIconSet.entries.toList()) { set ->
@@ -141,7 +142,7 @@ private fun WeatherIconSetDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onSelected(set) }
-                        .padding(vertical = 8.dp)
+                        .padding(vertical = 12.dp, horizontal = 8.dp)
                 ) {
                     RadioButton(
                         selected = set == currentSet,
@@ -157,7 +158,7 @@ private fun WeatherIconSetDialog(
                             ),
                             contentDescription = null,
                             modifier = Modifier
-                                .size(28.dp)
+                                .size(36.dp)
                                 .padding(horizontal = 2.dp)
                         )
                     }

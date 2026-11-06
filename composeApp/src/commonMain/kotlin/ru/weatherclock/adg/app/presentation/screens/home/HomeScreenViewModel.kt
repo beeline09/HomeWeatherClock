@@ -11,6 +11,7 @@ import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.atTime
 import kotlinx.datetime.plus
+import ru.weatherclock.adg.app.data.dto.WeatherConfig
 import ru.weatherclock.adg.app.data.util.atEndOfDay
 import ru.weatherclock.adg.app.data.util.atStartOfDay
 import ru.weatherclock.adg.app.data.util.isEqualsByDayOfMonth
@@ -112,7 +113,14 @@ class HomeScreenViewModel(
 
     fun onLaunch() {
         allSettingsJob?.cancel()
+        var lastWeatherConfig: WeatherConfig? = null
         allSettingsJob = settingsUseCase.getAllSettingsFlow().onEach {
+            //Изменение погодных настроек в течение сессии (ключ/город/сервер)
+            //→ немедленное обновление прогноза, не дожидаясь часового тика
+            if (lastWeatherConfig != null && lastWeatherConfig != it.weatherConfig) {
+                refreshWeatherData(LocalDateTime.now())
+            }
+            lastWeatherConfig = it.weatherConfig
             setState {
                 copy(
                     appSettings = it

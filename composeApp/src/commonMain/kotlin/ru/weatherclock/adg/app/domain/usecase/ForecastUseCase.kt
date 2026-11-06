@@ -2,7 +2,9 @@ package ru.weatherclock.adg.app.domain.usecase
 
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import ru.weatherclock.adg.app.data.dto.WeatherConfig
 import ru.weatherclock.adg.app.data.dto.WeatherServer
+import ru.weatherclock.adg.app.data.error.NoWeatherApiKeyException
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.AccuweatherForecastDto
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.DetailDto
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbModel
@@ -50,6 +52,7 @@ class ForecastUseCase(
 
     private var lastUpdateForecast: LocalDateTime? = null
     private var lastUpdateServer: WeatherServer? = null
+    private var lastUpdateConfig: WeatherConfig? = null
 
     private suspend fun getAccuweatherForecastRemote(): AccuweatherForecastDto {
         return accuweatherRepository.getWeatherForecast(
@@ -121,13 +124,24 @@ class ForecastUseCase(
         //отфильтрует протухшие данные по текущему периоду — без лишнего запроса)
         val us3 = lastUpdateServer != null &&
                 lastUpdateServer != weatherSettingsRepository.getWeatherServer()
-        val result = if (us0 || us1 || us2 || us3) {
-            lastUpdateForecast = currentTime
+        //Изменились погодные настройки (ключи/город/единицы/язык) в течение сессии
+        val currentConfig = weatherSettingsRepository.getConfig()
+        val us4 = lastUpdateConfig != null && lastUpdateConfig != currentConfig
+        val result = if (us0 || us1 || us2 || us3 || us4) {
             return try {
                 getForecastRemote().also {
                     lastUpdateForecast = currentTime
+                    lastUpdateServer = weatherSettingsRepository.getWeatherServer()
+                    lastUpdateConfig = currentConfig
                 }
+            } catch (e: NoWeatherApiKeyException) {
+                //Ключ не введён: не запоминаем время попытки, чтобы следующий
+                //запрос (например, сразу после ввода ключа в настройках) не ждал час
+                throw e
             } catch (e: Exception) {
+                //Другая ошибка (сеть/лимиты): фолбэк на БД, ретрай разрешён сразу
+                lastUpdateForecast = null
+                lastUpdateConfig = null
                 e.printStackTrace()
                 return forecastInternal
             }
