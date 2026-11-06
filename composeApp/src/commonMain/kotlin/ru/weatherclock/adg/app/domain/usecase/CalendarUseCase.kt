@@ -22,13 +22,13 @@ class CalendarUseCase(
 
     private suspend fun getProdCalendarForCurrentYearDb(year: Int): List<ProdCalendarDay> {
         return prodCalendarDbRepository.getByRegionAndYear(
-            region = FEDERAL_REGION,
+            region = CALENDAR_DB_REGION,
             year = year
         ).map { it.asDomainModel() }
     }
 
     suspend fun insert(days: List<ProdCalendarDay>) {
-        prodCalendarDbRepository.insert(days = days.map { it.asDbModel(region = FEDERAL_REGION) })
+        prodCalendarDbRepository.insert(days = days.map { it.asDbModel(region = CALENDAR_DB_REGION) })
     }
 
     private suspend fun getProductionCalendarRemote(year: Int): List<ProdCalendarDay> {
@@ -45,15 +45,28 @@ class CalendarUseCase(
         val daysFromDb = getProdCalendarForCurrentYearDb(year = year)
         return daysFromDb.ifEmpty {
             println("DatabaseProdCalendar is empty or old. Request from network...")
-            getProductionCalendarRemote(year = year).also { days ->
-                println("NetworkProdCalendar downloaded. Days count: ${days.size}. Saving into DB...")
-                insert(days = days)
+            //Ошибки сети/разбора календаря не критичны — тихий фолбэк на кеш
+            //(без гигантских снекбаров от xmlutil-исключений)
+            try {
+                getProductionCalendarRemote(year = year).also { days ->
+                    println("NetworkProdCalendar downloaded. Days count: ${days.size}. Saving into DB...")
+                    insert(days = days)
+                }
+            } catch (e: Exception) {
+                println("Calendar download failed: ${e.message}")
+                e.printStackTrace()
+                daysFromDb
             }
         }
     }
 
     companion object {
-        // 0 — «Вся Россия» (федеральный календарь)
-        const val FEDERAL_REGION = 0
+        /**
+         * Маркер источника данных в колонке region БД.
+         * 0 — старые данные из json без названий праздников,
+         * 1 — данные calendar.xml с названиями (Источник v2).
+         * Смена значения инвалидирует кеш: старые строки перестают читаться.
+         */
+        const val CALENDAR_DB_REGION = 1
     }
 }

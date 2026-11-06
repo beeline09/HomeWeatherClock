@@ -4,7 +4,8 @@ import ru.weatherclock.adg.app.data.remote.query.ApiQuery
 
 /**
  * Федеральный производственный календарь РФ (xmlcalendar.ru, бесплатно, без ключа).
- * Пример: https://xmlcalendar.ru/data/ru/2026/calendar.json
+ * Запрашивается именно calendar.xml (не .json): только XML-формат несёт
+ * легенду с названиями праздников, которые показываются при тапе на день.
  */
 class XmlCalendarQuery(
     private val year: Int
@@ -13,6 +14,6 @@ class XmlCalendarQuery(
     override fun buildUrl(): String = buildString {
         append("https://xmlcalendar.ru/data/ru/")
         append(year)
-        append("/calendar.json")
+        append("/calendar.xml")
     }
 }
