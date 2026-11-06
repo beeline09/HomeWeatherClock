@@ -105,8 +105,8 @@ def icons_for_set(set_name: str) -> dict:
     raise ValueError(set_name)
 
 
-def fetch_batch(prefix: str, names: list) -> dict:
-    """Батч-запрос. Возвращает {запрошенное_имя: {body, width, height}},
+def fetch_batch(prefix: str, names: list) -> tuple:
+    """Батч-запрос. Возвращает ({имя: {body,width,height}}, дефолтные_размеры_набора),
     разрешая алиасы (например, twemoji '2600' -> 'sun')."""
     url = f"{BASE}/{prefix}.json?icons={','.join(names)}"
     req = urllib.request.Request(url, headers={
@@ -117,6 +117,7 @@ def fetch_batch(prefix: str, names: list) -> dict:
         data = json.load(r)
     icons = data.get("icons", {})
     aliases = data.get("aliases", {})
+    set_defaults = (data.get("width", 16), data.get("height", 16))
 
     def resolve(name: str, depth: int = 0):
         if name in icons:
@@ -126,13 +127,16 @@ def fetch_batch(prefix: str, names: list) -> dict:
             return resolve(parent, depth + 1)
         return None
 
-    return {n: resolve(n) for n in names}
+    return {n: resolve(n) for n in names}, set_defaults
 
 
-def build_svg(icon: dict) -> str:
-    w = icon.get("width", 16)
-    h = icon.get("height", 16)
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}">'
+def build_svg(icon: dict, set_defaults: tuple) -> str:
+    """SVG с явными width/height (для декодера) и корректным viewBox
+    из размеров иконки (или дефолтов набора)."""
+    w = icon.get("width", set_defaults[0])
+    h = icon.get("height", set_defaults[1])
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" '
+            f'width="256" height="256" viewBox="0 0 {w} {h}">'
             f'{icon["body"]}</svg>')
 
 
@@ -144,7 +148,7 @@ def main() -> int:
         sem_to_name = icons_for_set(set_name)
         names = sorted(set(sem_to_name.values()))
         try:
-            icons = fetch_batch(prefix, names)
+            icons, set_defaults = fetch_batch(prefix, names)
         except Exception as e:
             print(f"FAIL batch {prefix}: {e}")
             fails += len(OWM) + len(ACCU)
@@ -163,7 +167,7 @@ def main() -> int:
                 if dry:
                     ok += 1
                     continue
-                svg = build_svg(icon)
+                svg = build_svg(icon, set_defaults)
                 if len(svg) < 100:
                     print(f"FAIL {set_name}/{tag}-{code}: подозрительно короткий svg")
                     fails += 1

@@ -35,6 +35,8 @@ import ru.weatherclock.adg.app.domain.model.forecast.WeatherIconResolver
 /**
  * Данные для coil-запроса иконки погоды: байты bundled-SVG из ресурсов
  * приложения либо URL сети (незнакомый код / набор Official / CDN).
+ * Пока читается локальный ресурс, возвращает null (иконка в состоянии Loading);
+ * сеть используется только если bundled-чтение реально не удалось.
  */
 @Composable
 fun rememberWeatherIconRequestData(
@@ -42,22 +44,21 @@ fun rememberWeatherIconRequestData(
     server: WeatherServer,
     iconSet: WeatherIconSet
 ): Any? {
-    val context = LocalPlatformContext.current
     val bundled = remember(code, server, iconSet) {
         WeatherIconResolver.bundled(set = iconSet, server = server, code = code)
     }
     val network = remember(code, server, iconSet) {
         WeatherIconResolver.network(set = iconSet, server = server, code = code)
     }
-    val bytes by produceState<ByteArray?>(initialValue = null, key1 = bundled) {
-        value = (bundled as? WeatherIconResolver.Source.BundledSvg)
-            ?.let { runCatching { Res.readBytes(it.resourcePath) }.getOrNull() }
-    }
-    return remember(context, bytes, network) {
-        bytes
-            ?: (network as? WeatherIconResolver.Source.Network)?.url
-            ?: ImageRequest.Builder(context).build()
-    }
+    return produceState<Any?>(initialValue = null, bundled, network) {
+        value = when (val b = bundled) {
+            is WeatherIconResolver.Source.BundledSvg ->
+                runCatching { Res.readBytes(b.resourcePath) }.getOrNull()
+                    ?: (network as? WeatherIconResolver.Source.Network)?.url
+
+            null -> (network as? WeatherIconResolver.Source.Network)?.url
+        }
+    }.value
 }
 
 @Composable
@@ -87,6 +88,18 @@ fun ColumnScope.WeatherIcon(
             server = weatherConfigData.server,
             iconSet = weatherConfigData.iconSet
         )
+        // Локальный ресурс ещё читается: показываем загрузку, не создавая
+        // coil-запрос с null (NullRequestDataException)
+        if (data == null) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .aspectRatio(ratio = 1f)
+                    .padding(5.dp)
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+            )
+            return
+        }
         val model = remember(context, data) {
             ImageRequest.Builder(context)
                 .data(data = data)
@@ -130,20 +143,20 @@ fun ColumnScope.WeatherIcon(
             )
 
             is AsyncImagePainter.State.Success -> Image(
-                painter = painter,
-                contentDescription = "${detail}_WeatherIcon_${detail.icon}",
-                modifier = Modifier.run {
-                    val r = painter.intrinsicSize.height / painter.intrinsicSize.width
-                    if (r > 0) {
-                        aspectRatio(r)
-                    } else this
-                }
-                    .padding(5.dp)
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-                // Без colorFilter.tint: иконки наборов изначально цветные
-                contentScale = ContentScale.Fit
-            )
+                    painter = painter,
+                    contentDescription = "${detail}_WeatherIcon_${detail.icon}",
+                    modifier = Modifier.run {
+                        val r = painter.intrinsicSize.height / painter.intrinsicSize.width
+                        if (r > 0) {
+                            aspectRatio(r)
+                        } else this
+                    }
+                        .padding(5.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    // Без colorFilter.tint: иконки наборов изначально цветные
+                    contentScale = ContentScale.Fit
+                )
 
             AsyncImagePainter.State.Empty -> {}
         }

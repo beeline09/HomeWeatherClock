@@ -70,6 +70,7 @@ class ForecastUseCase(
     }
 
     private suspend fun getForecastRemote(): Forecast {
+        println("ForecastUseCase: загрузка прогноза из СЕТИ (${weatherSettingsRepository.getWeatherServer()})")
         return when (val server = weatherSettingsRepository.getConfig().server) {
             WeatherServer.Accuweather -> {
                 getAccuweatherForecastRemote().run {
@@ -116,7 +117,10 @@ class ForecastUseCase(
             lastUpdateForecast != null && forecastInternal?.dailyForecast.isNullOrEmpty() && lastUpdateForecast?.isEqualsByHour(
                 currentTime
             ) != true
-        val us3 = lastUpdateServer != weatherSettingsRepository.getWeatherServer()
+        //Сервер сменился в течение текущей сессии (при новом запуске БД сама
+        //отфильтрует протухшие данные по текущему периоду — без лишнего запроса)
+        val us3 = lastUpdateServer != null &&
+                lastUpdateServer != weatherSettingsRepository.getWeatherServer()
         val result = if (us0 || us1 || us2 || us3) {
             lastUpdateForecast = currentTime
             return try {
