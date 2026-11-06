@@ -10,12 +10,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -99,10 +97,9 @@ fun ColumnScope.WeatherIcon(
                     .padding(5.dp)
                     .fillMaxWidth()
                     .fillMaxHeight(),
-                contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(
-                    color = MaterialTheme.colorScheme.secondary
-                )
+                // Без colorFilter.tint: иконки OpenWeatherMap изначально
+                // цветные (жёлтое солнце, серые облака, синий дождь)
+                contentScale = ContentScale.Fit
             )
 
             AsyncImagePainter.State.Empty -> {}

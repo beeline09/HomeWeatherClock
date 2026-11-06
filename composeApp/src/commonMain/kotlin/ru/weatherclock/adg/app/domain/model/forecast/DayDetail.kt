@@ -12,7 +12,8 @@ data class DayDetail(
 fun DayDetail.iconUrl(weatherConfig: WeatherConfig): String =
     when (weatherConfig.server) {
         WeatherServer.Accuweather -> "https://vortex.accuweather.com/adc2010/images/slate/icons/${icon}.svg"
-        WeatherServer.OpenWeatherMap -> "https://openweathermap.org/img/wn/${icon}@2x.png"
+        // @4x — цветные PNG 200x200 (резче на больших экранах, чем @2x 100x100)
+        WeatherServer.OpenWeatherMap -> "https://openweathermap.org/img/wn/${icon}@4x.png"
     }
 
 /*fun DayDetail.accuweatherPngIconUrl(): String =
