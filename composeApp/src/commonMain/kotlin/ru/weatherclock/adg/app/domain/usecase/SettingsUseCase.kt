@@ -28,25 +28,36 @@ class SettingsUseCase(
     private val openWeatherMapLocationRepoImpl: OpenWeatherMapLocationRepoImpl,
 ) {
 
-    private val autocompleteSearchResults: MutableSharedFlow<List<CityConfig>> = MutableSharedFlow()
+    private val _searchState = MutableStateFlow<CitySearchState>(CitySearchState.Idle)
+    val searchState: StateFlow<CitySearchState> = _searchState
     val text = MutableStateFlow("")
 
     init {
+        //Дебаунс 2с: спиннер показывается сразу при вводе (см. onSearchTextChanged),
+        //реальный запрос уходит с текущим значением текстового поля после паузы
         text.debounce(2000).distinctUntilChanged().mapLatest {
             autocompleteSearch(it)
         }.launchIn(CoroutineScope(ioDispatcher))
     }
 
+    /**
+     * Автопоиск населённого пункта. Ошибки запроса (сеть/лимиты/ключ) не
+     * должны убивать collector-скоуп — они превращаются в CitySearchState.Error.
+     */
     private suspend fun autocompleteSearch(query: String) {
         if (query.length < 3) {
-            autocompleteSearchResults.emit(emptyList())
-        } else {
+            _searchState.value = CitySearchState.Idle
+            return
+        }
+        _searchState.value = try {
             val list = getLocationRepository().autocompleteSearch(
                 apiKeys = weatherRepo.getApiKeys(),
                 language = weatherRepo.getWeatherLanguage().code,
                 query = query
             )
-            autocompleteSearchResults.emit(list)
+            CitySearchState.Results(list)
+        } catch (e: Exception) {
+            CitySearchState.Error(e)
         }
     }
 
@@ -219,8 +230,14 @@ class SettingsUseCase(
                         currentValue = weatherSettings.city,
                         onSearchTextChanged = {
                             text.value = it
+                            //Спиннер сразу при вводе (>=3 символов), запрос — после дебаунса
+                            _searchState.value = if (it.length >= 3) {
+                                CitySearchState.Loading
+                            } else {
+                                CitySearchState.Idle
+                            }
                         },
-                        searchResults = autocompleteSearchResults,
+                        searchResults = searchState,
                         currentServer = weatherSettings.server
                     )
                 )

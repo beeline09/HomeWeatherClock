@@ -19,17 +19,15 @@ import androidx.compose.ui.unit.sp
 import homeweatherclock.composeapp.generated.resources.Res
 import homeweatherclock.composeapp.generated.resources.setting_description_city
 import homeweatherclock.composeapp.generated.resources.setting_description_city_empty
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collectLatest
 import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.data.dto.CityConfig
 import ru.weatherclock.adg.app.data.dto.WeatherServer
 import ru.weatherclock.adg.app.domain.model.settings.AutoCompleteSearchSetting
+import ru.weatherclock.adg.app.domain.model.settings.CitySearchState
 import ru.weatherclock.adg.app.presentation.components.search.LocationsDialog
 import ru.weatherclock.adg.app.presentation.screens.settings.components.utils.getName
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
-@OptIn(FlowPreview::class)
 @Suppress("UnusedReceiverParameter")
 @Composable
 fun LazyItemScope.AutocompleteSearchSettingsItem(item: AutoCompleteSearchSetting) {
@@ -57,15 +55,10 @@ fun LazyItemScope.AutocompleteSearchSettingsItem(item: AutoCompleteSearchSetting
     val alpha = if (item.isEnabled) 1f else ContentAlpha.disabled
     val colorsPalette = LocalCustomColorsPalette.current
     val title = item.settingsKey.getName()
-    var autocompleteItems by remember { mutableStateOf<List<CityConfig>>(emptyList()) }
-    LaunchedEffect(Unit) {
-        item.searchResults.collectLatest {
-            autocompleteItems = it
-        }
-    }
+    val searchState by item.searchResults.collectAsState(CitySearchState.Idle)
 
     if (showRegionsDialog && item.isEnabled) {
-        autocompleteItems.LocationsDialog(
+        searchState.LocationsDialog(
             title = title,
             dismissRequest = {
                 showRegionsDialog = false

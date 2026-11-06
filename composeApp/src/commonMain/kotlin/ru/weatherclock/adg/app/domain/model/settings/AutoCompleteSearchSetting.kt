@@ -10,6 +10,6 @@ data class AutoCompleteSearchSetting(
     override val onChange: (newValue: CityConfig) -> Unit,
     override val isEnabled: Boolean = true,
     val onSearchTextChanged: (String) -> Unit,
-    val searchResults: Flow<List<CityConfig>>,
+    val searchResults: Flow<CitySearchState>,
     val currentServer: WeatherServer
 ) : SettingsItem<CityConfig>

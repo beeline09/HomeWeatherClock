@@ -169,4 +169,6 @@
     <string name="day_description_day_off">Day off</string>
 
     <string name="weather_no_api_key_exception">To display the weather, enter API keys in settings</string>
+    <string name="setting_autocomplete_city_search_error">City search failed. Check connection and API keys</string>
+    <string name="setting_autocomplete_city_not_found">City not found</string>
 </resources>

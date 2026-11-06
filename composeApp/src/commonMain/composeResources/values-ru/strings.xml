@@ -170,4 +170,6 @@
     <string name="day_description_day_off">Нерабочий день</string>
 
     <string name="weather_no_api_key_exception">Для отображения погоды введите API-ключи в настройках</string>
+    <string name="setting_autocomplete_city_search_error">Не удалось выполнить поиск. Проверьте подключение и API-ключи</string>
+    <string name="setting_autocomplete_city_not_found">Населенный пункт не найден</string>
 </resources>
