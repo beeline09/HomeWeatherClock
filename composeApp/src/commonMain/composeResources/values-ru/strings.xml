@@ -161,4 +161,6 @@
 
     <string name="day_description_standard">Обычный день</string>
     <string name="day_description_weekend">Выходной день</string>
+
+    <string name="weather_no_api_key_exception">Для отображения погоды введите API-ключи в настройках</string>
 </resources>

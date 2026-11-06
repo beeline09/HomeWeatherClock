@@ -161,4 +161,6 @@
 
     <string name="day_description_standard">Ordinary day</string>
     <string name="day_description_weekend">Weekend day</string>
+
+    <string name="weather_no_api_key_exception">To display the weather, enter API keys in settings</string>
 </resources>

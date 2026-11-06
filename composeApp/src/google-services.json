@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "26380004784",
+    "project_id": "home-weather-clock",
+    "storage_bucket": "home-weather-clock.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:26380004784:android:a41890385d77e59cf43a75",
+        "android_client_info": {
+          "package_name": "ru.weatherclock.adg"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA37q0CIb1Mor4R54ElEetKDU6xMzxAukM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

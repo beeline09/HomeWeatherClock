@@ -1,3 +1,5 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.time.LocalDateTime
@@ -10,16 +12,17 @@ plugins {
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.sqlDelight)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
-apply(from = "${rootProject.projectDir}/composeApp/constants.gradle.kts")
-
-private val appName = extra["appName"].toString()
-private val appPackageName = extra["appPackageName"].toString()
-private val appVersionName = extra["appVersionName"].toString()
-private val appVersionCode = extra["appVersionCode"] as Int
+private val appName = libs.versions.app.name.get()
+private val appPackageName = libs.versions.app.packageName.get()
+private val appVersionName = libs.versions.app.version.name.get()
+private val appVersionCode = libs.versions.app.version.code.get().toInt()
 
 kotlin {
+
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_19)
@@ -69,6 +72,7 @@ kotlin {
                 implementation(libs.kstore.file)
                 implementation(libs.stately.common)
                 implementation(libs.androidx.annotation)
+//                implementation(libs.androidx.lifecycle.runtime)
                 implementation(kotlin("stdlib-common"))
                 implementation(kotlin("reflect"))
                 implementation(libs.bundles.coil)
@@ -83,8 +87,9 @@ kotlin {
                 implementation(libs.compose.uitooling)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.ktor.client.okhttp)
-                implementation(libs.ktor.android)
-                implementation(libs.koin.compose)
+//                implementation(libs.ktor.android)
+//                implementation(libs.koin.compose)
+//                implementation(libs.koin.android)
                 implementation(libs.sqlDelight.driver.android)
                 implementation(libs.androidx.media3.exoplayer)
                 implementation(libs.kstore.file)
@@ -182,6 +187,12 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            isMinifyEnabled = false
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
+        }
         getByName("release") {
             isMinifyEnabled = false
             proguardFiles(
@@ -199,9 +210,24 @@ android {
         }
     }
 
+    applicationVariants.all {
+        val variant = this
+        variant.outputs
+            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+            .forEach { output ->
+                val outputFileName = "HomeWeatherClock${
+                    variant.flavorName.capitalized()
+                }${variant.buildType.name.capitalized()}_${appVersionName}(${appVersionCode}).apk"
+                output.outputFileName = outputFileName
+            }
+    }
+
     dependencies {
         //Нужно для работы kotlinx.datetime на версии Android ниже 7
         coreLibraryDesugaring(libs.desugar.jdk.libs)
+        implementation(platform(libs.firebase.bom))
+        implementation(libs.firebase.analytics)
+        implementation(libs.firebase.crashlytics)
     }
 }
 
@@ -224,7 +250,7 @@ compose.desktop {
             )
             appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
 
-            packageName = appName
+            packageName = appPackageName
             packageVersion = appVersionName
 
             version = appVersionCode
