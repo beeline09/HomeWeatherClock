@@ -13,6 +13,7 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.darwin.Darwin
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
 import okio.Path.Companion.toPath
 import platform.Foundation.NSApplicationSupportDirectory
 import platform.Foundation.NSFileManager
@@ -44,7 +45,14 @@ internal actual object PlatformHelper {
         )
         storeOf(
             file = "${databaseDirectory}${fsHelper.separatorChar}weather_settings.json".toPath(),
-            default = AppSettings()
+            default = AppSettings(),
+            // Как на android/jvm: строгое чтение старых файлов настроек с
+            // удалёнными полями падало бы SerializationException
+            json = Json {
+                ignoreUnknownKeys = true
+                encodeDefaults = true
+                prettyPrint = true
+            }
         )
     }
 
