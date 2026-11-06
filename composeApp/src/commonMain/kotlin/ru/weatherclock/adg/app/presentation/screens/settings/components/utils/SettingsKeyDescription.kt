@@ -21,5 +21,6 @@ fun SettingKey.getDescription(): String = when (this) {
     SettingKey.HideElementsByTime -> stringResource(Res.string.setting_description_hide_elements_by_time)
     SettingKey.HoursWithLeadingZero -> stringResource(Res.string.setting_description_hours_with_leading_zero)
     SettingKey.WeatherServers -> stringResource(Res.string.setting_description_weather_server)
+    SettingKey.WeatherIconSet -> stringResource(Res.string.setting_description_weather_icon_set)
     else -> ""
 }

@@ -112,4 +112,14 @@ class WeatherSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>
         }
     }
 
+    override suspend fun getWeatherIconSet(): WeatherIconSet {
+        return getConfig().iconSet
+    }
+
+    override suspend fun setWeatherIconSet(iconSet: WeatherIconSet) {
+        saveConfig {
+            copy(iconSet = iconSet)
+        }
+    }
+
 }

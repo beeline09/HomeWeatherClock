@@ -13,6 +13,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
@@ -23,9 +25,40 @@ import coil3.compose.rememberAsyncImagePainter
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import homeweatherclock.composeapp.generated.resources.Res
 import ru.weatherclock.adg.app.data.dto.WeatherConfig
+import ru.weatherclock.adg.app.data.dto.WeatherIconSet
+import ru.weatherclock.adg.app.data.dto.WeatherServer
 import ru.weatherclock.adg.app.domain.model.forecast.DayDetail
-import ru.weatherclock.adg.app.domain.model.forecast.iconUrl
+import ru.weatherclock.adg.app.domain.model.forecast.WeatherIconResolver
+
+/**
+ * Данные для coil-запроса иконки погоды: байты bundled-SVG из ресурсов
+ * приложения либо URL сети (незнакомый код / набор Official / CDN).
+ */
+@Composable
+fun rememberWeatherIconRequestData(
+    code: String,
+    server: WeatherServer,
+    iconSet: WeatherIconSet
+): Any? {
+    val context = LocalPlatformContext.current
+    val bundled = remember(code, server, iconSet) {
+        WeatherIconResolver.bundled(set = iconSet, server = server, code = code)
+    }
+    val network = remember(code, server, iconSet) {
+        WeatherIconResolver.network(set = iconSet, server = server, code = code)
+    }
+    val bytes by produceState<ByteArray?>(initialValue = null, key1 = bundled) {
+        value = (bundled as? WeatherIconResolver.Source.BundledSvg)
+            ?.let { runCatching { Res.readBytes(it.resourcePath) }.getOrNull() }
+    }
+    return remember(context, bytes, network) {
+        bytes
+            ?: (network as? WeatherIconResolver.Source.Network)?.url
+            ?: ImageRequest.Builder(context).build()
+    }
+}
 
 @Composable
 fun ColumnScope.WeatherIcon(
@@ -48,16 +81,27 @@ fun ColumnScope.WeatherIcon(
                 .fillMaxHeight(),
         )
     } else {
-        val model = ImageRequest.Builder(LocalPlatformContext.current)
-            .data(data = detail.iconUrl(weatherConfig = weatherConfigData))
-            .crossfade(true)
-            .memoryCachePolicy(CachePolicy.ENABLED)
-            .build()
+        val context = LocalPlatformContext.current
+        val data = rememberWeatherIconRequestData(
+            code = detail.icon,
+            server = weatherConfigData.server,
+            iconSet = weatherConfigData.iconSet
+        )
+        val model = remember(context, data) {
+            ImageRequest.Builder(context)
+                .data(data = data)
+                .crossfade(true)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .build()
+        }
         val painter = rememberAsyncImagePainter(model = model)
         val state by painter.state.collectAsState()
         when (val currentState = state) {
             is AsyncImagePainter.State.Error -> {
-                println("WeatherIcon load failed: ${detail.iconUrl(weatherConfig = weatherConfigData)}")
+                println(
+                    "WeatherIcon load failed: code=${detail.icon}, " +
+                        "set=${weatherConfigData.iconSet}, server=${weatherConfigData.server}"
+                )
                 currentState.result.throwable.printStackTrace()
                 val p1 = rememberVectorPainter(image = Icons.Filled.Error)
                 Icon(
@@ -97,8 +141,7 @@ fun ColumnScope.WeatherIcon(
                     .padding(5.dp)
                     .fillMaxWidth()
                     .fillMaxHeight(),
-                // Без colorFilter.tint: иконки OpenWeatherMap изначально
-                // цветные (жёлтое солнце, серые облака, синий дождь)
+                // Без colorFilter.tint: иконки наборов изначально цветные
                 contentScale = ContentScale.Fit
             )
 

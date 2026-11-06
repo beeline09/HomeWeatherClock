@@ -38,6 +38,7 @@ fun SettingKey.getName(): String = when (this) {
     SettingKey.HideGridCalendarByTime -> stringResource(Res.string.setting_title_hide_grid_calendar_by_time)
     SettingKey.HoursWithLeadingZero -> stringResource(Res.string.setting_title_hours_with_leading_zero)
     SettingKey.WeatherServers -> stringResource(Res.string.setting_title_weather_server)
+    SettingKey.WeatherIconSet -> stringResource(Res.string.setting_title_weather_icon_set)
     SettingKey.HeaderSystem -> stringResource(Res.string.setting_title_system)
     SettingKey.AutoStart -> stringResource(Res.string.setting_description_system)
 }

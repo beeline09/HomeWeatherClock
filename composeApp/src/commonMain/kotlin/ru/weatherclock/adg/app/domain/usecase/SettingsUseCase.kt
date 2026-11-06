@@ -166,6 +166,17 @@ class SettingsUseCase(
                             }
                         })
                 )
+                add(
+                    WeatherIconSetSetting(settingsKey = SettingKey.WeatherIconSet,
+                        currentValue = weatherSettings.iconSet,
+                        isEnabled = weatherSettings.weatherEnabled,
+                        currentServer = weatherSettings.server,
+                        onChange = {
+                            safeUpdate {
+                                weatherRepo.setWeatherIconSet(it)
+                            }
+                        })
+                )
                 val settingKeyServer = if (weatherSettings.server == WeatherServer.Accuweather) {
                     SettingKey.WeatherApiKeysAccuweather
                 } else {

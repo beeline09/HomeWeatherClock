@@ -43,6 +43,34 @@ enum class WeatherServer {
     OpenWeatherMap
 }
 
+/**
+ * Набор иконок погоды. Добавлялся с дефолтом — старые сохранённые настройки
+ * читаются без потерь (см. миграцию в WeatherIcons.kt).
+ */
+@Serializable
+enum class WeatherIconSet {
+
+    /** Официальные PNG OpenWeatherMap (сеть; для AccuWeather — CDN мёртв, используется Meteocons) */
+    @SerialName("official")
+    Official,
+
+    /** Meteocons, цветная заливка (bundled SVG, MIT) */
+    @SerialName("meteocons-fill")
+    MeteoconsFill,
+
+    /** Meteocons, цветной контур (bundled SVG, MIT) */
+    @SerialName("meteocons")
+    MeteoconsLine,
+
+    /** Twemoji, эмодзи (bundled SVG, CC-BY 4.0) */
+    @SerialName("twemoji")
+    Twemoji,
+
+    /** Weather Icons, монохром (bundled SVG, SIL OFL 1.1) */
+    @SerialName("wi")
+    WiMono
+}
+
 @Serializable
 data class CityConfig(
     @SerialName("latitude") val latitude: Double = 0.0,
@@ -82,6 +110,8 @@ data class WeatherConfig(
         BuildConfig.WEATHER_API_KEY.takeIf { it.isNotBlank() }?.let(::listOf) ?: emptyList(),
 
     @SerialName("units") val units: WeatherUnits = WeatherUnits.Metric,
+
+    @SerialName("iconSet") val iconSet: WeatherIconSet = WeatherIconSet.MeteoconsFill,
 )
 
 @Serializable
