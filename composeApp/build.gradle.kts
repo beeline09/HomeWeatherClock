@@ -98,7 +98,7 @@ kotlin {
                 implementation(libs.compose.uitooling)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.ktor.client.okhttp)
-//                implementation(libs.ktor.android)
+                implementation(libs.ktor.android)
 //                implementation(libs.koin.compose)
 //                implementation(libs.koin.android)
                 implementation(libs.sqlDelight.driver.android)
@@ -197,6 +197,29 @@ android {
         targetCompatibility = JavaVersion.VERSION_19
     }
 
+    // Подпись release-сборки. Параметры берутся из local.properties (см. local.properties.example):
+    // signing.storeFile / signing.storePassword / signing.keyAlias / signing.keyPassword.
+    // Пока все поля не заполнены — release подписывается debug-ключом (только для локальной проверки).
+    val releaseSigningStoreFile = localProperties.getProperty("signing.storeFile").orEmpty().trim()
+    val releaseSigningStorePassword = localProperties.getProperty("signing.storePassword").orEmpty()
+    val releaseSigningKeyAlias = localProperties.getProperty("signing.keyAlias").orEmpty()
+    val releaseSigningKeyPassword = localProperties.getProperty("signing.keyPassword").orEmpty()
+    val hasReleaseSigning = releaseSigningStoreFile.isNotEmpty() &&
+            releaseSigningStorePassword.isNotEmpty() &&
+            releaseSigningKeyAlias.isNotEmpty() &&
+            releaseSigningKeyPassword.isNotEmpty()
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = rootProject.file(releaseSigningStoreFile)
+                storePassword = releaseSigningStorePassword
+                keyAlias = releaseSigningKeyAlias
+                keyPassword = releaseSigningKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         getByName("debug") {
             isMinifyEnabled = false
@@ -210,7 +233,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseSigning) signingConfigs.getByName("release")
+            else signingConfigs.getByName("debug")
         }
     }
 
