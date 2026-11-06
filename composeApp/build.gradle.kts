@@ -43,7 +43,9 @@ kotlin {
     jvm()
 
     listOf(
-        iosX64(), iosArm64(), iosSimulatorArm64()
+        // iosX64 убран: экосистема (Compose 1.12+, coil 3.6+, androidx) больше
+        // не публикует варианты под Intel-симулятор iOS
+        iosArm64(), iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
             baseName = "ComposeApp"
@@ -125,12 +127,10 @@ kotlin {
             }
         }
 
-        val iosX64Main by getting
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
         val iosMain by creating {
             dependsOn(commonMain)
-            iosX64Main.dependsOn(this)
             iosArm64Main.dependsOn(this)
             iosSimulatorArm64Main.dependsOn(this)
             dependencies {
@@ -161,10 +161,14 @@ kotlin {
 
 android {
     namespace = appPackageName
-    compileSdk = 36
+    // compileSdk 37 обязателен для coil 3.6+; targetSdk оставлен 36
+    // (смена targetSdk — отдельное осознанное изменение поведения рантайма)
+    compileSdk = 37
 
     defaultConfig {
-        minSdk = 21
+        // minSdk 24 (Android 7): минимум для firebase-analytics 24 и coil 3.6+;
+        // Android 5-6 больше не поддерживаются
+        minSdk = 24
         targetSdk = 36
 
         applicationId = appPackageName
