@@ -70,6 +70,18 @@ class XmlCalendarParseTest {
     }
 
     @Test
+    fun `shortened day note names the next holiday`() {
+        // 30 апреля — сокращённый перед Днём России? Нет: следующий праздник
+        // в фикстуре после 30.04 — 12 июня (День России)
+        val d = day(4, 30)
+        assertTrue(
+            d.note.contains("День России"),
+            "note=${d.note}"
+        )
+        assertTrue(d.note.contains("Сокращённый"), "note=${d.note}")
+    }
+
+    @Test
     fun `regular tuesday is working day`() {
         // 13 января 2026 — вторник, в списке особых дней отсутствует
         assertEquals(DayOfWeek.TUESDAY, LocalDate(2026, 1, 13).dayOfWeek)

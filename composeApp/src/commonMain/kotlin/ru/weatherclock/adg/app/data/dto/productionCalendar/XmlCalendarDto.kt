@@ -103,6 +103,19 @@ fun XmlCalendarDto.asDomainModel(): List<ProdCalendarDay> {
     val special = days.day.mapNotNull { dayDto ->
         dayDto.toLocalDate(year)?.let { it to dayDto }
     }.toMap()
+    //Названия праздников (t=1, h), отсортированные по дате — для подписи
+    //сокращённых дней («Сокращённый … рабочий день перед праздником «X»»)
+    val holidayDates = days.day
+        .filter { it.t == 1 && it.h != null }
+        .mapNotNull { it.toLocalDate(year) }
+        .sorted()
+
+    fun nextHolidayTitle(after: LocalDate): String? {
+        val nextDate = holidayDates.firstOrNull { it > after } ?: return null
+        val nextDay = days.day.firstOrNull { it.toLocalDate(year) == nextDate }
+        return nextDay?.h?.let { titles[it] }
+    }
+
     return (1..12).flatMap { month ->
         val lastDay = daysInMonth(year, month)
         (1..lastDay).map { day ->
@@ -118,14 +131,25 @@ fun XmlCalendarDto.asDomainModel(): List<ProdCalendarDay> {
 
                 else -> DayType.AdditionalDayOff(typeText = "")
             }
-            val note = dayDto?.f
-                ?.let {
-                    val parts = it.split(".")
-                    val dd = parts.getOrNull(1)?.padStart(2, '0') ?: it
+            val note = when {
+                dayDto?.f != null -> {
+                    val parts = dayDto.f.split(".")
+                    val dd = parts.getOrNull(1)?.padStart(2, '0') ?: dayDto.f
                     val mm = parts.getOrNull(0)?.padStart(2, '0') ?: ""
                     "перенесён с $dd.$mm"
                 }
-                ?: ""
+
+                type is DayType.PreHoliday -> {
+                    val title = nextHolidayTitle(date)
+                    if (title != null) {
+                        "Сокращённый на 1 час рабочий день перед праздником «$title»"
+                    } else {
+                        "Сокращённый на 1 час рабочий день"
+                    }
+                }
+
+                else -> ""
+            }
             ProdCalendarDay(
                 date = date,
                 type = type,
