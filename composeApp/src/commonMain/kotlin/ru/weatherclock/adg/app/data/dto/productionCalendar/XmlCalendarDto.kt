@@ -132,21 +132,10 @@ fun XmlCalendarDto.asDomainModel(): List<ProdCalendarDay> {
                 else -> DayType.AdditionalDayOff(typeText = "")
             }
             val note = when {
-                dayDto?.f != null -> {
-                    val parts = dayDto.f.split(".")
-                    val dd = parts.getOrNull(1)?.padStart(2, '0') ?: dayDto.f
-                    val mm = parts.getOrNull(0)?.padStart(2, '0') ?: ""
-                    "перенесён с $dd.$mm"
-                }
-
-                type is DayType.PreHoliday -> {
-                    val title = nextHolidayTitle(date)
-                    if (title != null) {
-                        "Сокращённый на 1 час рабочий день перед праздником «$title»"
-                    } else {
-                        "Сокращённый на 1 час рабочий день"
-                    }
-                }
+                // Сырые данные (без локализации): дата переноса «ММ.ДД»
+                dayDto?.f != null -> dayDto.f
+                // Сырые данные: название следующего праздника (для шаблона в UI)
+                type is DayType.PreHoliday -> nextHolidayTitle(date).orEmpty()
 
                 else -> ""
             }

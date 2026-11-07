@@ -71,8 +71,3 @@ val DayType.typeText: String?
         else -> null
     }
 
-fun ProdCalendarDay?.stringForCalendar(): String? {
-    return if (!this?.note.isNullOrBlank()) {
-        this.note
-    } else this?.type?.typeText
-}

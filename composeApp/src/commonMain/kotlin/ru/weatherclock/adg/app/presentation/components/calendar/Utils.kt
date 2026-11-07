@@ -10,6 +10,8 @@ import homeweatherclock.composeapp.generated.resources.day_description_holiday
 import homeweatherclock.composeapp.generated.resources.day_description_preholiday
 import homeweatherclock.composeapp.generated.resources.day_description_standard
 import homeweatherclock.composeapp.generated.resources.day_description_weekend
+import homeweatherclock.composeapp.generated.resources.prod_calendar_preholiday_before
+import homeweatherclock.composeapp.generated.resources.prod_calendar_transferred_from
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -18,7 +20,6 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.domain.model.calendar.DayType
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
-import ru.weatherclock.adg.app.domain.model.calendar.stringForCalendar
 import ru.weatherclock.adg.app.domain.model.calendar.typeText
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.text.toMonthName
@@ -75,45 +76,51 @@ fun LocalDate.isWeekend(): Boolean {
 @Composable
 fun ProdCalendarDay?.stringForToast(
     selectedDate: LocalDate? = null,
-    isSimple: Boolean = false
+    @Suppress("UNUSED_PARAMETER") isSimple: Boolean = false
 ): String {
     val prodCalendarDay = this
-    return buildString {
-        val typeText = prodCalendarDay?.type?.typeText
-        if (prodCalendarDay != null) {
-            if (!typeText.isNullOrBlank() && !isSimple) {
-                append(typeText)
-                if (prodCalendarDay.note.isNotBlank()) {
-                    append(": ")
-                    append(prodCalendarDay.note)
-                }
-            } else {
-                append(prodCalendarDay.note)
-            }
-        } else if (selectedDate != null) {
-            if (selectedDate.isWeekend()) {
-                append(stringResource(Res.string.day_description_weekend))
-            } else {
-                append(stringResource(Res.string.day_description_standard))
-            }
+    return if (prodCalendarDay != null) {
+        localizedDescription().orEmpty()
+    } else if (selectedDate != null) {
+        if (selectedDate.isWeekend()) {
+            stringResource(Res.string.day_description_weekend)
+        } else {
+            stringResource(Res.string.day_description_standard)
         }
+    } else {
+        ""
     }
 }
 
 /**
  * Описание текущего дня производственного календаря для подписи на главном
- * экране. У федерального календаря (xmlcalendar.ru) нет названий праздников,
- * поэтому для них подставляется локализованный текст по типу дня.
+ * экране и снекбара. Фразы собираются из ресурсных шаблонов: note в данных
+ * хранит только сырые значения (дата переноса «ММ.ДД», название праздника).
  */
 @Composable
 fun ProdCalendarDay?.localizedDescription(): String? {
-    val noted = this?.stringForCalendar()
-    if (!noted.isNullOrBlank()) return noted
-    return when (this?.type) {
-        is DayType.NationalHoliday -> stringResource(Res.string.day_description_holiday)
-        is DayType.RegionalHoliday -> stringResource(Res.string.day_description_holiday)
-        is DayType.PreHoliday -> stringResource(Res.string.day_description_preholiday)
-        is DayType.AdditionalDayOff -> stringResource(Res.string.day_description_day_off)
-        else -> null
+    val day = this ?: return null
+    return when (val type = day.type) {
+        is DayType.NationalHoliday ->
+            type.typeText.ifBlank { stringResource(Res.string.day_description_holiday) }
+
+        is DayType.RegionalHoliday ->
+            type.typeText.ifBlank { stringResource(Res.string.day_description_holiday) }
+
+        is DayType.PreHoliday ->
+            if (day.note.isNotBlank()) {
+                stringResource(Res.string.prod_calendar_preholiday_before, day.note)
+            } else {
+                stringResource(Res.string.day_description_preholiday)
+            }
+
+        is DayType.AdditionalDayOff ->
+            if (day.note.isNotBlank()) {
+                stringResource(Res.string.prod_calendar_transferred_from, day.note)
+            } else {
+                stringResource(Res.string.day_description_day_off)
+            }
+
+        DayType.Weekend, DayType.WorkingDay -> null
     }
 }

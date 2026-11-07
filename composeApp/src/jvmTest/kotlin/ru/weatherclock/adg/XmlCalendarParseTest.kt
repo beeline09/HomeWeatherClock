@@ -56,10 +56,11 @@ class XmlCalendarParseTest {
     }
 
     @Test
-    fun `transferred day off has note with source date`() {
+    fun `transferred day off stores raw transfer date in note`() {
+        //note — сырые данные (ММ.ДД), фраза собирается в UI из ресурсного шаблона
         val d = day(1, 9)
         assertIs<DayType.AdditionalDayOff>(d.type)
-        assertTrue(d.note.contains("03.01"), "note=${d.note}")
+        assertEquals("01.03", d.note)
     }
 
     @Test
@@ -70,15 +71,12 @@ class XmlCalendarParseTest {
     }
 
     @Test
-    fun `shortened day note names the next holiday`() {
-        // 30 апреля — сокращённый перед Днём России? Нет: следующий праздник
-        // в фикстуре после 30.04 — 12 июня (День России)
+    fun `shortened day stores next holiday title in note`() {
+        //note — сырые данные: название ближайшего праздника после сокращённого дня
+        //(в фикстуре после 30.04 — 12 июня, День России)
         val d = day(4, 30)
-        assertTrue(
-            d.note.contains("День России"),
-            "note=${d.note}"
-        )
-        assertTrue(d.note.contains("Сокращённый"), "note=${d.note}")
+        assertIs<DayType.PreHoliday>(d.type)
+        assertEquals("День России", d.note)
     }
 
     @Test
