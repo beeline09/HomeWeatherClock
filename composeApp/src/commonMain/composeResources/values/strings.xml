@@ -167,8 +167,8 @@
     <string name="day_description_holiday">Holiday</string>
     <string name="day_description_preholiday">Pre-holiday day</string>
     <string name="day_description_day_off">Day off</string>
-    <string name="prod_calendar_transferred_from">Transferred from %s</string>
-    <string name="prod_calendar_preholiday_before">A working day shortened by 1 hour before the "%s" holiday</string>
+    <string name="prod_calendar_transferred_from">Transferred from %1$s</string>
+    <string name="prod_calendar_preholiday_before">A working day shortened by 1 hour before the "%1$s" holiday</string>
 
     <string name="weather_no_api_key_exception">To display the weather, enter API keys in settings</string>
     <string name="setting_autocomplete_city_search_error">City search failed. Check connection and API keys</string>

@@ -168,8 +168,8 @@
     <string name="day_description_holiday">Праздничный день</string>
     <string name="day_description_preholiday">Предпраздничный день</string>
     <string name="day_description_day_off">Нерабочий день</string>
-    <string name="prod_calendar_transferred_from">перенесён с %s</string>
-    <string name="prod_calendar_preholiday_before">Сокращённый на 1 час рабочий день перед праздником «%s»</string>
+    <string name="prod_calendar_transferred_from">перенесён с %1$s</string>
+    <string name="prod_calendar_preholiday_before">Сокращённый на 1 час рабочий день перед праздником «%1$s»</string>
 
     <string name="weather_no_api_key_exception">Для отображения погоды введите API-ключи в настройках</string>
     <string name="setting_autocomplete_city_search_error">Не удалось выполнить поиск. Проверьте подключение и API-ключи</string>
