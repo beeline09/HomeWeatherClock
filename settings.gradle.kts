@@ -2,7 +2,6 @@
 
 rootProject.name = "HomeWeatherClock"
 include(":composeApp")
-include(":androidApp")
 
 pluginManagement {
     repositories {
@@ -13,9 +12,6 @@ pluginManagement {
         maven("https://jitpack.io")
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }
-}
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
 }
 
 dependencyResolutionManagement {

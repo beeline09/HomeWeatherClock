@@ -32,6 +32,10 @@ internal actual object PlatformHelper {
 
     actual val fsHelper: FsHelper by lazy { FsHelper() }
 
+    // Ключ вводится на экране настроек
+    actual val defaultWeatherApiKey: String
+        get() = ""
+
     actual val appSettings: KStore<AppSettings> by lazy {
 
         val paths = NSSearchPathForDirectoriesInDomains(

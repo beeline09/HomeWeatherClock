@@ -29,6 +29,10 @@ internal actual object PlatformHelper {
 
     actual val fsHelper: FsHelper by lazy { FsHelper() }
 
+    // Ключ вводится на экране настроек — в Android-сборки не вшивается
+    actual val defaultWeatherApiKey: String
+        get() = ""
+
     actual val appSettings: KStore<AppSettings> by lazy {
         storeOf(
             file = "${fsHelper.appStoragePath}/weather_settings.json".toPath(),

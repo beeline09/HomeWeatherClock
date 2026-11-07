@@ -37,6 +37,19 @@ internal actual object PlatformHelper {
     actual val defaultHttpClientEngine: HttpClientEngine by lazy {
         Apache5.create()
     }
+
+    actual val defaultWeatherApiKey: String by lazy {
+        // gradlew run запускается из каталога модуля; прямые запуски — из корня
+        sequenceOf(File("../local.properties"), File("local.properties"))
+            .firstOrNull { it.isFile }
+            ?.let { f ->
+                runCatching {
+                    java.util.Properties().apply { f.inputStream().use { load(it) } }
+                }.getOrNull()
+            }
+            ?.getProperty("weatherApiKey")
+            .orEmpty()
+    }
     actual val ioDispatcher: CoroutineDispatcher
         get() = Dispatchers.IO
     actual val systemLocale: String by lazy {

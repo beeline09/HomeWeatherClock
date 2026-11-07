@@ -1,16 +1,21 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.time.LocalDateTime
 import java.util.Properties
 
+private fun String.capitalized(): String = replaceFirstChar { it.uppercaseChar() }
+
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.android.multiplatform.library)
+    alias(libs.plugins.android.application)
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.sqlDelight)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 private val appName = libs.versions.app.name.get()
@@ -29,29 +34,16 @@ val weatherApiKey: String = localProperties.getProperty("weatherApiKey").orEmpty
 
 kotlin {
 
-    // Android-таргет — KMP-библиотека (AGP 9): приложение в отдельном модуле :androidApp
-    android {
-        namespace = "${appPackageName}.library"
-        compileSdk = 37
-        // minSdk 24 (Android 7): минимум для firebase-analytics 24 и coil 3.6+
-        minSdk = 24
-
+    androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_19)
-        }
-
-        // Compose-ресурсы commonMain упаковываются в AAR
-        androidResources {
-            enable = true
         }
     }
 
     jvm()
 
     listOf(
-        // iosX64 убран: экосистема (Compose 1.12+, coil 3.6+, androidx) больше
-        // не публикует варианты под Intel-симулятор iOS
-        iosArm64(), iosSimulatorArm64()
+        iosX64(), iosArm64(), iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
             baseName = "ComposeApp"
@@ -66,88 +58,95 @@ kotlin {
             languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
         }
 
-        val commonMain = getByName("commonMain")
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.material3)
-            api(compose.material)
-            implementation(compose.materialIconsExtended)
-            implementation(compose.components.resources)
-            implementation(libs.kermit)
-            implementation(libs.bundles.voyager.common)
-            implementation(libs.composeImageLoader)
-            implementation(libs.napier)
-            implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.bundles.ktor.common)
-            implementation(libs.composeIcons.featherIcons)
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.kotlinx.datetime)
-            implementation(project.dependencies.platform(libs.koin.bom))
-            implementation(libs.koin.core)
-            implementation(libs.koin.compose.mp)
-            implementation(libs.sqlDelight.coroutines.extensions)
-            implementation(libs.atomicfu)
-            implementation(libs.kstore)
-            implementation(libs.kstore.file)
-            implementation(libs.stately.common)
-            implementation(libs.androidx.annotation)
+        val commonMain by getting {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.material3)
+                api(compose.material)
+                implementation(compose.materialIconsExtended)
+                implementation(compose.components.resources)
+                implementation(libs.kermit)
+                implementation(libs.bundles.voyager.common)
+                implementation(libs.composeImageLoader)
+                implementation(libs.napier)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.bundles.ktor.common)
+                implementation(libs.composeIcons.featherIcons)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.datetime)
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(libs.koin.core)
+                implementation(libs.koin.compose.mp)
+                implementation(libs.sqlDelight.coroutines.extensions)
+                implementation(libs.atomicfu)
+                implementation(libs.kstore)
+                implementation(libs.kstore.file)
+                implementation(libs.stately.common)
+                implementation(libs.androidx.annotation)
 //                implementation(libs.androidx.lifecycle.runtime)
-            implementation(kotlin("stdlib-common"))
-            implementation(kotlin("reflect"))
-            implementation(libs.bundles.coil)
+                implementation(kotlin("stdlib-common"))
+                implementation(kotlin("reflect"))
+                implementation(libs.bundles.coil)
+            }
         }
 
-        val androidMain = getByName("androidMain")
-        androidMain.dependencies {
-            implementation(libs.androidx.appcompat)
-            implementation(libs.androidx.activityCompose)
-            implementation(libs.androidx.core.ktx)
-            implementation(libs.androidx.annotation.jvm)
-            implementation(libs.compose.uitooling)
-            implementation(libs.kotlinx.coroutines.android)
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.ktor.android)
+        val androidMain by getting {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.androidx.appcompat)
+                implementation(libs.androidx.activityCompose)
+                implementation(libs.compose.uitooling)
+                implementation(libs.kotlinx.coroutines.android)
+                implementation(libs.ktor.client.okhttp)
+                implementation(libs.ktor.android)
 //                implementation(libs.koin.compose)
 //                implementation(libs.koin.android)
-            implementation(libs.sqlDelight.driver.android)
-            implementation(libs.androidx.media3.exoplayer)
-            implementation(libs.kstore.file)
+                implementation(libs.sqlDelight.driver.android)
+                implementation(libs.androidx.media3.exoplayer)
+                implementation(libs.kstore.file)
+            }
         }
 
-        val jvmMain = getByName("jvmMain")
-        jvmMain.dependencies {
-            implementation(compose.desktop.common)
-            implementation(compose.desktop.currentOs)
-            implementation(libs.ktor.client.apache)
-            implementation(libs.ktor.java)
+        val jvmMain by getting {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(compose.desktop.common)
+                implementation(compose.desktop.currentOs)
+                implementation(libs.ktor.client.apache)
+                implementation(libs.ktor.java)
 //                implementation(libs.koin.compose)
-            implementation(libs.sqlDelight.driver.sqlite)
-            implementation(libs.vlcj)
-            implementation(libs.jlayer)
-            implementation(libs.kstore.file)
-            implementation(libs.java.appdirs)
-            implementation(libs.jSystemThemeDetector)
+                implementation(libs.sqlDelight.driver.sqlite)
+                implementation(libs.vlcj)
+                implementation(libs.jlayer)
+                implementation(libs.kstore.file)
+                implementation(libs.java.appdirs)
+                implementation(libs.jSystemThemeDetector)
 //                implementation("media.kamel:kamel-fetcher-resources-jvm:1.0.3")
+            }
         }
 
-        getByName("jvmTest") {
+        // Растеризационные тесты иконок/парсера календаря (SvgRasterTest и др.)
+        val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test"))
             }
         }
 
-        val iosArm64Main = getByName("iosArm64Main")
-        val iosSimulatorArm64Main = getByName("iosSimulatorArm64Main")
-        val iosMain = create("iosMain") {
+        val iosX64Main by getting
+        val iosArm64Main by getting
+        val iosSimulatorArm64Main by getting
+        val iosMain by creating {
             dependsOn(commonMain)
+            iosX64Main.dependsOn(this)
+            iosArm64Main.dependsOn(this)
+            iosSimulatorArm64Main.dependsOn(this)
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+                implementation(libs.sqlDelight.driver.native)
+                implementation(libs.kstore.file)
+            }
         }
-        iosArm64Main.dependsOn(iosMain)
-        iosSimulatorArm64Main.dependsOn(iosMain)
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
-            implementation(libs.sqlDelight.driver.native)
-            implementation(libs.kstore.file)
-        }
+
     }
 
     compilerOptions {
@@ -164,6 +163,113 @@ kotlin {
                 "-opt-in=kotlinx.cinterop.ExperimentalForeignApi",
             )
         )
+    }
+}
+
+android {
+    namespace = appPackageName
+    compileSdk = 36
+
+    defaultConfig {
+        minSdk = 21
+        targetSdk = 36
+
+        applicationId = appPackageName
+        versionCode = appVersionCode
+        versionName = appVersionName
+
+        multiDexEnabled = true
+    }
+    sourceSets["main"].apply {
+        manifest.srcFile("src/androidMain/AndroidManifest.xml")
+        res.srcDirs("src/androidMain/resources")
+        res.srcDirs(
+            "src/androidMain/res", "src/commonMain/resources"
+        )
+    }
+
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.10"
+    }
+
+    compileOptions {
+        //Нужно для работы kotlinx.datetime на версии Android ниже 7
+        isCoreLibraryDesugaringEnabled = true
+
+        sourceCompatibility = JavaVersion.VERSION_19
+        targetCompatibility = JavaVersion.VERSION_19
+    }
+
+    // Подпись release-сборки. Параметры берутся из local.properties (см. local.properties.example):
+    // signing.storeFile / signing.storePassword / signing.keyAlias / signing.keyPassword.
+    // Пока все поля не заполнены — release подписывается debug-ключом (только для локальной проверки).
+    val releaseSigningStoreFile = localProperties.getProperty("signing.storeFile").orEmpty().trim()
+    val releaseSigningStorePassword = localProperties.getProperty("signing.storePassword").orEmpty()
+    val releaseSigningKeyAlias = localProperties.getProperty("signing.keyAlias").orEmpty()
+    val releaseSigningKeyPassword = localProperties.getProperty("signing.keyPassword").orEmpty()
+    val hasReleaseSigning = releaseSigningStoreFile.isNotEmpty() &&
+            releaseSigningStorePassword.isNotEmpty() &&
+            releaseSigningKeyAlias.isNotEmpty() &&
+            releaseSigningKeyPassword.isNotEmpty()
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = rootProject.file(releaseSigningStoreFile)
+                storePassword = releaseSigningStorePassword
+                keyAlias = releaseSigningKeyAlias
+                keyPassword = releaseSigningKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            isMinifyEnabled = false
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
+        }
+        getByName("release") {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = if (hasReleaseSigning) signingConfigs.getByName("release")
+            else signingConfigs.getByName("debug")
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += "META-INF/versions/**"
+            excludes += "META-INF/*"
+        }
+    }
+
+    applicationVariants.all {
+        val variant = this
+        variant.outputs
+            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+            .forEach { output ->
+                val outputFileName = "HomeWeatherClock${
+                    variant.flavorName.capitalized()
+                }${variant.buildType.name.capitalized()}_${appVersionName}(${appVersionCode}).apk"
+                output.outputFileName = outputFileName
+            }
+    }
+
+    dependencies {
+        //Нужно для работы kotlinx.datetime на версии Android ниже 7
+        coreLibraryDesugaring(libs.desugar.jdk.libs)
+        implementation(platform(libs.firebase.bom))
+        implementation(libs.firebase.analytics)
+        implementation(libs.firebase.crashlytics)
     }
 }
 
@@ -219,6 +325,11 @@ compose.desktop {
     }
 }
 
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.annotation.jvm)
+}
+
 buildConfig {
     buildConfigField(
         "String", "APP_NAME", "\"${appName}\""
@@ -233,13 +344,10 @@ buildConfig {
     buildConfigField(
         "long", "BUILD_TIME", "${System.currentTimeMillis()}L"
     )
-    // Ключ погодного API из local.properties. Прокидывается во все source set'ы,
-    // но androidMain ниже переопределяет его пустой строкой: Android-сборки
-    // (в т.ч. публичные release) ключа не содержат — он вводится в настройках приложения.
-    buildConfigField("String", "WEATHER_API_KEY", provider { "\"$weatherApiKey\"" })
-    sourceSets.named("androidMain") {
-        buildConfigField("String", "WEATHER_API_KEY", "\"\"")
-    }
+    // Ключ погодного API НЕ генерируется здесь: под плагином 5.7.1 корневые
+    // поля попадают в AGP main и утекали в Android-APK. Дефолт ключа теперь
+    // приходит рантаймом через PlatformHelper.defaultWeatherApiKey
+    // (jvm читает local.properties, android/ios — пусто, ввод в настройках).
 }
 
 sqldelight {

@@ -1,35 +1,35 @@
 # AGENTS.md — HomeWeatherClock (Compose Multiplatform)
 
 Инструкция для AI-агентов и разработчиков. Проект: настенные часы с погодой
-и производственным календарём. KMP: Android (`:androidApp`) + Desktop (jvm)
-+ iOS, общий код в `:composeApp`.
+и производственным календарём. KMP: Android + Desktop (jvm) + iOS, всё в
+одном модуле `:composeApp` (com.android.application + androidTarget()).
 
-## Стек и структура
+## Стек и структура (ОСНОВНОЙ — поддержка Android 5.1)
 
-- Gradle 9.9, Kotlin 2.4.21, AGP 9.5.1, Compose Multiplatform 1.12.2,
-  koin 4.2 (bom), ktor 3.6.1, SQLDelight 2.4.1, coil 3.6.3, firebase-bom 35
-- **Структура по AGP 9**: `:androidApp` (com.android.application) — манифест,
-  res, подпись, firebase-плагины, APK-нейминг; `:composeApp` — KMP-библиотека
-  через `com.android.kotlin.multiplatform.library` (блок `kotlin.android{}`)
-- Android-КОТЛИН-классы (`AndroidApp`, `AppActivity`, `BootUpReceiver`,
-  все actual'ы PlatformHelper) живут в `composeApp/src/androidMain` —
-  манифест androidApp ссылается на них по имени пакета
-- Таргеты: jvm, iosArm64, iosSimulatorArm64. **iosX64 удалён** — экосистема
-  (Compose/coil/androidx) перестала публиковать варианты под Intel-симулятор
-- minSdk 24 (coil 3.6 + firebase-analytics 24), compileSdk 37,
-  targetSdk 36 (осознанно не поднимали)
+- **Стек зафиксирован ради minSdk 21** (планшет на Android 5.1):
+  Gradle 8.14, Kotlin 2.2.21, AGP 8.13.0, Compose 1.9.2, coil 3.3.0,
+  koin 4.1.1, ktor 3.3.1, firebase-bom 33.1.0, SQLDelight 2.1.0
+- Почему зафиксирован: compose ≥1.10 требует minSdk 23, а его же
+  плагин ≤1.9 несовместим с AGP 9 (пустое окно совместимости);
+  coil ≥3.6 и appcompat ≥1.8 / activity ≥1.12 / koin ≥4.2 — тоже minSdk 23.
+  Откат тулчейна — осознанное решение (2026-11-07), НЕ «обновлять обратно»
+  без пересмотра поддержки 5.1
+- Таргеты: jvm, iosX64, iosArm64, iosSimulatorArm64
+- minSdk 21, compileSdk 36, targetSdk 36
 - Константы приложения (имя/пакет/версия) и все версии — в
   `gradle/libs.versions.toml` (`app-*` в `[versions]`)
+- Исторически: 2026-11-07 была миграция на AGP 9 + `:androidApp` —
+  свёрнута обратно ради minSdk 21 (git-история хранит обе структуры)
 
 ## Сборка
 
 - **JDK 21 обязателен**:
   `export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home`.
   JDK 25 ломает Kotlin daemon (IllegalArgumentException на версии)
-- APK: `androidApp/build/outputs/apk/{debug,release}/HomeWeatherClock*_1.1.0(N).apk`
-  (нейминг — через `androidComponents.onVariants`, НЕ applicationVariants)
-- macOS `unzip -p | strings` не читает dex у AGP 9 APK — аудит содержимого
-  APK делать через python `zipfile`
+- APK: `composeApp/build/outputs/apk/{debug,release}/HomeWeatherClock*_1.1.0(N).apk`
+- Аудит содержимого APK — только через python `zipfile`
+  (macOS `unzip -p | strings` на dex даёт мусор/пустоту — ВСЕ ранние
+  «нулевые» аудиты через unzip были недостоверны)
 - Если «Unresolved reference» на только что добавленную строку ресурса —
   гонка инкрементальной генерации:
   `rm -rf composeApp/build/generated/compose/resourceGenerator`
@@ -47,9 +47,13 @@
   `adiga` — он же утёкший в публичную историю), пока ТП RuStore не сменит
   подпись приложения; `prod.jks` (105c6745…, alias `clock`) — новый ключ,
   до ротации в сторе нельзя
-- В истории обоих репозиториев есть утечки (ключи погоды, токен
-  production-calendar, копия keystore) — запланирована чистка
-  git-filter-repo + force-push; в копии коммитов не появляться
+- История обоих репозиториев **уже вычищена** (filter-repo, force-push
+  2026-11-07): секреты заменены на REMOVED-*, keystore-копия удалена.
+  НОВЫХ секретов в коммиты не добавлять
+- **Ключ погоды НЕ генерируется в BuildConfig** (под плагином 5.7.1
+  корневые поля попадают в AGP main → утечка в APK). Дефолт приходит
+  рантаймом: `PlatformHelper.defaultWeatherApiKey` (jvm читает
+  local.properties при запуске; android/ios — «», ввод в настройках)
 
 ## Производственный календарь (xmlcalendar.ru)
 

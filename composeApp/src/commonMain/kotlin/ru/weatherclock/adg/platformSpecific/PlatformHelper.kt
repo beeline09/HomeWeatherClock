@@ -13,6 +13,13 @@ internal expect object PlatformHelper {
 
     val fsHelper: FsHelper
     val appSettings: KStore<AppSettings>
+
+    /**
+     * Дефолтный ключ погодного API для первого запуска (до ввода в настройках).
+     * jvm: читается из local.properties при запуске (dev-машина);
+     * android/ios: пусто — ключ вводится на экране настроек.
+     */
+    val defaultWeatherApiKey: String
     val defaultHttpClientEngine: HttpClientEngine
     val ioDispatcher: CoroutineDispatcher
     val systemLocale: String
