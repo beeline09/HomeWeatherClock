@@ -17,13 +17,21 @@ import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import io.github.xxfast.kstore.KStore
 import io.github.xxfast.kstore.file.storeOf
 import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.engine.android.Android
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import okio.Path.Companion.toPath
 import ru.weatherclock.adg.AndroidApp
+import ru.weatherclock.adg.R
 import ru.weatherclock.adg.app.data.dto.AppSettings
+import java.security.KeyStore
+import java.security.SecureRandom
+import java.security.cert.CertificateException
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.X509TrustManager
 
 internal actual object PlatformHelper {
 
@@ -44,8 +52,57 @@ internal actual object PlatformHelper {
             })
     }
 
+    /**
+     * OkHttp-движок с трастом «система + бандленные корни ISRG».
+     * Кастомные ROM (планшет Android 7.1) имеют устаревшее системное
+     * хранилище CA и игнорируют network security config — без явного
+     * траста xmlcalendar.ru (Let's Encrypt) падает Trust anchor not found.
+     */
     actual val defaultHttpClientEngine: HttpClientEngine by lazy {
-        Android.create()
+        io.ktor.client.engine.okhttp.OkHttp.create {
+            config {
+                val trustManager = isrgAwareTrustManager()
+                val sslContext = SSLContext.getInstance("TLS").apply {
+                    init(null, arrayOf(trustManager), SecureRandom())
+                }
+                sslSocketFactory(sslContext.socketFactory, trustManager)
+            }
+        }
+    }
+
+    private fun isrgAwareTrustManager(): X509TrustManager {
+        val factory = CertificateFactory.getInstance("X.509")
+        val isrgStore = KeyStore.getInstance(KeyStore.getDefaultType()).apply { load(null) }
+        listOf(R.raw.isrg_root_x1, R.raw.isrg_root_x2).forEach { res ->
+            AndroidApp.INSTANCE.resources.openRawResource(res).use { input ->
+                isrgStore.setCertificateEntry("isrg_$res", factory.generateCertificate(input))
+            }
+        }
+        fun trustManager(ks: KeyStore?) = TrustManagerFactory
+            .getInstance(TrustManagerFactory.getDefaultAlgorithm())
+            .apply { init(ks) }
+            .trustManagers
+            .filterIsInstance<X509TrustManager>()
+            .first()
+
+        val system = trustManager(null)
+        val isrg = trustManager(isrgStore)
+        return object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) =
+                system.checkClientTrusted(chain, authType)
+
+            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+                try {
+                    system.checkServerTrusted(chain, authType)
+                } catch (e: CertificateException) {
+                    // Системного хранилища нет/устарело — пробуем корни ISRG
+                    isrg.checkServerTrusted(chain, authType)
+                }
+            }
+
+            override fun getAcceptedIssuers(): Array<X509Certificate> =
+                system.acceptedIssuers + isrg.acceptedIssuers
+        }
     }
     actual val ioDispatcher: CoroutineDispatcher
         get() = Dispatchers.IO
