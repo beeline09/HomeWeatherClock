@@ -57,6 +57,12 @@
 
 ## Производственный календарь (xmlcalendar.ru)
 
+- **TLS на кастомных ROM**: цепочка xmlcalendar.ru → ISRG Root X2; старые
+  системные хранилища CA её не знают, а платформа ROM может игнорировать
+  network security config. Реальное решение — Android-движок Ktor OkHttp с
+  X509TrustManager «система → бандленные ISRG X1/X2» (`PlatformHelper`
+  androidMain, корни в `res/raw/isrg_root_*.pem`). NSC с якорями оставлен
+  как второй слой
 - Источник — **calendar.xml**, НЕ calendar.json: только XML несёт легенду
   с названиями праздников (`<holiday id title>`, дни ссылаются `h="id"`)
 - Даты в атрибутах `d`/`f` — формат **ММ.ДД** (месяц.день!):
