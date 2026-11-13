@@ -64,6 +64,7 @@ import ru.weatherclock.adg.app.data.dto.isHourInRangeForHide
 import ru.weatherclock.adg.app.data.error.NoWeatherApiKeyException
 import ru.weatherclock.adg.app.data.util.atStartOfDay
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
+import ru.weatherclock.adg.app.domain.model.forecast.Severity
 import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.CalendarCallbackData
 import ru.weatherclock.adg.app.presentation.components.calendar.color
@@ -77,6 +78,7 @@ import ru.weatherclock.adg.app.presentation.components.player.ResourceWrapper
 import ru.weatherclock.adg.app.presentation.components.util.getColor
 import ru.weatherclock.adg.app.presentation.components.util.padStart
 import ru.weatherclock.adg.app.presentation.components.weather.WeatherCell
+import ru.weatherclock.adg.app.presentation.screens.home.components.ClockText
 import ru.weatherclock.adg.app.presentation.screens.home.components.TextCalendar
 import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
 import ru.weatherclock.adg.showToast
@@ -94,32 +96,15 @@ fun HomeScreen(screenModel: HomeScreenViewModel) {
     val weatherConfig = settings.weatherConfig
     val calendarConfig = settings.calendarConfig
     val prodCalendarConfig = calendarConfig.prodCalendarConfig
-    val forecast5Days = state.forecast5Days
-    val headline = state.headline
-    val dateTime = state.dateTime
-    val date = dateTime.date
+    // Погода — из самообновляющегося источника: рекомпозиция блока погоды
+    // только при реальном изменении данных
+    val forecast by screenModel.forecast.collectAsState()
+    val forecast5Days = forecast?.dailyForecast.orEmpty()
+    val headline = forecast?.headline
+    val date = state.date
     val prodCalendarDays: List<ProdCalendarDay> = state.prodCalendarDaysForCurrentMonth
     val currentProdCalendarDay = state.currentProdDay
     val currentProdCalendarDayStr = state.currentProdDay?.localizedDescription()
-    val dotsColor = when {
-        timeConfig.dotsFlashEnabled && timeConfig.dotsFlashAnimated -> {
-            val dotsColorAnimated: Color by animateColorAsState(
-                if (state.dotsShowed) colorPalette.clockText else colorPalette.background,
-                animationSpec = tween(
-                    400, easing = LinearEasing
-                )
-            )
-            dotsColorAnimated
-        }
-
-        timeConfig.dotsFlashEnabled -> {
-            if (state.dotsShowed) colorPalette.clockText else colorPalette.background
-        }
-
-        else -> {
-            colorPalette.clockText
-        }
-    }
     val isHourInRangeForHide = uiConfig.isHourInRangeForHide(LocalDateTime.now().hour)
     val weatherVisible =
         (!isHourInRangeForHide || !uiConfig.isWeatherHidden) && weatherConfig.weatherEnabled
@@ -129,8 +114,9 @@ fun HomeScreen(screenModel: HomeScreenViewModel) {
         (!isHourInRangeForHide || !uiConfig.isGridCalendarHidden) && calendarConfig.gridCalendarEnabled
 
 
-    LaunchedEffect(state.hourlyBeepIncrement) {
-        if (state.hourlyBeepIncrement > 0) {
+    // Ежечасный бип — по событию
+    LaunchedEffect(Unit) {
+        screenModel.hourlyBeep.collect {
             AudioPlayer.play(ResourceWrapper("files/casiohour.mp3"))
         }
     }
@@ -144,6 +130,16 @@ fun HomeScreen(screenModel: HomeScreenViewModel) {
             } else {
                 showToast(text = it.message.orEmpty())
             }
+        }
+    }
+    // События стейт-машины погоды (нет ключа — тост раз в час при
+    // включённой погоде; сетевые ошибки туда не попадают)
+    LaunchedEffect(Unit) {
+        screenModel.forecastErrors.collect {
+            showToast(
+                text = if (it is NoWeatherApiKeyException) noWeatherApiKeysError
+                else it.message.orEmpty()
+            )
         }
     }
 
@@ -190,27 +186,14 @@ fun HomeScreen(screenModel: HomeScreenViewModel) {
                         screenModel.intent(HomeScreenIntent.Settings.Show)
                     }
                 }) {
-                    BasicText(
-                        text = buildAnnotatedString {
-                            if (timeConfig.hourWithLeadingZero) {
-                                append(state.hour.padStart(2))
-                            } else {
-                                append(state.hour.toString())
-                            }
-                            withStyle(SpanStyle(color = dotsColor)) {
-                                append(":")
-                            }
-                            append(state.minute.padStart(2))
-                        },
-                        maxLines = 1,
-                        autoSize = TextAutoSize.StepBased(
-                            maxFontSize = 1000.sp,
-                            minFontSize = TextAutoSizeDefaults.MinFontSize,
-                            stepSize = 0.25.sp
-                        ),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            color = colorPalette.clockText, textAlign = TextAlign.Center
-                        ),
+                    ClockText(
+                        hourMinute = screenModel.hourMinute,
+                        dotsOn = screenModel.dotsOn,
+                        hourWithLeadingZero = timeConfig.hourWithLeadingZero,
+                        dotsFlashEnabled = timeConfig.dotsFlashEnabled,
+                        dotsFlashAnimated = timeConfig.dotsFlashAnimated,
+                        clockTextColor = colorPalette.clockText,
+                        dotsOffColor = colorPalette.background,
                         modifier = Modifier.fillMaxSize().align(Alignment.Center),
                     )
                     columnScope.AnimatedVisibility(
@@ -244,7 +227,8 @@ fun HomeScreen(screenModel: HomeScreenViewModel) {
                             minFontSize = 5.sp, maxFontSize = 25.sp, stepSize = 0.25.sp
                         ),
                         style = MaterialTheme.typography.bodySmall.copy(
-                            color = state.headlineSeverity.getColor(), textAlign = TextAlign.Start
+                            color = (forecast?.severity ?: Severity.UNKNOWN).getColor(),
+                            textAlign = TextAlign.Start
                         ),
                         maxLines = 1,
                         modifier = Modifier.fillMaxWidth().padding(all = 5.dp)
@@ -295,7 +279,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel) {
                                 // Время обнуляем: в пределах дня аргумент равен
                                 // сам себе — ежесекундный тик не рекомпозирует
                                 // сетку (смена дня = новый аргумент)
-                                dateTime = dateTime.date.atStartOfDay(),
+                                dateTime = date.atStartOfDay(),
                                 dateHolder = DateInput.SingleDate(),
                                 onDateSelected = { s, p ->
                                     dateSelected = true to CalendarCallbackData(

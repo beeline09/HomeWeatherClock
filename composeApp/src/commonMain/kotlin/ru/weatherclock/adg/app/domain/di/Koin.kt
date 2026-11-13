@@ -9,6 +9,10 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 import org.koin.core.context.startKoin
@@ -148,13 +152,19 @@ fun settingsRepoModule() = module {
 }
 
 fun getUseCaseModule() = module {
+    // Скоуп приложения: живёт дольше любого экрана — держатели
+    // самообновляющихся потоков (ForecastUseCase.forecast)
+    single {
+        CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    }
     single {
         ForecastUseCase(
             accuweatherRepository = get(),
             accuweatherDbRepository = get(),
             openWeatherMapRepository = get(),
             weatherSettingsRepository = get(),
-            openWeatherMapDbRepository = get()
+            openWeatherMapDbRepository = get(),
+            appScope = get()
         )
     }
     single {

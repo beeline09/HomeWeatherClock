@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import ru.weatherclock.adg.app.data.WeatherUnits
 import ru.weatherclock.adg.app.data.dto.WeatherApiLanguage
 import ru.weatherclock.adg.app.data.dto.WeatherConfig
+import ru.weatherclock.adg.app.data.dto.WeatherFetchState
 import ru.weatherclock.adg.app.data.dto.WeatherIconSet
 import ru.weatherclock.adg.app.data.dto.WeatherServer
 
@@ -13,6 +14,10 @@ interface WeatherSettingsRepository {
     suspend fun getConfig(): WeatherConfig
 
     suspend fun saveConfig(callback: WeatherConfig.() -> WeatherConfig)
+
+    /** Freshness-метки кеша погоды (переживают перезапуск приложения) */
+    suspend fun getFetchState(): WeatherFetchState
+    suspend fun setFetchState(state: WeatherFetchState)
 
     suspend fun isWeatherEnabled(): Boolean
     suspend fun setWeatherEnabled(enabled: Boolean)

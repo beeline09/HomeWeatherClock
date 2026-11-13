@@ -19,6 +19,16 @@ class WeatherSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>
         }
     }
 
+    override suspend fun getFetchState(): WeatherFetchState =
+        appSettings.get().orDefault().weatherFetchState
+
+    override suspend fun setFetchState(state: WeatherFetchState) {
+        appSettings.update {
+            val s = it.orDefault()
+            s.copy(weatherFetchState = state)
+        }
+    }
+
     override val config: Flow<WeatherConfig>
         get() = appSettings.updates.mapLatest { it.orDefault().weatherConfig }
 

@@ -1,10 +1,32 @@
 package ru.weatherclock.adg.app.domain.usecase
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atTime
+import kotlinx.datetime.plus
+import kotlinx.datetime.toInstant
 import ru.weatherclock.adg.app.data.dto.WeatherConfig
+import ru.weatherclock.adg.app.data.dto.WeatherFetchState
 import ru.weatherclock.adg.app.data.dto.WeatherServer
 import ru.weatherclock.adg.app.data.error.NoWeatherApiKeyException
+import ru.weatherclock.adg.app.data.util.atEndOfDay
+import ru.weatherclock.adg.app.data.util.atStartOfDay
+import kotlin.time.Duration.Companion.hours
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.AccuweatherForecastDto
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.DetailDto
 import ru.weatherclock.adg.app.data.dto.forecast.accuweather.detail.asAccuweatherDbModel
@@ -48,11 +70,91 @@ class ForecastUseCase(
     private val accuweatherDbRepository: AccuweatherDbRepository,
     private val openWeatherMapDbRepository: OpenWeatherMapDbRepository,
     private val weatherSettingsRepository: WeatherSettingsRepository,
+    appScope: CoroutineScope,
 ) {
 
-    private var lastUpdateForecast: LocalDateTime? = null
-    private var lastUpdateServer: WeatherServer? = null
-    private var lastUpdateConfig: WeatherConfig? = null
+    /**
+     * События для UI (тосты): например, «API-ключ не введён». Сетевые ошибки
+     * сюда НЕ попадают — они тихо фолбэкаются на кеш БД.
+     */
+    private val _errors = MutableSharedFlow<Throwable>(extraBufferCapacity = 1)
+    val errors: SharedFlow<Throwable> = _errors
+
+    /** Single-flight: параллельные триггеры не дают второго сетевого запроса */
+    private val fetchMutex = Mutex()
+
+    /**
+     * Самообновляющийся источник прогноза (уровень B):
+     * подписки на config — flatMapLatest (смена сервера/города/ключей →
+     * перезапуск цикла), внутри — fetchOrCache и часовая пауза.
+     * WhileSubscribed(5s): пока никого не интересует погода (экран закрыт),
+     * цикл спит и сеть не дёргается вовсе — экономия квот и батареи.
+     */
+    val forecast: StateFlow<Forecast?> = weatherSettingsRepository.config
+        .onStart { emit(weatherSettingsRepository.getConfig()) }
+        .distinctUntilChanged()
+        .flatMapLatest {
+            flow {
+                while (true) {
+                    emit(fetchOrCache())
+                    delay(FETCH_INTERVAL)
+                }
+            }
+        }
+        .stateIn(appScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /**
+     * Политика обновления (TTL, переживает перезапуск приложения — метки
+     * персистятся в AppSettings.weatherFetchState):
+     * 1. БД пуста → сеть (всегда);
+     * 2. успешный fetch был позже FETCH_INTERVAL назад → БД без сети;
+     * 3. конфиг с последнего успешного fetch изменился (сервер/город/ключи/
+     *    единицы/язык) → сеть даже при свежем кеше.
+     */
+    private suspend fun fetchOrCache(): Forecast? {
+        if (!weatherSettingsRepository.isWeatherEnabled()) return null
+        val now = LocalDateTime.now()
+        val cached = getForecastInternal(
+            startDate = now.atStartOfDay(),
+            endDate = now.atEndOfDay().date.plus(DatePeriod(days = 5)).atTime(23, 59, 59)
+        )
+        val fetchState = weatherSettingsRepository.getFetchState()
+        val config = weatherSettingsRepository.getConfig()
+        val nowEpoch = now.toEpochSeconds()
+        val cacheIsFresh = fetchState.lastFetchedConfig == config &&
+                (nowEpoch - fetchState.lastSuccessEpochSeconds) < FETCH_INTERVAL.inWholeSeconds
+        if (cacheIsFresh && !cached?.dailyForecast.isNullOrEmpty()) {
+            return cached
+        }
+        return fetchMutex.withLock {
+            // Метки могли обновиться, пока ждали мьютекс — перепроверяем
+            val stateAfterLock = weatherSettingsRepository.getFetchState()
+            val configAfterLock = weatherSettingsRepository.getConfig()
+            val freshAfterLock = stateAfterLock.lastFetchedConfig == configAfterLock &&
+                    (nowEpoch - stateAfterLock.lastSuccessEpochSeconds) < FETCH_INTERVAL.inWholeSeconds
+            if (freshAfterLock && !cached?.dailyForecast.isNullOrEmpty()) return@withLock cached
+            try {
+                val fresh = getForecastRemote()
+                weatherSettingsRepository.setFetchState(
+                    WeatherFetchState(
+                        lastFetchedConfig = configAfterLock,
+                        lastSuccessEpochSeconds = nowEpoch
+                    )
+                )
+                fresh
+            } catch (e: NoWeatherApiKeyException) {
+                // Ключ не введён: метки не трогаем (после ввода ключа —
+                // немедленный рефреш через плоскую подписку на конфиг)
+                _errors.tryEmit(e)
+                cached
+            } catch (e: Exception) {
+                // Сеть/лимиты/парсинг: тихий фолбэк на кеш, ретрай через час
+                println("Forecast download failed, fallback to DB cache: ${e.message}")
+                e.printStackTrace()
+                cached
+            }
+        }
+    }
 
     private suspend fun getAccuweatherForecastRemote(): AccuweatherForecastDto {
         return accuweatherRepository.getWeatherForecast(
@@ -74,11 +176,10 @@ class ForecastUseCase(
 
     private suspend fun getForecastRemote(): Forecast {
         println("ForecastUseCase: загрузка прогноза из СЕТИ (${weatherSettingsRepository.getWeatherServer()})")
-        return when (val server = weatherSettingsRepository.getConfig().server) {
+        return when (weatherSettingsRepository.getConfig().server) {
             WeatherServer.Accuweather -> {
                 getAccuweatherForecastRemote().run {
                     saveToDb(weatherSettingsRepository.getCityKey())
-                    lastUpdateServer = server
                     asDomainModel()
                 }
             }
@@ -89,64 +190,19 @@ class ForecastUseCase(
                         latitude = weatherSettingsRepository.getLatitude(),
                         longitude = weatherSettingsRepository.getLongitude()
                     )
-                    lastUpdateServer = server
                     asDomainModel()
                 }
             }
         }
     }
 
-    suspend fun getForPeriod(
-        startDate: LocalDateTime, endDate: LocalDateTime
-    ): Forecast? {
+    companion object {
+        /** Период самообновления и он же TTL кеша: 1 час */
+        val FETCH_INTERVAL = 1.hours
 
-        val forecastInternal = getForecastInternal(
-            startDate, endDate
-        )
-
-        //Логика обновления данных такая:
-        //Если в БД пусто
-        //Если в БД пусто и больше часа ничего не загружалось, либо это в первый раз
-        //Если в БД не пусто и прошло больше 2 часов с последнего обновления
-        val currentTime = LocalDateTime.now()
-        //Если это в первый раз после запуска и в БД меньше 5 записей
-        val us0 = lastUpdateForecast == null && (forecastInternal?.dailyForecast?.size ?: 0) < 5
-        //С последнего обновления прошло больше 2 часов
-        val us1 = lastUpdateForecast != null && lastUpdateForecast?.isEqualsByHour(
-            currentTime, 1
-        ) != true
-        //Если в БД пусто и данные не запрашивались больше часа
-        val us2 =
-            lastUpdateForecast != null && forecastInternal?.dailyForecast.isNullOrEmpty() && lastUpdateForecast?.isEqualsByHour(
-                currentTime
-            ) != true
-        //Сервер сменился в течение текущей сессии (при новом запуске БД сама
-        //отфильтрует протухшие данные по текущему периоду — без лишнего запроса)
-        val us3 = lastUpdateServer != null &&
-                lastUpdateServer != weatherSettingsRepository.getWeatherServer()
-        //Изменились погодные настройки (ключи/город/единицы/язык) в течение сессии
-        val currentConfig = weatherSettingsRepository.getConfig()
-        val us4 = lastUpdateConfig != null && lastUpdateConfig != currentConfig
-        val result = if (us0 || us1 || us2 || us3 || us4) {
-            return try {
-                getForecastRemote().also {
-                    lastUpdateForecast = currentTime
-                    lastUpdateServer = weatherSettingsRepository.getWeatherServer()
-                    lastUpdateConfig = currentConfig
-                }
-            } catch (e: NoWeatherApiKeyException) {
-                //Ключ не введён: не запоминаем время попытки, чтобы следующий
-                //запрос (например, сразу после ввода ключа в настройках) не ждал час
-                throw e
-            } catch (e: Exception) {
-                //Другая ошибка (сеть/лимиты): фолбэк на БД, ретрай разрешён сразу
-                lastUpdateForecast = null
-                lastUpdateConfig = null
-                e.printStackTrace()
-                return forecastInternal
-            }
-        } else forecastInternal
-        return result
+        /** kotlin.time.Clock в Kotlin 2.2 ещё experimental — epoch через toInstant */
+        private fun LocalDateTime.toEpochSeconds(): Long =
+            toInstant(TimeZone.currentSystemDefault()).epochSeconds
     }
 
     private suspend fun AccuweatherForecastDto.saveToDb(forecastKey: String) {

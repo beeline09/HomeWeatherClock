@@ -56,6 +56,9 @@ kotlin {
         all {
             languageSettings.optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
             languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+            // kotlin.time.Instant/epochSeconds (kotlinx-datetime 0.7 делегирует
+            // в stdlib, где API ещё experimental в Kotlin 2.2)
+            languageSettings.optIn("kotlin.time.ExperimentalTime")
         }
 
         val commonMain by getting {

@@ -16,6 +16,19 @@ data class AppSettings(
     val timeConfig: TimeConfig = TimeConfig(),
     val uiConfig: UiConfig = UiConfig(),
     val systemConfig: SystemConfig = SystemConfig(),
+    // Freshness кеша погоды (переживает перезапуск приложения; additive-поле —
+    // старые файлы настроек читаются без потерь). ССЫЛАТЬСЯ ТОЛЬКО ЗДЕСЬ:
+    // не вкладывать в weatherConfig, иначе запись метки меняет конфиг и
+    // перезапускает цикл обновления
+    val weatherFetchState: WeatherFetchState = WeatherFetchState(),
+)
+
+@Serializable
+data class WeatherFetchState(
+    /** Конфиг, которым данные были успешно получены (смена → принудительный рефреш) */
+    val lastFetchedConfig: WeatherConfig? = null,
+    /** Epoch-секунды последнего УСПЕШНОГО сетевого обновления */
+    val lastSuccessEpochSeconds: Long = 0L,
 )
 
 @Serializable

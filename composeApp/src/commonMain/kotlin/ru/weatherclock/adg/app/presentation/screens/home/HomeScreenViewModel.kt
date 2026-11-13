@@ -2,26 +2,23 @@ package ru.weatherclock.adg.app.presentation.screens.home
 
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.atTime
-import kotlinx.datetime.plus
-import ru.weatherclock.adg.app.data.dto.WeatherConfig
-import ru.weatherclock.adg.app.data.util.atEndOfDay
-import ru.weatherclock.adg.app.data.util.atStartOfDay
+import ru.weatherclock.adg.app.data.util.atStartOfSecond
+import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.data.util.isEqualsByDayOfMonth
-import ru.weatherclock.adg.app.data.util.isEqualsByHour
 import ru.weatherclock.adg.app.data.util.isEqualsByMonthNumber
-import ru.weatherclock.adg.app.domain.model.forecast.Severity
+import ru.weatherclock.adg.app.domain.model.forecast.Forecast
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
 import ru.weatherclock.adg.app.domain.usecase.ForecastUseCase
 import ru.weatherclock.adg.app.domain.usecase.SettingsUseCase
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.app.presentation.components.tickerFlow
 import ru.weatherclock.adg.app.presentation.components.viewModel.ViewModelState
 import kotlin.time.Duration.Companion.seconds
@@ -31,6 +28,30 @@ class HomeScreenViewModel(
     private val calendarUseCase: CalendarUseCase,
     private val settingsUseCase: SettingsUseCase,
 ): ViewModelState<HomeScreenState, HomeScreenIntent>(initialState = HomeScreenState()) {
+
+    // ---------------------------------------------------------------------
+    // Быстрые величины — отдельные потоки: StateFlow дедуплицирует по
+    // equals, поэтому часы рекомпозируются ТОЛЬКО при смене минуты, а
+    // точки — только при мигании (выключено мигание — не тикает ничего)
+    // ---------------------------------------------------------------------
+
+    /** ЧЧ:ММ — обновляется при смене минуты */
+    private val _hourMinute = MutableStateFlow(currentTime().let { it.hour to it.minute })
+    val hourMinute: StateFlow<Pair<Int, Int>> = _hourMinute
+
+    /** Мигание разделителя: флип каждую секунду, только если включено */
+    private val _dotsOn = MutableStateFlow(true)
+    val dotsOn: StateFlow<Boolean> = _dotsOn
+
+    /** Ежечасный бип (в разрешённых часах) — событие, не счётчик */
+    private val _hourlyBeep = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val hourlyBeep: SharedFlow<Unit> = _hourlyBeep
+
+    /** Погода — самообновляющийся источник use case'а (B) */
+    val forecast: StateFlow<Forecast?> = forecastUseCase.forecast
+
+    /** События для тостов (нет API-ключа и т.п.) */
+    val forecastErrors = forecastUseCase.errors
 
     private var oneSecondTickJob: Job? = null
     private var settingsJob: Job? = null
@@ -43,7 +64,7 @@ class HomeScreenViewModel(
         }
     }
 
-    private suspend fun refreshCalendarData() = safeScope.launch {
+    private fun refreshCalendarData() = safeScope.launch {
         val currentDayTime = LocalDateTime.now()
         if (calendarUseCase.isProdCalendarEnabled()) {
             val yearDays = calendarUseCase.getProdCalendar()
@@ -58,7 +79,7 @@ class HomeScreenViewModel(
                 copy(
                     prodCalendarDaysForCurrentMonth = prodCalendarDaysForCurrentMonth,
                     currentProdDay = currentDayProdCalendar,
-                    dateTime = currentDayTime,
+                    date = calendarDay,
                 )
             }
         } else {
@@ -66,33 +87,9 @@ class HomeScreenViewModel(
                 copy(
                     prodCalendarDaysForCurrentMonth = emptyList(),
                     currentProdDay = null,
-                    dateTime = currentDayTime
+                    date = currentDayTime.date
                 )
             }
-        }
-    }
-
-    private suspend fun refreshWeatherData(currentDateTime: LocalDateTime) = safeScope.launch {
-        // Погода выключена в настройках — в сеть не ходим вовсе
-        // (раньше запрос уходил, а отсутствие ключа каждый час кидало
-        // тост «введите ключ»)
-        if (!state.value.appSettings.weatherConfig.weatherEnabled) return@launch
-        val forecast = forecastUseCase.getForPeriod(
-            startDate = currentDateTime.atStartOfDay(),
-            endDate = currentDateTime.atEndOfDay().date
-                .plus(DatePeriod(days = 5))
-                .atTime(
-                    hour = 23,
-                    minute = 59,
-                    second = 59
-                )
-        )
-        setState {
-            copy(
-                forecast5Days = forecast?.dailyForecast.orEmpty(),
-                headline = forecast?.headline,
-                headlineSeverity = forecast?.severity ?: Severity.UNKNOWN
-            )
         }
     }
 
@@ -112,66 +109,45 @@ class HomeScreenViewModel(
         settingsJob = null
     }
 
-    private var oneMinuteTime: LocalDateTime = LocalDateTime.now()
-    private var oneHourTime: LocalDateTime = LocalDateTime.now()
-
     fun onLaunch() {
+        refreshCalendarData()
         allSettingsJob?.cancel()
-        var lastWeatherConfig: WeatherConfig? = null
         allSettingsJob = settingsUseCase.getAllSettingsFlow().onEach {
-            //Изменение погодных настроек в течение сессии (ключ/город/сервер)
-            //→ немедленное обновление прогноза, не дожидаясь часового тика
-            if (lastWeatherConfig != null && lastWeatherConfig != it.weatherConfig) {
-                refreshWeatherData(LocalDateTime.now())
-            }
-            lastWeatherConfig = it.weatherConfig
             setState {
-                copy(
-                    appSettings = it
-                )
+                copy(appSettings = it)
             }
         }.launchIn(safeScope)
-        oneSecondTickJob?.cancel()
-        oneSecondTickJob = tickerFlow(period = 1.seconds).map { LocalDateTime.now() }.onStart {
-            val currentTime = LocalDateTime.now()
-            oneMinuteTime = currentTime
-            refreshCalendarData()
-            oneHourTime = currentTime
-            refreshWeatherData(currentTime)
-        }.onEach {
-            setState {
-                copy(
-                    dotsShowed = !dotsShowed,
-                    hour = it.hour,
-                    minute = it.minute
-                )
-            }
-            val days = state.value.prodCalendarDaysForCurrentMonth
-            val condition1 =
-                days.isEmpty() && !it.isEqualsByHour(oneMinuteTime)
-            val condition2 =
-                days.isNotEmpty() && !it.isEqualsByDayOfMonth(oneMinuteTime)
-            if (condition1 || condition2) {
-                oneMinuteTime = it
-                refreshCalendarData()
-            }
 
-            if (!it.isEqualsByHour(oneHourTime)) {
-                if (settingsUseCase.isHourlyBeepAllowed(currentHour = it.hour)) {
-                    setState {
-                        copy(hourlyBeepIncrement = hourlyBeepIncrement + 1L)
-                    }
-                } else {
-                    setState {
-                        copy(hourlyBeepIncrement = 0)
+        oneSecondTickJob?.cancel()
+        oneSecondTickJob = safeScope.launch {
+            var lastMinute: Int = -1
+            var lastHour: Int = -1
+            var lastDay: Int = -1
+            tickerFlow(period = 1.seconds).map { currentTime() }.collect { now ->
+                _hourMinute.value = now.hour to now.minute
+                if (state.value.appSettings.timeConfig.dotsFlashEnabled) {
+                    _dotsOn.value = !_dotsOn.value
+                }
+                if (now.minute != lastMinute) {
+                    lastMinute = now.minute
+                    // Календарь: пересчёт при смене дня (данные месяца —
+                    // при смене месяца тем же условием через фильтр)
+                    if (now.date.dayOfMonth != lastDay) {
+                        lastDay = now.date.dayOfMonth
+                        refreshCalendarData()
                     }
                 }
-                oneHourTime = it
-                refreshWeatherData(it)
+                if (now.hour != lastHour) {
+                    lastHour = now.hour
+                    if (settingsUseCase.isHourlyBeepAllowed(currentHour = now.hour)) {
+                        _hourlyBeep.tryEmit(Unit)
+                    }
+                }
             }
-        }.launchIn(safeScope)
+        }
     }
 
-    // dispose больше не нужен: все job'ы — дети единого скоупа
-    // вьюмодели и отменяются автоматически в onDispose (смерть экрана)
+    // dispose не нужен: единый скоуп вьюмодели отменяет всё в onDispose
+
+    private fun currentTime(): LocalDateTime = LocalDateTime.now().atStartOfSecond()
 }
