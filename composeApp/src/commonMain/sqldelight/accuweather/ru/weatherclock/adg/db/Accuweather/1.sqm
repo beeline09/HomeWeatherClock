@@ -1,0 +1,7 @@
+-- v1 → v2: индексы дочерних таблиц (внешние ключи без индексов давали
+-- full scan на каждом lookup при чтении прогноза)
+CREATE INDEX IF NOT EXISTS temperature_forecast_pid ON Temperature (forecast_pid ASC);
+CREATE INDEX IF NOT EXISTS forecast_detail_forecast_pid ON ForecastDetail (
+	forecast_pid ASC,
+	is_night ASC
+);

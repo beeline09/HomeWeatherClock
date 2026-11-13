@@ -1,0 +1,9 @@
+-- v1 → v2: индексы для чтения прогноза (фильтр город+период и дочерние
+-- lookups по forecast_pid)
+CREATE INDEX IF NOT EXISTS forecast_item_location_date ON ForecastItem (
+	latitude ASC,
+	longitude ASC,
+	date_time ASC
+);
+CREATE INDEX IF NOT EXISTS main_info_forecast_pid ON MainInfo (forecast_pid ASC);
+CREATE INDEX IF NOT EXISTS weather_icon_forecast_pid ON WeatherIcon (forecast_pid ASC);

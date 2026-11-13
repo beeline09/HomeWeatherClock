@@ -25,6 +25,11 @@ CREATE TABLE IF NOT EXISTS ForecastDetail (
 	FOREIGN KEY(forecast_pid) REFERENCES DailyForecast(pid) ON DELETE CASCADE
 );
 
+CREATE INDEX IF NOT EXISTS forecast_detail_forecast_pid ON ForecastDetail (
+	forecast_pid ASC,
+	is_night ASC
+);
+
 insert:
 INSERT OR IGNORE INTO ForecastDetail
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
@@ -34,3 +39,9 @@ SELECT MAX(pid) FROM ForecastDetail;
 
 getByForecastPid:
 SELECT * FROM ForecastDetail WHERE forecast_pid = ? AND is_night = ?;
+
+-- Батч-чтение периода (анти-N+1): детали всех дней диапазона
+getByDateRange:
+SELECT ForecastDetail.* FROM ForecastDetail
+	JOIN DailyForecast ON DailyForecast.pid = ForecastDetail.forecast_pid
+	WHERE DailyForecast.forecast_key = ? AND DailyForecast.date >= ? AND DailyForecast.date <= ?;

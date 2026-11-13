@@ -52,6 +52,18 @@ class AccuweatherDbRepositoryImpl(private val database: AccuweatherDb): Accuweat
         }
     }
 
+    /**
+     * runBlocking безопасен: suspend-методы репозитория не имеют реальных
+     * точек suspending (только быстрые синхронные запросы), блок выполняется
+     * на IO-потоке без переключений. Вложенные transaction → savepoint'ы.
+     */
+    override suspend fun <R> runInTransaction(block: suspend AccuweatherDbRepository.() -> R): R {
+        val repository = this
+        return database.transactionWithResult {
+            kotlinx.coroutines.runBlocking { repository.block() }
+        }
+    }
+
     private fun DailyForecast.insertForecast(): Long {
         database.dayliForecastQueries.insert(
             pid = pid.takeIf { it >= 0L },
@@ -397,6 +409,30 @@ class AccuweatherDbRepositoryImpl(private val database: AccuweatherDb): Accuweat
         endDate: LocalDate
     ): List<DailyForecast> = database.transactionWithResult {
         database.dayliForecastQueries.selectByDateRange(
+            date = startDate.toDbFormat(),
+            date_ = endDate.toDbFormat(),
+            forecast_key = forecastKey
+        ).executeAsList()
+    }
+
+    override suspend fun getTemperaturesByDateRange(
+        forecastKey: String,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): List<Temperature> = database.transactionWithResult {
+        database.temperatureQueries.getByDateRange(
+            date = startDate.toDbFormat(),
+            date_ = endDate.toDbFormat(),
+            forecast_key = forecastKey
+        ).executeAsList()
+    }
+
+    override suspend fun getDetailsByDateRange(
+        forecastKey: String,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): List<ForecastDetail> = database.transactionWithResult {
+        database.forecastDetailQueries.getByDateRange(
             date = startDate.toDbFormat(),
             date_ = endDate.toDbFormat(),
             forecast_key = forecastKey

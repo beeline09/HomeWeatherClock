@@ -11,6 +11,13 @@ CREATE TABLE IF NOT EXISTS ForecastItem (
 	clouds INTEGER AS Int
 );
 
+-- Основной фильтр чтения прогноза (город + период)
+CREATE INDEX IF NOT EXISTS forecast_item_location_date ON ForecastItem (
+	latitude ASC,
+	longitude ASC,
+	date_time ASC
+);
+
 insert:
 REPLACE INTO ForecastItem
     VALUES (?,?,?,?,?,?,?,?);

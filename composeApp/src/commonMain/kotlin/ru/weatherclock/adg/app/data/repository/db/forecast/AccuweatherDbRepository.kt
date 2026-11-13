@@ -116,6 +116,25 @@ interface AccuweatherDbRepository {
         endDate: LocalDate
     ): List<DailyForecast>
 
+    /**
+     * Выполнить блок в ОДНОЙ транзакции: каскад записи прогноза становится
+     * атомарным (вложенные методы репозитория идут как savepoint'ы).
+     */
+    suspend fun <R> runInTransaction(block: suspend AccuweatherDbRepository.() -> R): R
+
+    /** Батч-чтения периода (анти-N+1) */
+    suspend fun getTemperaturesByDateRange(
+        forecastKey: String,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): List<Temperature>
+
+    suspend fun getDetailsByDateRange(
+        forecastKey: String,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): List<ForecastDetail>
+
     suspend fun getAirAndPollen(byForecastPid: Long): List<AirAndPollen>
     suspend fun getDegreeDaySummary(byForecastPid: Long): DegreeDaySummary?
     suspend fun getTemperature(byForecastPid: Long): Temperature?

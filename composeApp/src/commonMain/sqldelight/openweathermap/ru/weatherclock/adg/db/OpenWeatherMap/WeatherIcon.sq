@@ -9,8 +9,17 @@ CREATE TABLE IF NOT EXISTS WeatherIcon (
     FOREIGN KEY(forecast_pid) REFERENCES ForecastItem(pid) ON DELETE CASCADE
 );
 
+CREATE INDEX IF NOT EXISTS weather_icon_forecast_pid ON WeatherIcon (forecast_pid ASC);
+
 insert:
 REPLACE INTO WeatherIcon VALUES ?;
 
 getByForecastPid:
 SELECT * FROM WeatherIcon WHERE forecast_pid = ?;
+
+-- Батч-чтение периода (анти-N+1)
+getByDateRange:
+SELECT WeatherIcon.* FROM WeatherIcon
+	JOIN ForecastItem ON ForecastItem.pid = WeatherIcon.forecast_pid
+	WHERE ForecastItem.date_time >= ? AND ForecastItem.date_time <= ?
+		AND ForecastItem.latitude = ? AND ForecastItem.longitude = ?;

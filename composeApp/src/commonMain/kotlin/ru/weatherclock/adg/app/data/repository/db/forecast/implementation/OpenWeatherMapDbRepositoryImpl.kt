@@ -1,6 +1,8 @@
 package ru.weatherclock.adg.app.data.repository.db.forecast.implementation
 
 import kotlinx.datetime.LocalDateTime
+import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail.asDbModel
+import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.OpenWeatherMapForecastDto
 import ru.weatherclock.adg.app.data.repository.db.forecast.OpenWeatherMapDbRepository
 import ru.weatherclock.adg.app.data.util.toDbFormat
 import ru.weatherclock.adg.db.OpenWeatherMap.ForecastItem
@@ -72,6 +74,41 @@ class OpenWeatherMapDbRepositoryImpl(private val database: OpenWeatherMapDb):
         }
     }
 
+    /** Каскад прогноза одной транзакцией: падение посередине больше не
+     *  оставляет частичных данных (раньше каждый insert был сам по себе) */
+    override suspend fun insertForecast(
+        forecast: OpenWeatherMapForecastDto,
+        latitude: Double,
+        longitude: Double
+    ) {
+        database.transaction {
+            forecast.items.forEach { item ->
+                val forecastPid = item.asDbModel(
+                    latitude = latitude, longitude = longitude
+                ).insertForecast()
+                if (forecastPid > 0L) {
+                    database.mainInfoQueries.insert(item.main.asDbModel(forecastPid))
+                    item.weather.forEach { weatherIcon ->
+                        database.weatherIconQueries.insert(weatherIcon.asDbModel(forecastPid))
+                    }
+                    item.wind?.let {
+                        database.windQueries.insert(it.asDbModel(forecastPid))
+                    }
+                    item.rain.forEach { (duration, count) ->
+                        database.rainQueries.insert(
+                            Rain(forecast_pid = forecastPid, duration_h = duration, count = count)
+                        )
+                    }
+                    item.snow.forEach { (duration, count) ->
+                        database.snowQueries.insert(
+                            Snow(forecast_pid = forecastPid, duration_h = duration, count = count)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     override suspend fun getForecast(
         latitude: Double,
         longitude: Double,
@@ -100,6 +137,32 @@ class OpenWeatherMapDbRepositoryImpl(private val database: OpenWeatherMapDb):
         return database.transactionWithResult {
             database.weatherIconQueries.getByForecastPid(
                 forecast_pid = byForecastPid
+            ).executeAsList()
+        }
+    }
+
+    override suspend fun getMainInfoByDateRange(
+        latitude: Double, longitude: Double, startDate: LocalDateTime, endDate: LocalDateTime
+    ): List<MainInfo> {
+        return database.transactionWithResult {
+            database.mainInfoQueries.getByDateRange(
+                date_time = startDate.toDbFormat(),
+                date_time_ = endDate.toDbFormat(),
+                latitude = latitude,
+                longitude = longitude
+            ).executeAsList()
+        }
+    }
+
+    override suspend fun getWeatherIconsByDateRange(
+        latitude: Double, longitude: Double, startDate: LocalDateTime, endDate: LocalDateTime
+    ): List<WeatherIcon> {
+        return database.transactionWithResult {
+            database.weatherIconQueries.getByDateRange(
+                date_time = startDate.toDbFormat(),
+                date_time_ = endDate.toDbFormat(),
+                latitude = latitude,
+                longitude = longitude
             ).executeAsList()
         }
     }

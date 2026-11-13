@@ -1,6 +1,7 @@
 package ru.weatherclock.adg.app.data.repository.db.forecast
 
 import kotlinx.datetime.LocalDateTime
+import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.OpenWeatherMapForecastDto
 import ru.weatherclock.adg.db.OpenWeatherMap.ForecastItem
 import ru.weatherclock.adg.db.OpenWeatherMap.MainInfo
 import ru.weatherclock.adg.db.OpenWeatherMap.Rain
@@ -18,6 +19,13 @@ interface OpenWeatherMapDbRepository {
     suspend fun insertRain(rain: Rain)
     suspend fun insertSnow(snow: Snow)
 
+    /** Полный каскад прогноза ОДНОЙ транзакцией (атомарно: либо всё, либо ничего) */
+    suspend fun insertForecast(
+        forecast: OpenWeatherMapForecastDto,
+        latitude: Double,
+        longitude: Double
+    )
+
     suspend fun getForecast(
         latitude: Double,
         longitude: Double,
@@ -27,4 +35,13 @@ interface OpenWeatherMapDbRepository {
 
     suspend fun getMainInfo(byForecastPid: Long): MainInfo
     suspend fun getWeatherIcon(byForecastPid: Long): List<WeatherIcon>
+
+    /** Батч-чтения периода (анти-N+1) */
+    suspend fun getMainInfoByDateRange(
+        latitude: Double, longitude: Double, startDate: LocalDateTime, endDate: LocalDateTime
+    ): List<MainInfo>
+
+    suspend fun getWeatherIconsByDateRange(
+        latitude: Double, longitude: Double, startDate: LocalDateTime, endDate: LocalDateTime
+    ): List<WeatherIcon>
 }

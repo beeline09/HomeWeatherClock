@@ -74,8 +74,28 @@ internal actual object PlatformHelper {
                     "foreign_keys",
                     "true"
                 )
-            }).also {
-            schema.create(it)
+            }).also { driver ->
+            // JDBC-драйвер не ведёт схему сам (в отличие от Android/Native):
+            // user_version храним и мигрируем явно. Раньше был только
+            // schema.create() — на существующей БД миграции не применялись
+            val currentVersion = driver.executeQuery(
+                identifier = null,
+                sql = "PRAGMA user_version",
+                mapper = { cursor ->
+                    QueryResult.Value(if (cursor.next().value) (cursor.getLong(0) ?: 0L) else 0L)
+                },
+                parameters = 0
+            ).value
+            val targetVersion = schema.version ?: 0L
+            when {
+                currentVersion == 0L -> schema.create(driver)
+                currentVersion < targetVersion -> schema.migrate(
+                    driver, currentVersion, targetVersion
+                )
+            }
+            if (currentVersion != targetVersion) {
+                driver.execute(null, "PRAGMA user_version = $targetVersion", 0)
+            }
         }
     }
 

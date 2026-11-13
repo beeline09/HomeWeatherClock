@@ -61,8 +61,8 @@ import ru.weatherclock.adg.app.domain.model.forecast.Severity
 import ru.weatherclock.adg.app.domain.model.forecast.asDomainModel
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
 import ru.weatherclock.adg.db.OpenWeatherMap.ForecastItem
-import ru.weatherclock.adg.db.OpenWeatherMap.Rain
-import ru.weatherclock.adg.db.OpenWeatherMap.Snow
+import ru.weatherclock.adg.db.OpenWeatherMap.MainInfo
+import ru.weatherclock.adg.db.OpenWeatherMap.WeatherIcon
 
 class ForecastUseCase(
     private val accuweatherRepository: AccuweatherForecastRepositoryImpl,
@@ -179,14 +179,19 @@ class ForecastUseCase(
         return when (weatherSettingsRepository.getConfig().server) {
             WeatherServer.Accuweather -> {
                 getAccuweatherForecastRemote().run {
-                    saveToDb(weatherSettingsRepository.getCityKey())
+                    // Каскад атомарен: падение посередине не оставляет
+                    // частичных данных (раньше 30+ insert'ов по одному)
+                    accuweatherDbRepository.runInTransaction {
+                        saveToDb(weatherSettingsRepository.getCityKey())
+                    }
                     asDomainModel()
                 }
             }
 
             WeatherServer.OpenWeatherMap -> {
                 getOpenWeatherMapForecastRemote().run {
-                    saveToDb(
+                    openWeatherMapDbRepository.insertForecast(
+                        forecast = this,
                         latitude = weatherSettingsRepository.getLatitude(),
                         longitude = weatherSettingsRepository.getLongitude()
                     )
@@ -340,20 +345,22 @@ class ForecastUseCase(
     private suspend fun getAccuweatherForecastInternal(
         startDate: LocalDate, endDate: LocalDate
     ): Forecast? {
-        val headline = accuweatherDbRepository.getHeadline(
-            weatherSettingsRepository.getCityKey(), startDate, endDate
-        )
-        val forecast = accuweatherDbRepository.getForecast(
-            weatherSettingsRepository.getCityKey(), startDate, endDate
-        ).mapNotNull {
-            it.asDomainModel(
-                temperature = accuweatherDbRepository.getTemperature(byForecastPid = it.pid),
-                detailDay = accuweatherDbRepository.getDetail(
-                    byForecastPid = it.pid, DetailType.DAY
-                ),
-                detailNight = accuweatherDbRepository.getDetail(
-                    byForecastPid = it.pid, DetailType.NIGHT
-                )
+        val cityKey = weatherSettingsRepository.getCityKey()
+        val headline = accuweatherDbRepository.getHeadline(cityKey, startDate, endDate)
+        // Батч-чтения (анти-N+1): было 1+3N запросов на построение домена,
+        // стало 3 запроса + группировка в памяти
+        val forecastRows = accuweatherDbRepository.getForecast(cityKey, startDate, endDate)
+        val temperatures = accuweatherDbRepository
+            .getTemperaturesByDateRange(cityKey, startDate, endDate)
+            .associateBy { it.forecast_pid }
+        val details = accuweatherDbRepository
+            .getDetailsByDateRange(cityKey, startDate, endDate)
+            .groupBy { it.forecast_pid }
+        val forecast = forecastRows.mapNotNull { row ->
+            row.asDomainModel(
+                temperature = temperatures[row.pid],
+                detailDay = details[row.pid]?.firstOrNull { !it.is_night },
+                detailNight = details[row.pid]?.firstOrNull { it.is_night }
             )
         }
         return Forecast(
@@ -366,83 +373,52 @@ class ForecastUseCase(
     private suspend fun getOpenWeatherMapForecastInternal(
         startDate: LocalDateTime, endDate: LocalDateTime
     ): Forecast? {
+        val latitude = weatherSettingsRepository.getLatitude()
+        val longitude = weatherSettingsRepository.getLongitude()
         val forecastItems = openWeatherMapDbRepository.getForecast(
-            latitude = weatherSettingsRepository.getLatitude(),
-            longitude = weatherSettingsRepository.getLongitude(),
+            latitude = latitude,
+            longitude = longitude,
             startDate = startDate,
             endDate = endDate
         )
-        return forecastItems.asDomainModel().takeIf { forecastItems.isNotEmpty() }
+        if (forecastItems.isEmpty()) return null
+        // Батч-чтения (анти-N+1): было 2N+1 запросов, стало 3
+        val mainInfoByPid = openWeatherMapDbRepository
+            .getMainInfoByDateRange(latitude, longitude, startDate, endDate)
+            .associateBy { it.forecast_pid }
+        val iconsByPid = openWeatherMapDbRepository
+            .getWeatherIconsByDateRange(latitude, longitude, startDate, endDate)
+            .groupBy { it.forecast_pid }
+        return forecastItems.asDomainModel(mainInfoByPid, iconsByPid)
     }
 
-    private suspend fun OpenWeatherMapForecastDto.saveToDb(
-        latitude: Double, longitude: Double
-    ) {
-        items.forEach { forecastItem ->
-            val forecastPid = openWeatherMapDbRepository.insertDailyForecast(
-                forecastItem.asDbModel(
-                    latitude = latitude, longitude = longitude
-                )
-            )
-            if (forecastPid > 0L) {
-                openWeatherMapDbRepository.insertMainInfo(
-                    info = forecastItem.main.asDbModel(forecastPid = forecastPid)
-                )
-                forecastItem.weather.forEach { weatherIcon ->
-                    openWeatherMapDbRepository.insertWeatherIcon(
-                        icon = weatherIcon.asDbModel(forecastPid = forecastPid)
-                    )
-                }
-                forecastItem.wind?.let {
-                    openWeatherMapDbRepository.insertWind(
-                        wind = it.asDbModel(forecastPid = forecastPid)
-                    )
-                }
-                forecastItem.rain.forEach {
-                    openWeatherMapDbRepository.insertRain(
-                        rain = Rain(
-                            forecast_pid = forecastPid, duration_h = it.key, count = it.value
-                        )
-                    )
-                }
-                forecastItem.snow.forEach {
-                    openWeatherMapDbRepository.insertSnow(
-                        snow = Snow(
-                            forecast_pid = forecastPid, duration_h = it.key, count = it.value
-                        )
-                    )
-                }
-            }
-        }
-    }
-
-    private suspend fun List<ForecastItem>.asDomainModel(): Forecast {
-        val items = this
-        val byDays = items.groupBy {
+    /**
+     * Маппинг OWM-строк в домен по батч-картам (анти-N+1): MainInfo и
+     * WeatherIcon приходят из двух batch-запросов, а не по запросу на каждый
+     * элемент прогноза.
+     */
+    private fun List<ForecastItem>.asDomainModel(
+        mainInfoByPid: Map<Long, MainInfo>,
+        iconsByPid: Map<Long, List<WeatherIcon>>
+    ): Forecast {
+        val byDays = groupBy {
             it.date_time.fromDbToLocalDateTime().date
-        }.filter { it.value.isNotEmpty() }.mapNotNull {
-            val date = it.key
+        }.filter { it.value.isNotEmpty() }.mapNotNull { (date, dayItems) ->
             val dayValues =
-                it.value.filter { item -> item.part_of_day.toPartOfDay() == PartOfDay.Day }
+                dayItems.filter { item -> item.part_of_day.toPartOfDay() == PartOfDay.Day }
             val nightValues =
-                it.value.filter { item -> item.part_of_day.toPartOfDay() == PartOfDay.Night }
-            if (dayValues.isEmpty() || nightValues.isEmpty()) {
+                dayItems.filter { item -> item.part_of_day.toPartOfDay() == PartOfDay.Night }
+            val nightList = nightValues.mapNotNull { mainInfoByPid[it.pid] }
+            val dayList = dayValues.mapNotNull { mainInfoByPid[it.pid] }
+            if (dayValues.isEmpty() || nightValues.isEmpty() ||
+                nightList.isEmpty() || dayList.isEmpty()
+            ) {
                 null
             } else {
-                val nightList = nightValues.map { item ->
-                    openWeatherMapDbRepository.getMainInfo(byForecastPid = item.pid)
-                }
-                val dayList = dayValues.map { item ->
-                    openWeatherMapDbRepository.getMainInfo(byForecastPid = item.pid)
-                }
                 val nightInfo = nightList.minBy { info -> info.temperature }
                 val dayInfo = dayList.maxBy { info -> info.temperature }
-                val nightWeatherIcon =
-                    openWeatherMapDbRepository.getWeatherIcon(byForecastPid = nightInfo.forecast_pid)
-                        .firstOrNull()
-                val dayWeatherIcon =
-                    openWeatherMapDbRepository.getWeatherIcon(byForecastPid = dayInfo.forecast_pid)
-                        .firstOrNull()
+                val nightWeatherIcon = iconsByPid[nightInfo.forecast_pid]?.firstOrNull()
+                val dayWeatherIcon = iconsByPid[dayInfo.forecast_pid]?.firstOrNull()
                 ForecastDay(
                     date = date, min = DayDetail(
                         temperature = nightInfo.temperature,
@@ -455,7 +431,6 @@ class ForecastUseCase(
                     )
                 )
             }
-
         }
         return Forecast(dailyForecast = byDays)
     }
