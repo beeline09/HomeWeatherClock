@@ -13,55 +13,59 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
-import ru.weatherclock.adg.app.data.dto.AppSettings
-import ru.weatherclock.adg.app.data.dto.orDefault
-import ru.weatherclock.adg.platformSpecific.PlatformHelper.appSettings
+import kotlinx.coroutines.flow.update
 import kotlin.coroutines.CoroutineContext
 
+/**
+ * Базовая вьюмодель экрана.
+ *
+ * Скоуп создаётся РОВНО ОДИН раз на экземпляр (раньше контекст был геттером
+ * и клепал новый SupervisorJob на каждое обращение — из-за этого cancel()
+ * в onDispose не отменял работающие корутины). Теперь все job'ы — дети
+ * одного SupervisorJob и умирают вместе со смертью вьюмодели.
+ *
+ * SupervisorJob здесь нужен осознанно: исключение в одной корутине (сетевой
+ * запрос, парсинг) не должно отменять соседние (секундный тикер часов).
+ */
 abstract class ViewModelState<STATE : State, INTENT : Intent>(
     initialState: STATE
 ) : ScreenModel {
 
-    private val viewModelScope: CoroutineScope = object : CoroutineScope {
-        override val coroutineContext: CoroutineContext
-            get() = SupervisorJob() + Dispatchers.IO
-    }
-
-    private val _throwableState: MutableStateFlow<Throwable?> = MutableStateFlow(null)
+    private val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.IO
+    private val viewModelScope: CoroutineScope = CoroutineScope(coroutineContext)
 
     private val errorHandling = CoroutineExceptionHandler { _, throwable ->
-        _throwableState.tryEmit(throwable)
+        throwableState.tryEmit(throwable)
     }
 
+    /** Единый скоуп вьюмодели: ошибки перехватываются в [catch]. */
     protected val safeScope: CoroutineScope = viewModelScope + errorHandling
 
+    /** Ошибка, пойманная CoroutineExceptionHandler'ом (для тостов). */
+    private val throwableState: MutableStateFlow<Throwable?> = MutableStateFlow(null)
+
     fun catch(block: (Throwable) -> Unit) = safeScope.launch {
-        _throwableState.filterNotNull().collectLatest { block.invoke(it) }
+        throwableState.filterNotNull().collectLatest { block.invoke(it) }
     }
 
-    private val _state: MutableStateFlow<STATE> = MutableStateFlow(initialState)
-    val state: StateFlow<STATE> get() = _state
+    // Наружу — read-only StateFlow (private set); мутация — только через
+    // [setState]. Единственный каст к MutableStateFlow инкапсулирован здесь.
+    // (Explicit backing fields в Kotlin 2.2.21 всё ещё experimental —
+    // в замороженный тулчейн не включаем)
+    var state: StateFlow<STATE> = MutableStateFlow(initialState)
+        private set
 
     abstract fun intent(intent: INTENT)
 
     protected open fun dispose() {}
 
-    protected fun setState(block: STATE.() -> STATE) = safeScope.launch {
-        val currentState = _state.value
-        val newState = block.invoke(currentState)
-        _state.tryEmit(newState)
-    }
-
-    protected fun updateSettings(block: AppSettings.() -> AppSettings) = safeScope.launch {
-        val currentState = appSettings.get().orDefault()
-        val newState = block.invoke(currentState)
-        appSettings.update { newState }
+    /** Атомарное обновление стейта (раньше read-then-emit терял апдейты). */
+    protected fun setState(mutate: STATE.() -> STATE) {
+        (state as MutableStateFlow<STATE>).update { it.mutate() }
     }
 
     final override fun onDispose() {
         viewModelScope.cancel()
-        safeScope.cancel()
-        super.onDispose()
         dispose()
     }
 }

@@ -71,14 +71,17 @@ fun commonModule(
 private fun platformModule() = module { single { defaultHttpClientEngine } }
 
 fun getScreenModelModule() = module {
-    single {
+    // factory (не single): стейт живёт вместе с экраном, при уходе Voyager
+    // вызывает onDispose → скоуп вьюмодели отменяется. single-стейт переживал
+    // бы экраны с уже отменённым скоупом
+    factory {
         HomeScreenViewModel(
             forecastUseCase = get(),
             calendarUseCase = get(),
             settingsUseCase = get(),
         )
     }
-    single {
+    factory {
         SettingsScreenViewModel(settingsUseCase = get())
     }
 }

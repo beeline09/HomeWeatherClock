@@ -60,7 +60,6 @@ import homeweatherclock.composeapp.generated.resources.weather_no_api_key_except
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.number
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 import ru.weatherclock.adg.app.data.dto.isHourInRangeForHide
 import ru.weatherclock.adg.app.data.error.NoWeatherApiKeyException
 import ru.weatherclock.adg.app.data.util.atStartOfDay
@@ -85,7 +84,7 @@ import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 
 @Composable
-fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
+fun HomeScreen(screenModel: HomeScreenViewModel) {
     val navigator = LocalNavigator.currentOrThrow
     val colorPalette = LocalCustomColorsPalette.current
     val state by screenModel.state.collectAsState()

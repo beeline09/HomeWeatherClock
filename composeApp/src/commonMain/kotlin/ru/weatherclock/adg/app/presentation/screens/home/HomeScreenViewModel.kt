@@ -168,9 +168,6 @@ class HomeScreenViewModel(
         }.launchIn(safeScope)
     }
 
-    override fun dispose() {
-        settingsJob?.cancel()
-        allSettingsJob?.cancel()
-        oneSecondTickJob?.cancel()
-    }
+    // dispose больше не нужен: все job'ы — дети единого скоупа
+    // вьюмодели и отменяются автоматически в onDispose (смерть экрана)
 }
