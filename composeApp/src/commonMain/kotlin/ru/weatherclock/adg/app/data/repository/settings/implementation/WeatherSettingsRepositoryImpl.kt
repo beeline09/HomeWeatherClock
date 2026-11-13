@@ -41,12 +41,36 @@ class WeatherSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>
     }
 
     override suspend fun getApiKeys(): List<String> {
-        return getConfig().weatherApiKeys
+        return getConfig().let { it.apiKeysFor(it.server) }
     }
 
     override suspend fun setApiKeys(apiKeys: List<String>) {
         saveConfig {
             copy(weatherApiKeys = apiKeys)
+        }
+    }
+
+    override suspend fun getApiKeys(server: WeatherServer): List<String> {
+        return getConfig().apiKeysFor(server)
+    }
+
+    override suspend fun setApiKeys(server: WeatherServer, apiKeys: List<String>) {
+        saveConfig {
+            copy(
+                accuweatherApiKeys = if (server == WeatherServer.Accuweather) {
+                    apiKeys
+                } else {
+                    accuweatherApiKeys
+                },
+                openWeatherMapApiKeys = if (server == WeatherServer.OpenWeatherMap) {
+                    apiKeys
+                } else {
+                    openWeatherMapApiKeys
+                },
+                // legacy-список погашен: пустой список провайдера больше
+                // не подменится старыми ключами
+                weatherApiKeys = emptyList()
+            )
         }
     }
 

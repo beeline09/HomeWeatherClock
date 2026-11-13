@@ -8,6 +8,8 @@
 
     <string name="setting_title_weather_enabled">Show weather</string>
     <string name="setting_title_weather_api_keys">Accuweather API-Key</string>
+    <string name="setting_title_weather_api_keys_accuweather">Accuweather API-Keys</string>
+    <string name="setting_title_weather_api_keys_openweathermap">OpenWeatherMap API-Keys</string>
     <string name="setting_title_weather_city_key">City</string>
     <string name="setting_title_weather_language">Weather and search city queries language</string>
     <string name="setting_title_text_calendar_enabled">Show text calendar</string>

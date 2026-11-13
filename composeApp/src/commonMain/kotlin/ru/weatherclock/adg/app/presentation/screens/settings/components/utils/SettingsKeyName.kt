@@ -8,8 +8,11 @@ import ru.weatherclock.adg.app.domain.model.settings.SettingKey
 @Composable
 fun SettingKey.getName(): String = when (this) {
     SettingKey.WeatherEnabled -> stringResource(Res.string.setting_title_weather_enabled)
-    SettingKey.WeatherApiKeysAccuweather, SettingKey.WeatherApiKeysOpenweathermap -> stringResource(
-        Res.string.setting_title_weather_api_keys
+    SettingKey.WeatherApiKeysAccuweather -> stringResource(
+        Res.string.setting_title_weather_api_keys_accuweather
+    )
+    SettingKey.WeatherApiKeysOpenweathermap -> stringResource(
+        Res.string.setting_title_weather_api_keys_openweathermap
     )
 
     SettingKey.WeatherCityKey1, SettingKey.WeatherCityKey2, SettingKey.WeatherCityKeySearch -> stringResource(

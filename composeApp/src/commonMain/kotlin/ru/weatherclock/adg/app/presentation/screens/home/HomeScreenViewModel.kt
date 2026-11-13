@@ -120,9 +120,13 @@ class HomeScreenViewModel(
 
         oneSecondTickJob?.cancel()
         oneSecondTickJob = safeScope.launch {
-            var lastMinute: Int = -1
-            var lastHour: Int = -1
-            var lastDay: Int = -1
+            // Инициализация ТЕКУЩИМИ значениями: первый тик не считает
+            // себя «сменой минуты/часа/дня» (календарь уже рефрешнут
+            // в onLaunch — раньше стартовал двойной запрос)
+            val start = currentTime()
+            var lastMinute: Int = start.minute
+            var lastHour: Int = start.hour
+            var lastDay: Int = start.date.day
             tickerFlow(period = 1.seconds).map { currentTime() }.collect { now ->
                 _hourMinute.value = now.hour to now.minute
                 if (state.value.appSettings.timeConfig.dotsFlashEnabled) {
@@ -132,8 +136,8 @@ class HomeScreenViewModel(
                     lastMinute = now.minute
                     // Календарь: пересчёт при смене дня (данные месяца —
                     // при смене месяца тем же условием через фильтр)
-                    if (now.date.dayOfMonth != lastDay) {
-                        lastDay = now.date.dayOfMonth
+                    if (now.date.day != lastDay) {
+                        lastDay = now.date.day
                         refreshCalendarData()
                     }
                 }

@@ -113,11 +113,14 @@ class ForecastUseCase(
      */
     private suspend fun fetchOrCache(): Forecast? {
         if (!weatherSettingsRepository.isWeatherEnabled()) return null
+        // Нет ключей у активного провайдера — в сеть не ходим вовсе,
+        // даже не пытаемся: тост «введите ключ» + кеш (пустой на старте)
+        if (weatherSettingsRepository.getApiKeys().isEmpty()) {
+            _errors.tryEmit(NoWeatherApiKeyException())
+            return getForecastInternalCached()
+        }
         val now = LocalDateTime.now()
-        val cached = getForecastInternal(
-            startDate = now.atStartOfDay(),
-            endDate = now.atEndOfDay().date.plus(DatePeriod(days = 5)).atTime(23, 59, 59)
-        )
+        val cached = getForecastInternalCached(now)
         val fetchState = weatherSettingsRepository.getFetchState()
         val config = weatherSettingsRepository.getConfig()
         val nowEpoch = now.toEpochSeconds()
@@ -154,6 +157,14 @@ class ForecastUseCase(
                 cached
             }
         }
+    }
+
+    /** Кеш БД по текущему периоду (сегодня..+5 дней) */
+    private suspend fun getForecastInternalCached(now: LocalDateTime = LocalDateTime.now()): Forecast? {
+        return getForecastInternal(
+            startDate = now.atStartOfDay(),
+            endDate = now.atEndOfDay().date.plus(DatePeriod(days = 5)).atTime(23, 59, 59)
+        )
     }
 
     private suspend fun getAccuweatherForecastRemote(): AccuweatherForecastDto {

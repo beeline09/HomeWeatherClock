@@ -197,19 +197,27 @@ class SettingsUseCase(
                             }
                         })
                 )
-                val settingKeyServer = if (weatherSettings.server == WeatherServer.Accuweather) {
-                    SettingKey.WeatherApiKeysAccuweather
-                } else {
-                    SettingKey.WeatherApiKeysOpenweathermap
-                }
+                // У каждого провайдера — СВОЙ массив ключей (раньше список
+                // был общий: ключ OWM уезжал в запросы Accuweather)
                 add(
                     StringListSetting(
-                        settingsKey = settingKeyServer,
+                        settingsKey = SettingKey.WeatherApiKeysAccuweather,
                         isEnabled = weatherSettings.weatherEnabled,
-                        currentValue = weatherSettings.weatherApiKeys,
+                        currentValue = weatherSettings.apiKeysFor(WeatherServer.Accuweather),
                         onChange = {
                             safeUpdate {
-                                weatherRepo.setApiKeys(it)
+                                weatherRepo.setApiKeys(WeatherServer.Accuweather, it)
+                            }
+                        })
+                )
+                add(
+                    StringListSetting(
+                        settingsKey = SettingKey.WeatherApiKeysOpenweathermap,
+                        isEnabled = weatherSettings.weatherEnabled,
+                        currentValue = weatherSettings.apiKeysFor(WeatherServer.OpenWeatherMap),
+                        onChange = {
+                            safeUpdate {
+                                weatherRepo.setApiKeys(WeatherServer.OpenWeatherMap, it)
                             }
                         })
                 )

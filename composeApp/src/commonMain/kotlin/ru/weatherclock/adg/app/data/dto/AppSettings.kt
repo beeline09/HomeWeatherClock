@@ -119,13 +119,30 @@ data class WeatherConfig(
 
     @SerialName("language") val weatherApiLanguage: WeatherApiLanguage = WeatherApiLanguage.System,
 
-    @SerialName("apiKeys") val weatherApiKeys: List<String> =
+    // LEGACY-поле (один общий список на все серверы). Не удаляем и не
+    // переименовываем (миграция настроек только additive): при чтении
+    // используется как fallback для OpenWeatherMap (исторически сюда
+    // попадал ключ из local.properties — он OWM), гасится при первом
+    // сохранении раздельных ключей
+    @SerialName("apiKeys") val weatherApiKeys: List<String> = emptyList(),
+
+    @SerialName("accuweatherApiKeys") val accuweatherApiKeys: List<String> = emptyList(),
+
+    // Дефолтный ключ (jvm: local.properties; разовые сборки Android) —
+    // ключ OpenWeatherMap
+    @SerialName("openWeatherMapApiKeys") val openWeatherMapApiKeys: List<String> =
         defaultWeatherApiKey.takeIf { it.isNotBlank() }?.let(::listOf) ?: emptyList(),
 
     @SerialName("units") val units: WeatherUnits = WeatherUnits.Metric,
 
     @SerialName("iconSet") val iconSet: WeatherIconSet = WeatherIconSet.MeteoconsFill,
-)
+) {
+    /** Ключи конкретного провайдера; OWM при пустом списке берёт legacy */
+    fun apiKeysFor(server: WeatherServer): List<String> = when (server) {
+        WeatherServer.Accuweather -> accuweatherApiKeys
+        WeatherServer.OpenWeatherMap -> openWeatherMapApiKeys.ifEmpty { weatherApiKeys }
+    }
+}
 
 @Serializable
 data class CalendarConfig(
@@ -167,7 +184,7 @@ fun AppSettings?.orDefault(): AppSettings {
 }
 
 fun WeatherConfig.isAvailableToShow(): Boolean {
-    if (weatherApiKeys.isEmpty()) return false
+    if (apiKeysFor(server).isEmpty()) return false
     if (server == WeatherServer.Accuweather && city.key.isBlank()) return false
     if (server == WeatherServer.OpenWeatherMap) {
         if (city.latitude == 0.0 && city.longitude == 0.0) return false

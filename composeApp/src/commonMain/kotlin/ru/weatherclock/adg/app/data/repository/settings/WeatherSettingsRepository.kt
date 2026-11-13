@@ -25,6 +25,12 @@ interface WeatherSettingsRepository {
     suspend fun getApiKeys(): List<String>
     suspend fun setApiKeys(apiKeys: List<String>)
 
+    /** Ключи конкретного провайдера */
+    suspend fun getApiKeys(server: WeatherServer): List<String>
+
+    /** Сохранить ключи провайдера (legacy-список гасится) */
+    suspend fun setApiKeys(server: WeatherServer, apiKeys: List<String>)
+
     suspend fun getCityKey(): String
     suspend fun setCityKey(cityKey: String)
 

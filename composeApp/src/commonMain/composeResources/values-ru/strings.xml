@@ -7,6 +7,8 @@
 
     <string name="setting_title_weather_enabled">Отображать погоду</string>
     <string name="setting_title_weather_api_keys">API ключи погоды</string>
+    <string name="setting_title_weather_api_keys_accuweather">API ключи Accuweather</string>
+    <string name="setting_title_weather_api_keys_openweathermap">API ключи OpenWeatherMap</string>
     <string name="setting_title_weather_city_key">Населенный пункт</string>
     <string name="setting_title_weather_language">Язык прогноза погоды и поисковых запросов</string>
     <string name="setting_title_text_calendar_enabled">Отображать текстовый календарь</string>
