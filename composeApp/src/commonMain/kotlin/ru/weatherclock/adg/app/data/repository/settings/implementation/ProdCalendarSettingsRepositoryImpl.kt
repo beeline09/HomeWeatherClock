@@ -7,6 +7,8 @@ import ru.weatherclock.adg.app.data.dto.AppSettings
 import ru.weatherclock.adg.app.data.dto.ProdCalendarConfig
 import ru.weatherclock.adg.app.data.dto.orDefault
 import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.getSettings
+import ru.weatherclock.adg.app.data.repository.settings.updateSettings
 
 class ProdCalendarSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>) :
     ProdCalendarSettingsRepository {
@@ -15,12 +17,11 @@ class ProdCalendarSettingsRepositoryImpl(private val appSettings: KStore<AppSett
         get() = appSettings.updates.mapLatest { it.orDefault().calendarConfig.prodCalendarConfig }
 
     override suspend fun getConfig(): ProdCalendarConfig {
-        return appSettings.get().orDefault().calendarConfig.prodCalendarConfig
+        return appSettings.getSettings().calendarConfig.prodCalendarConfig
     }
 
     override suspend fun saveConfig(callback: ProdCalendarConfig.() -> ProdCalendarConfig) {
-        appSettings.update {
-            val s = it.orDefault()
+        appSettings.updateSettings { s ->
             s.copy(
                 calendarConfig = s.calendarConfig.copy(prodCalendarConfig = callback(s.calendarConfig.prodCalendarConfig))
             )

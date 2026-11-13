@@ -6,7 +6,6 @@ import ru.weatherclock.adg.app.data.WeatherUnits
 import ru.weatherclock.adg.app.data.serialization.ColorThemeSerializer
 import ru.weatherclock.adg.app.data.serialization.WeatherApiLanguageSerializer
 import ru.weatherclock.adg.app.data.util.isInHours
-import ru.weatherclock.adg.platformSpecific.PlatformHelper.defaultWeatherApiKey
 import ru.weatherclock.adg.platformSpecific.PlatformHelper.systemLocale
 
 @Serializable
@@ -128,10 +127,7 @@ data class WeatherConfig(
 
     @SerialName("accuweatherApiKeys") val accuweatherApiKeys: List<String> = emptyList(),
 
-    // Дефолтный ключ (jvm: local.properties; разовые сборки Android) —
-    // ключ OpenWeatherMap
-    @SerialName("openWeatherMapApiKeys") val openWeatherMapApiKeys: List<String> =
-        defaultWeatherApiKey.takeIf { it.isNotBlank() }?.let(::listOf) ?: emptyList(),
+    @SerialName("openWeatherMapApiKeys") val openWeatherMapApiKeys: List<String> = emptyList(),
 
     @SerialName("units") val units: WeatherUnits = WeatherUnits.Metric,
 

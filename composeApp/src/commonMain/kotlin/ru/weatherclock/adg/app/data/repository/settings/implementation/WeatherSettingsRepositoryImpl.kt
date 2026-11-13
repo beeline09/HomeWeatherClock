@@ -6,25 +6,86 @@ import kotlinx.coroutines.flow.mapLatest
 import ru.weatherclock.adg.app.data.WeatherUnits
 import ru.weatherclock.adg.app.data.dto.*
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.getSettings
+import ru.weatherclock.adg.app.data.repository.settings.updateSettings
+import ru.weatherclock.adg.platformSpecific.PlatformHelper.defaultWeatherApiKey
 
 class WeatherSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>) :
     WeatherSettingsRepository {
 
-    override suspend fun getConfig(): WeatherConfig = appSettings.get().orDefault().weatherConfig
+    override suspend fun getConfig(): WeatherConfig {
+        migrateLegacyApiKeysIfNeeded()
+        return appSettings.getSettings().weatherConfig
+    }
+
+    /**
+     * Одноразовая миграция ключей старого формата (единый список apiKeys):
+     * вводился для АКТИВНОГО сервера → переносится в его собственный список,
+     * legacy гасится (идемпотентно: пустой legacy = миграция уже выполнена).
+     * Плюс первый старт без ключей: подкладывается платформенный дефолт
+     * (jvm — из local.properties) как ключ OpenWeatherMap.
+     *
+     * transform применяется к АКТУАЛЬНОМУ состоянию под мьютексом
+     * (см. updateSettings): параллельные вызовы не портят файл.
+     */
+    private suspend fun migrateLegacyApiKeysIfNeeded() {
+        val config = appSettings.getSettings().weatherConfig
+        val legacy = config.weatherApiKeys
+        val targetEmpty = when (config.server) {
+            WeatherServer.Accuweather -> config.accuweatherApiKeys.isEmpty()
+            WeatherServer.OpenWeatherMap -> config.openWeatherMapApiKeys.isEmpty()
+        }
+        val needLegacyMigration = legacy.isNotEmpty() && targetEmpty
+        val needDefaultSeed = legacy.isEmpty() && config.accuweatherApiKeys.isEmpty() &&
+                config.openWeatherMapApiKeys.isEmpty() && defaultWeatherApiKey.isNotBlank()
+        if (!needLegacyMigration && !needDefaultSeed) return
+        appSettings.updateSettings { s ->
+            val cfg = s.weatherConfig
+            // Повторная проверка ПОД мьютексом от актуального состояния:
+            // если другой поток уже выполнил миграцию — не трогаем ничего
+            val targetEmpty = when (cfg.server) {
+                WeatherServer.Accuweather -> cfg.accuweatherApiKeys.isEmpty()
+                WeatherServer.OpenWeatherMap -> cfg.openWeatherMapApiKeys.isEmpty()
+            }
+            val keys: List<String>? = when {
+                cfg.weatherApiKeys.isNotEmpty() && targetEmpty -> cfg.weatherApiKeys
+                cfg.weatherApiKeys.isEmpty() && cfg.accuweatherApiKeys.isEmpty() &&
+                        cfg.openWeatherMapApiKeys.isEmpty() &&
+                        defaultWeatherApiKey.isNotBlank() -> listOf(defaultWeatherApiKey)
+
+                else -> null
+            }
+            if (keys == null) {
+                s
+            } else {
+                s.copy(
+                    weatherConfig = when (cfg.server) {
+                        WeatherServer.Accuweather -> cfg.copy(
+                            accuweatherApiKeys = keys,
+                            weatherApiKeys = emptyList()
+                        )
+
+                        WeatherServer.OpenWeatherMap -> cfg.copy(
+                            openWeatherMapApiKeys = keys,
+                            weatherApiKeys = emptyList()
+                        )
+                    }
+                )
+            }
+        }
+    }
 
     override suspend fun saveConfig(callback: WeatherConfig.() -> WeatherConfig) {
-        appSettings.update {
-            val s = it.orDefault()
+        appSettings.updateSettings { s ->
             s.copy(weatherConfig = callback(s.weatherConfig))
         }
     }
 
     override suspend fun getFetchState(): WeatherFetchState =
-        appSettings.get().orDefault().weatherFetchState
+        appSettings.getSettings().weatherFetchState
 
     override suspend fun setFetchState(state: WeatherFetchState) {
-        appSettings.update {
-            val s = it.orDefault()
+        appSettings.updateSettings { s ->
             s.copy(weatherFetchState = state)
         }
     }

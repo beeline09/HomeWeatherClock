@@ -10,6 +10,8 @@ import ru.weatherclock.adg.app.data.dto.ColorTheme
 import ru.weatherclock.adg.app.data.dto.UiConfig
 import ru.weatherclock.adg.app.data.dto.orDefault
 import ru.weatherclock.adg.app.data.repository.settings.UiSettingsRepository
+import ru.weatherclock.adg.app.data.repository.settings.getSettings
+import ru.weatherclock.adg.app.data.repository.settings.updateSettings
 
 class UiSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>): UiSettingsRepository {
 
@@ -21,24 +23,23 @@ class UiSettingsRepositoryImpl(private val appSettings: KStore<AppSettings>): Ui
      */
     override val allConfigFlow: Flow<AppSettings>
         get() = appSettings.updates
-            .onStart { emit(appSettings.get()) }
+            .onStart { emit(appSettings.getSettings()) }
             .mapLatest { it.orDefault() }
             .distinctUntilChanged()
 
     override suspend fun getAllConfig(): AppSettings {
-        return appSettings.get().orDefault()
+        return appSettings.getSettings()
     }
 
     override val uiConfigFlow: Flow<UiConfig>
         get() = appSettings.updates.mapLatest { it.orDefault().uiConfig }
 
     override suspend fun getConfig(): UiConfig {
-        return appSettings.get().orDefault().uiConfig
+        return appSettings.getSettings().uiConfig
     }
 
     override suspend fun saveConfig(callback: UiConfig.() -> UiConfig) {
-        appSettings.update {
-            val s = it.orDefault()
+        appSettings.updateSettings { s ->
             s.copy(uiConfig = callback(s.uiConfig))
         }
     }
