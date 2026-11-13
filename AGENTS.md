@@ -25,7 +25,12 @@
 
 - **JDK 21 обязателен**:
   `export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home`.
-  JDK 25 ломает Kotlin daemon (IllegalArgumentException на версии)
+  JDK 25 ломает Kotlin daemon (IllegalArgumentException на версии).
+  Запуск из Xcode экспорта терминала НЕ наследует — лечится
+  `~/.gradle/gradle.properties` (машинно-локально, не в репо):
+  `org.gradle.java.home=/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home`.
+  Симптом без него: iOS-сборка падает в фазе Run Script с
+  «What went wrong: 25.0.1»
 - APK: `composeApp/build/outputs/apk/{debug,release}/HomeWeatherClock*_1.1.0(N).apk`
 - Аудит содержимого APK — только через python `zipfile`
   (macOS `unzip -p | strings` на dex даёт мусор/пустоту — ВСЕ ранние
@@ -57,12 +62,14 @@
 
 ## Производственный календарь (xmlcalendar.ru)
 
-- **TLS на кастомных ROM**: цепочка xmlcalendar.ru → ISRG Root X2; старые
-  системные хранилища CA её не знают, а платформа ROM может игнорировать
-  network security config. Реальное решение — Android-движок Ktor OkHttp с
-  X509TrustManager «система → бандленные ISRG X1/X2» (`PlatformHelper`
-  androidMain, корни в `res/raw/isrg_root_*.pem`). NSC с якорями оставлен
-  как второй слой
+- **TLS на кастомных ROM — ИСТОРИЯ**: CA-стор на планшете обновлён
+  13.11.2026, бандл корней из приложения удалён (движок снова Android/
+  системный траст). Если на каком-то устройстве вернётся «Trust anchor
+  not found» — рецепт в git-истории: коммит 0e6394a (OkHttp-движок +
+  X509TrustManager «система → бандленные res/raw корни», NSC-якоря как
+  второй слой); корни сверять по SHA-256 отпечатку с ≥2 независимых
+  источников (chain сервера, SystemRootCertificates, сайт CA). Платформа
+  ROM может игнорировать NSC — надёжен только траст-менеджер в коде
 - Источник — **calendar.xml**, НЕ calendar.json: только XML несёт легенду
   с названиями праздников (`<holiday id title>`, дни ссылаются `h="id"`)
 - Даты в атрибутах `d`/`f` — формат **ММ.ДД** (месяц.день!):
