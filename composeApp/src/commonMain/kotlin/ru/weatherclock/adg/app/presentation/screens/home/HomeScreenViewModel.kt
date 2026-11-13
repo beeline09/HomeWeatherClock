@@ -73,6 +73,10 @@ class HomeScreenViewModel(
     }
 
     private suspend fun refreshWeatherData(currentDateTime: LocalDateTime) = safeScope.launch {
+        // Погода выключена в настройках — в сеть не ходим вовсе
+        // (раньше запрос уходил, а отсутствие ключа каждый час кидало
+        // тост «введите ключ»)
+        if (!state.value.appSettings.weatherConfig.weatherEnabled) return@launch
         val forecast = forecastUseCase.getForPeriod(
             startDate = currentDateTime.atStartOfDay(),
             endDate = currentDateTime.atEndOfDay().date

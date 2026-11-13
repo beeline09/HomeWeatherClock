@@ -4,10 +4,12 @@ import io.github.xxfast.kstore.KStore
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
+import io.ktor.client.plugins.cache.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
@@ -188,11 +190,25 @@ fun createHttpClient(
     }
 
     install(HttpRequestRetry) {
+        // Раньше ретраился ЛЮБОЙ не-2xx: невалидный ключ (401) или
+        // превышенный лимит (429) долбились по API ещё 3 раза — тройной
+        // расход квоты. Теперь повторяем только то, что имеет смысл:
         maxRetries = 3
-        retryIf { _, response -> !response.status.isSuccess() }
-        retryOnExceptionIf { _, cause -> cause is HttpRequestTimeoutException }
-        delayMillis { 3000L } // retries in 3, 6, 9, etc. seconds
+        // 5xx — серверная полка, повтор уместен
+        retryOnServerErrors()
+        // сетевые сбои/таймауты — повтор уместен
+        retryOnExceptionIf(maxRetries = 3) { _, cause ->
+            cause is HttpRequestTimeoutException || cause is IOException
+        }
+        // экспоненциальная задержка со встроенным jitter'ом; при наличии
+        // Retry-After (429) задержка берётся из заголовка сервера
+        exponentialDelay()
     }
+
+    // HTTP-кеш с валидаторами (ETag/Last-Modified → If-None-Match):
+    // повторные запросы calendar.xml при 304 не тянут тело — экономия
+    // трафика и квот
+    install(HttpCache)
 
     install(HttpCallValidator) {
         handleResponseExceptionWithRequest { cause, _ -> println("exception $cause") }
