@@ -149,19 +149,22 @@ fun HomeScreen(screenModel: HomeScreenViewModel) {
         )
     }
 
-
-
-    if (dateSelected.first) {
-        val data = dateSelected.second
-        val dateStr = data.selectedDate.toMessageDateString()
-        val prodCalendarDay = data.prodCalendarDay
-        val toastStr = buildString {
-            append(dateStr)
+    // Сайд-эффект (тост) — в LaunchedEffect, не в теле композиции:
+    // раньше повторная рекомпозиция могла показать тост ещё раз.
+    // Строка собирается в композиции (toMessageDateString/stringForToast
+    // — @Composable), показ — только в эффекте
+    val pendingToastText = dateSelected.second.takeIf { dateSelected.first }?.let { data ->
+        buildString {
+            append(data.selectedDate.toMessageDateString())
             append(". ")
-            append(prodCalendarDay.stringForToast(data.selectedDate.date))
+            append(data.prodCalendarDay.stringForToast(data.selectedDate.date))
         }
-        showToast(toastStr)
-        dateSelected = false to CalendarCallbackData()
+    }
+    LaunchedEffect(pendingToastText) {
+        if (pendingToastText != null) {
+            showToast(pendingToastText)
+            dateSelected = false to CalendarCallbackData()
+        }
     }
 
     Column(

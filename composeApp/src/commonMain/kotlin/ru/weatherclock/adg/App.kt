@@ -51,6 +51,9 @@ internal fun App(
 
     showToast = { text, action, onClick ->
         coroutineScope.launch {
+            // Новый тост отменяет ещё показывающийся: без очереди из
+            // устаревших сообщений (клика по дню месяца подряд и т.п.)
+            snackbarHostState.currentSnackbarData?.dismiss()
             val snackbarResult = snackbarHostState.showSnackbar(
                 message = text,
                 actionLabel = action,

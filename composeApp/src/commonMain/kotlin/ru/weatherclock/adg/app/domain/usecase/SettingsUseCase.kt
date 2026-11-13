@@ -32,10 +32,13 @@ class SettingsUseCase(
     val searchState: StateFlow<CitySearchState> = _searchState
     val text = MutableStateFlow("")
 
+    /** Текст последнего успешного запроса: тот же текст API повторно не дёргает */
+    private var lastQueriedText: String = ""
+
     init {
-        //Дебаунс 2с: спиннер показывается сразу при вводе (см. onSearchTextChanged),
+        //Дебаунс 1с: спиннер показывается сразу при вводе (см. onSearchTextChanged),
         //реальный запрос уходит с текущим значением текстового поля после паузы
-        text.debounce(2000).distinctUntilChanged().mapLatest {
+        text.debounce(1000).distinctUntilChanged().mapLatest {
             autocompleteSearch(it)
         }.launchIn(CoroutineScope(ioDispatcher))
     }
@@ -49,12 +52,18 @@ class SettingsUseCase(
             _searchState.value = CitySearchState.Idle
             return
         }
+        // Вернулись к тексту, по которому результат уже показан (стёр и
+        // снова набрал то же) — повторный запрос не нужен
+        if (query == lastQueriedText && _searchState.value is CitySearchState.Results) {
+            return
+        }
         _searchState.value = try {
             val list = getLocationRepository().autocompleteSearch(
                 apiKeys = weatherRepo.getApiKeys(),
                 language = weatherRepo.getWeatherLanguage().code,
                 query = query
             )
+            lastQueriedText = query
             CitySearchState.Results(list)
         } catch (e: Exception) {
             CitySearchState.Error(e)
