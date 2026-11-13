@@ -73,8 +73,6 @@ kotlin {
                 // версия 2.9.x — последняя для Compose 1.9.x)
                 implementation(libs.jb.navigation.compose)
                 implementation(libs.jb.lifecycle.viewmodel.compose)
-                implementation(libs.composeImageLoader)
-                implementation(libs.napier)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.bundles.ktor.common)
                 implementation(libs.composeIcons.featherIcons)
@@ -91,7 +89,6 @@ kotlin {
                 implementation(libs.androidx.annotation)
 //                implementation(libs.androidx.lifecycle.runtime)
                 implementation(kotlin("stdlib-common"))
-                implementation(kotlin("reflect"))
                 implementation(libs.bundles.coil)
             }
         }
@@ -108,7 +105,6 @@ kotlin {
 //                implementation(libs.koin.compose)
 //                implementation(libs.koin.android)
                 implementation(libs.sqlDelight.driver.android)
-                implementation(libs.androidx.media3.exoplayer)
                 implementation(libs.kstore.file)
             }
         }
@@ -241,7 +237,12 @@ android {
             }
         }
         getByName("release") {
-            isMinifyEnabled = false
+            // R8: минификация + шринк ресурсов. Старые устройства (планшет
+            // Android 5.1): меньше дексов = быстрее старт и меньше RAM.
+            // Правила для рефлексии (сериализация, Firebase) — в
+            // proguard-rules.pro; mapping Crashlytics заберёт сам
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

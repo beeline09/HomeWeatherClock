@@ -9,7 +9,6 @@
         android:name=".AndroidApp"
         android:icon="@mipmap/ic_launcher"
         android:label="HomeWeatherClock"
-        android:largeHeap="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
         <activity
             android:name=".AppActivity"
