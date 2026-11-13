@@ -7,7 +7,8 @@ import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 
-internal fun LocalDateTime.getMonthGrid(): List<List<Int?>> {
+// public для тестов jvmTest (internal из commonMain тестам недоступен)
+fun LocalDateTime.getMonthGrid(): List<List<Int?>> {
     val year = year
     val month = month
     val firstDayOfMonth = LocalDateTime(
@@ -18,7 +19,10 @@ internal fun LocalDateTime.getMonthGrid(): List<List<Int?>> {
         0,
         0
     )
-    val firstDayOfWeek = firstDayOfMonth.dayOfWeek.isoDayNumber % 7 - 1
+    // Неделя с понедельника: пн=0 … вс=6. ВАЖНО: без «% 7» — старая формула
+    // «% 7 - 1» давала -1 для воскресенья, и месяцы, начинающиеся с вс,
+    // смещались на колонку влево (кружки/цвета дней уезжали на соседей)
+    val firstDayOfWeek = firstDayOfMonth.dayOfWeek.isoDayNumber - 1
     val daysInMonth = getLastDayOfMonth()
     val grid = mutableListOf<List<Int?>>()
     val week = mutableListOf<Int?>()

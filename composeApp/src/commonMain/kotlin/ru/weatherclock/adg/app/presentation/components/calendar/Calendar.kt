@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -31,7 +32,11 @@ fun RowScope.Calendar(
     prodCalendarDays: List<ProdCalendarDay>,
     onDateSelected: CalendarCallback,
 ) {
-    val dates = dateTime.getMonthGrid()
+    // Сетка зависит только от года и месяца: кешируем, чтобы ежесекундный
+    // тик времени не перестраивал 35-42 ячеек (HomeScreen передаёт дату
+    // с обнулённым временем — в пределах дня параметры равны и весь
+    // Calendar скипается)
+    val dates = remember(dateTime.year, dateTime.month) { dateTime.getMonthGrid() }
     Column(
         Modifier
             .wrapContentHeight(align = Alignment.CenterVertically)

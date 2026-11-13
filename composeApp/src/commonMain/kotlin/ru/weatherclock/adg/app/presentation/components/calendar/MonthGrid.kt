@@ -3,10 +3,7 @@ package ru.weatherclock.adg.app.presentation.components.calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,10 +14,7 @@ import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,48 +43,34 @@ fun MonthGrid(
 ) {
 
     val colorPalette = LocalCustomColorsPalette.current
+    // Поиск производственного дня за O(1) вместо линейного перебора
+    // в каждой ячейке (было O(n²) на каждую рекомпозицию)
+    val prodDayByDay = remember(prodCalendarDays) {
+        prodCalendarDays.associateBy { it.date.day }
+    }
     dates.filter { it.isNotEmpty() }.forEach { week ->
         Row(Modifier.fillMaxWidth()) {
             week.forEachIndexed { dayPosInWeek, date ->
                 var hovered by remember { mutableStateOf(false) }
-                val selected by derivedStateOf {
-                    date?.let {
-                        dateHolder.checkIfSelected(
-                            date, dateTime
-                        )
-                    } ?: false
-                }
+                val selected = date?.let {
+                    dateHolder.checkIfSelected(it, dateTime)
+                } ?: false
                 val defColor = when {
                     selected -> colorPalette.calendarDaySelectedText
                     dayPosInWeek in 5..6 -> colorPalette.calendarWeekdayWeekendText
                     else -> colorPalette.calendarDayDefaultText
                 }
-                val currentProdDay = prodCalendarDays.firstOrNull { it.date.day == date }
+                val currentProdDay = prodDayByDay[date]
                 val borderColor = when {
                     hovered -> colorPalette.calendarDayHover
                     date.isCurrentDay(dateTime) -> colorPalette.calendarWeekdayBorder
                     else -> Color.Transparent
                 }
 
-                val interactionSource1 = remember { MutableInteractionSource() }
-                val interactions = remember { mutableStateListOf<Interaction>() }
-
-                LaunchedEffect(interactionSource1) {
-                    interactionSource1.interactions.collect { interaction ->
-                        when (interaction) {
-                            is PressInteraction.Press -> {
-                                interactions.add(interaction)
-                            }
-                        }
-                    }
-                }
-
-                val rippleColor = Color.White
-                val textColor =
-                    if (date in prodCalendarDays.map { it.date.day } && !selected) {
-                        val prodDay = prodCalendarDays.firstOrNull { it.date.day == date }
-                        prodDay?.color() ?: defColor
-                    } else defColor
+                val interactionSource = remember { MutableInteractionSource() }
+                val textColor = if (currentProdDay != null && !selected) {
+                    currentProdDay.color()
+                } else defColor
 
 
                 BasicText(
@@ -116,7 +96,7 @@ fun MonthGrid(
                             date?.let { hovered = false }
                         }.clickable(
                             enabled = date != null,
-                            interactionSource = interactionSource1,
+                            interactionSource = interactionSource,
                             indication = ripple(
                                 color = colorPalette.calendarDaySelectedBackground,
                             ),
@@ -129,11 +109,7 @@ fun MonthGrid(
                                     it, currentProdDay
                                 )
                             }
-                        }.indication(
-                            interactionSource = interactionSource1, indication = ripple(
-                                color = rippleColor, radius = 8.dp
-                            )
-                        ).background(
+                        }.background(
                             if (selected) Color.Red else Color.Transparent
                         ).padding(vertical = 2.dp),
                 )

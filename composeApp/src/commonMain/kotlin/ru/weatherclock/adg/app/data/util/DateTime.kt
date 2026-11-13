@@ -22,17 +22,18 @@ fun Long.epochSecondsToLocalDate(): LocalDate {
     return epochSecondsToLocalDateTime().date
 }
 
+fun LocalDate.atStartOfDay(): LocalDateTime {
+    return atTime(0, 0, 0, 0)
+}
+
 fun LocalDateTime.atStartOfDay(): LocalDateTime {
-    return LocalDateTime.now().date.atTime(
-        0,
-        0,
-        0,
-        0
-    )
+    // this.date, не now().date: возвращаем начало ДНЯ РЕСИВЕРА
+    return date.atStartOfDay()
 }
 
 fun LocalDateTime.atEndOfDay(): LocalDateTime {
-    return LocalDateTime.now().date.atTime(
+    // this.date, не now().date
+    return date.atTime(
         23,
         59,
         59,

@@ -63,6 +63,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import ru.weatherclock.adg.app.data.dto.isHourInRangeForHide
 import ru.weatherclock.adg.app.data.error.NoWeatherApiKeyException
+import ru.weatherclock.adg.app.data.util.atStartOfDay
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.presentation.components.calendar.Calendar
 import ru.weatherclock.adg.app.presentation.components.calendar.CalendarCallbackData
@@ -292,7 +293,10 @@ fun HomeScreen(screenModel: HomeScreenViewModel = koinInject()) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Calendar(
-                                dateTime = dateTime,
+                                // Время обнуляем: в пределах дня аргумент равен
+                                // сам себе — ежесекундный тик не рекомпозирует
+                                // сетку (смена дня = новый аргумент)
+                                dateTime = dateTime.date.atStartOfDay(),
                                 dateHolder = DateInput.SingleDate(),
                                 onDateSelected = { s, p ->
                                     dateSelected = true to CalendarCallbackData(
