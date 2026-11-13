@@ -53,13 +53,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
+import androidx.lifecycle.viewmodel.compose.viewModel
 import homeweatherclock.composeapp.generated.resources.Res
 import homeweatherclock.composeapp.generated.resources.weather_no_api_key_exception
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.number
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.getKoin
 import ru.weatherclock.adg.app.data.dto.isHourInRangeForHide
 import ru.weatherclock.adg.app.data.error.NoWeatherApiKeyException
 import ru.weatherclock.adg.app.data.util.atStartOfDay
@@ -80,14 +80,18 @@ import ru.weatherclock.adg.app.presentation.components.util.padStart
 import ru.weatherclock.adg.app.presentation.components.weather.WeatherCell
 import ru.weatherclock.adg.app.presentation.screens.home.components.ClockText
 import ru.weatherclock.adg.app.presentation.screens.home.components.TextCalendar
-import ru.weatherclock.adg.app.presentation.tabs.SettingsTab
 import ru.weatherclock.adg.showToast
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 
 @Composable
-fun HomeScreen(screenModel: HomeScreenViewModel) {
-    val navigator = LocalNavigator.currentOrThrow
+fun HomeScreen(
+    onOpenSettings: () -> Unit,
+) {
+    // VM в скоупе NavBackStackEntry: смерть экрана → onCleared →
+    // отмена всех корутин вьюмодели
+    val koin = getKoin()
+    val screenModel: HomeScreenViewModel = viewModel { koin.get() }
     val colorPalette = LocalCustomColorsPalette.current
     val state by screenModel.state.collectAsState()
     val settings = state.appSettings
@@ -210,7 +214,7 @@ fun HomeScreen(screenModel: HomeScreenViewModel) {
                             IconButton(
                                 onClick = {
                                     screenModel.intent(HomeScreenIntent.Settings.Hide)
-                                    navigator.push(SettingsTab)
+                                    onOpenSettings()
                                 }, modifier = Modifier.align(Alignment.Center).size(150.dp)
                             ) {
                                 Icon(

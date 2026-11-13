@@ -69,7 +69,10 @@ kotlin {
                 implementation(compose.materialIconsExtended)
                 implementation(compose.components.resources)
                 implementation(libs.kermit)
-                implementation(libs.bundles.voyager.common)
+                // Навигация: JB-порт androidx navigation-compose (type-safe
+                // версия 2.9.x — последняя для Compose 1.9.x)
+                implementation(libs.jb.navigation.compose)
+                implementation(libs.jb.lifecycle.viewmodel.compose)
                 implementation(libs.composeImageLoader)
                 implementation(libs.napier)
                 implementation(libs.kotlinx.coroutines.core)

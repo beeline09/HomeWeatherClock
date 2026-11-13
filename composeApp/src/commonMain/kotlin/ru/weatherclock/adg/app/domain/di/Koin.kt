@@ -77,9 +77,10 @@ fun commonModule(
 private fun platformModule() = module { single { defaultHttpClientEngine } }
 
 fun getScreenModelModule() = module {
-    // factory (не single): стейт живёт вместе с экраном, при уходе Voyager
-    // вызывает onDispose → скоуп вьюмодели отменяется. single-стейт переживал
-    // бы экраны с уже отменённым скоупом
+    // VM резолвятся на экране через androidx viewModel { koin.get() } —
+    // скоуп привязан к NavBackStackEntry (ViewModelStoreOwner навигации),
+    // очистка — системой жизненного цикла. koin-viewmodel-модули
+    // недоступны: появились с koin 4.2, который требует minSdk 23
     factory {
         HomeScreenViewModel(
             forecastUseCase = get(),

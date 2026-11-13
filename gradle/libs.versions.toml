@@ -18,7 +18,10 @@ compose-uitooling = "1.9.4"
 media3Exoplayer = "1.8.0"
 statelyCommon = "2.1.0"
 vlcj = "4.11.0"
-voyager = "1.0.1"
+# JB-порты navigation/lifecycle для CMP; 2.9.x — последняя линия для
+# Compose 1.9.x (2.10 требует CMP 1.10)
+jbNavigation = "2.9.2"
+jbLifecycle = "2.9.0"
 composeImageLoader = "1.10.0"
 napier = "2.7.1"
 buildConfig = "5.7.1"
@@ -53,11 +56,8 @@ compose-uitooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "
 jlayer = { module = "com.github.umjammer:jlayer", version.ref = "jlayer" }
 stately-common = { module = "co.touchlab:stately-common", version.ref = "statelyCommon" }
 vlcj = { module = "uk.co.caprica:vlcj", version.ref = "vlcj" }
-voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
-voyager-bottomSheetNavigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyager" }
-voyager-tabNavigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyager" }
-voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyager" }
-voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyager" }
+jb-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "jbNavigation" }
+jb-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "jbLifecycle" }
 composeImageLoader = { module = "io.github.qdsfdhvh:image-loader", version.ref = "composeImageLoader" }
 napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -112,14 +112,6 @@ coil = [
     "coil-compose",
     "coil-network-ktor3",
     "coil3-coil-svg"
-]
-
-voyager-common = [
-    "voyager-navigator",
-    "voyager-transitions",
-    "voyager-bottomSheetNavigator",
-    "voyager-tabNavigator",
-    "voyager-koin"
 ]
 
 [plugins]

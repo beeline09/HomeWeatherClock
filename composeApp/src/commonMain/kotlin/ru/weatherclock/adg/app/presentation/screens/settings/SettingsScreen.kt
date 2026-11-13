@@ -18,11 +18,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
+import androidx.lifecycle.viewmodel.compose.viewModel
 import homeweatherclock.composeapp.generated.resources.Res
 import homeweatherclock.composeapp.generated.resources.settings_toolbar
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.getKoin
 import ru.weatherclock.adg.app.domain.model.settings.BaseSettingItem
 import ru.weatherclock.adg.app.domain.model.settings.SettingKey
 import ru.weatherclock.adg.app.presentation.screens.settings.components.SettingsListItem
@@ -30,8 +30,11 @@ import ru.weatherclock.adg.app.presentation.screens.settings.components.backIcon
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @Composable
-fun SettingsScreen(screenModel: SettingsScreenViewModel) {
-    val navigator = LocalNavigator.currentOrThrow
+fun SettingsScreen(
+    onBack: () -> Unit,
+) {
+    val koin = getKoin()
+    val screenModel: SettingsScreenViewModel = viewModel { koin.get() }
     val colorsPalette = LocalCustomColorsPalette.current
     val state by screenModel.state.collectAsState(SettingsScreenState())
     val settings = state.settings
@@ -42,7 +45,7 @@ fun SettingsScreen(screenModel: SettingsScreenViewModel) {
                     text = stringResource(Res.string.settings_toolbar),
                     color = colorsPalette.background
                 )
-            }, navigationIcon = navigator.backIcon()
+            }, navigationIcon = backIcon(onBack = onBack)
         )
     }, content = {
         Box(

@@ -5,23 +5,18 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
-import cafe.adriel.voyager.navigator.Navigator
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 
 @Composable
-fun Navigator.backIcon(): @Composable (() -> Unit)? {
+fun backIcon(onBack: () -> Unit): @Composable (() -> Unit) {
     val colorsPalette = LocalCustomColorsPalette.current
-    return if (size > 1) {
-        {
-            IconButton(onClick = ::pop) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = colorsPalette.background
-                )
-            }
+    return {
+        IconButton(onClick = onBack) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back",
+                tint = colorsPalette.background
+            )
         }
-    } else {
-        null
     }
 }

@@ -15,11 +15,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.navigator.tab.Tab
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.launch
-import ru.weatherclock.adg.app.presentation.tabs.HomeTab
+import ru.weatherclock.adg.app.presentation.screens.home.HomeScreen
+import ru.weatherclock.adg.app.presentation.screens.settings.SettingsScreen
 import ru.weatherclock.adg.theme.AppTheme
 
 private var showToast: ((text: String, actionLabel: String, onActionClick: () -> Unit) -> Unit)? =
@@ -76,12 +78,25 @@ internal fun App(
         Box(
             modifier = Modifier.fillMaxWidth().fillMaxHeight().background(color = Color.Black)
         ) {
-            Navigator(
-                screen = HomeTab,
-                onBackPressed = {
-                    Logger.d("Pop screen #${(it as Tab).key}")
-                    true
-                })
+            val navController = rememberNavController()
+            NavHost(
+                navController = navController,
+                startDestination = "home"
+            ) {
+                composable("home") {
+                    HomeScreen(
+                        onOpenSettings = { navController.navigate("settings") }
+                    )
+                }
+                composable("settings") {
+                    SettingsScreen(
+                        onBack = {
+                            Logger.d("Pop settings")
+                            navController.popBackStack()
+                        }
+                    )
+                }
+            }
         }
     }
 }
