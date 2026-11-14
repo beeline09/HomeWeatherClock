@@ -4,8 +4,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.time.LocalDateTime
 import java.util.Properties
 
-private fun String.capitalized(): String = replaceFirstChar { it.uppercaseChar() }
-
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.jetbrainsCompose)
@@ -61,7 +59,7 @@ kotlin {
             languageSettings.optIn("kotlin.time.ExperimentalTime")
         }
 
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(compose.runtime)
                 implementation(compose.material3)
@@ -93,7 +91,7 @@ kotlin {
             }
         }
 
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.androidx.appcompat)
@@ -109,7 +107,7 @@ kotlin {
             }
         }
 
-        val jvmMain by getting {
+        val jvmMain = getByName("jvmMain") {
             dependsOn(commonMain)
             dependencies {
                 implementation(compose.desktop.common)
@@ -128,16 +126,16 @@ kotlin {
         }
 
         // Растеризационные тесты иконок/парсера календаря (SvgRasterTest и др.)
-        val jvmTest by getting {
+        val jvmTest = getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
             }
         }
 
-        val iosX64Main by getting
-        val iosArm64Main by getting
-        val iosSimulatorArm64Main by getting
-        val iosMain by creating {
+        val iosX64Main = getByName("iosX64Main")
+        val iosArm64Main = getByName("iosArm64Main")
+        val iosSimulatorArm64Main = getByName("iosSimulatorArm64Main")
+        val iosMain = create("iosMain") {
             dependsOn(commonMain)
             iosX64Main.dependsOn(this)
             iosArm64Main.dependsOn(this)
@@ -168,7 +166,9 @@ kotlin {
     }
 }
 
-android {
+// Новый DSL-интерфейс (accessor android{} типизирован устаревшим
+// BaseAppModuleExtension — работает только в legacy-режиме newDsl=false)
+extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
     namespace = appPackageName
     compileSdk = 36
 
@@ -179,14 +179,19 @@ android {
         applicationId = appPackageName
         versionCode = appVersionCode
         versionName = appVersionName
-
-        multiDexEnabled = true
+        // multiDexEnabled убран: native multidex для minSdk 21+ включён
+        // всегда (legacy multidex_DEPRECATED в AGP 9.4)
     }
     sourceSets["main"].apply {
         manifest.srcFile("src/androidMain/AndroidManifest.xml")
-        res.srcDirs("src/androidMain/resources")
-        res.srcDirs(
-            "src/androidMain/res", "src/commonMain/resources"
+        // setSrcDirs: на legacy-DSL (android.newDsl=false, нужен для KGP
+        // 2.2 × AGP 9) другого API нет — «directories set» только в new DSL
+        res.setSrcDirs(
+            listOf(
+                "src/androidMain/resources",
+                "src/androidMain/res",
+                "src/commonMain/resources"
+            )
         )
     }
 
@@ -245,7 +250,10 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                // путь от корня модуля (AGP 9 строго проверяет существование:
+                // раньше несуществующий composeApp/proguard-rules.pro
+                // молча игнорировался)
+                "src/androidMain/proguard-rules.pro"
             )
             signingConfig = if (hasReleaseSigning) signingConfigs.getByName("release")
             else signingConfigs.getByName("debug")
@@ -259,16 +267,16 @@ android {
         }
     }
 
-    applicationVariants.all {
-        val variant = this
-        variant.outputs
-            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
-            .forEach { output ->
-                val outputFileName = "HomeWeatherClock${
-                    variant.flavorName.capitalized()
-                }${variant.buildType.name.capitalized()}_${appVersionName}(${appVersionCode}).apk"
-                output.outputFileName = outputFileName
+    // Именование APK: современный API (applicationVariants устарел в AGP 9)
+    androidComponents {
+        onVariants { variant ->
+            variant.outputs.forEach { output ->
+                output.outputFileName.set(
+                    "HomeWeatherClock${variant.name.replaceFirstChar { it.uppercase() }}" +
+                        "_${appVersionName}(${appVersionCode}).apk"
+                )
             }
+        }
     }
 
     dependencies {
