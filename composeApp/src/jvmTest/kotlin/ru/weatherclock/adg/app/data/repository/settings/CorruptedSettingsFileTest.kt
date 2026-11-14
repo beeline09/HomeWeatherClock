@@ -19,10 +19,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Регресс краша на старте (найден живым тестом на планшете): kstore 0.7.1
- * пишет файл неатомарно, конкурентный читатель мог увидеть ПУСТОЙ файл —
- * SerializationException → FATAL. getSettings обязан пережить битый/пустой
- * файл: вернуть дефолт и восстановить файл.
+ * Устойчивость к битому файлу настроек: kstore 0.7.1 пишет файл
+ * неатомарно (truncate → write), поэтому конкурентный читатель может
+ * увидеть пустой или повреждённый файл — getSettings обязан вернуть
+ * дефолт и восстановить файл, а не упасть SerializationException.
  */
 class CorruptedSettingsFileTest {
 

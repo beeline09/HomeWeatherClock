@@ -152,9 +152,8 @@ fun settingsRepoModule() = module {
     single<WeatherSettingsRepository> { WeatherSettingsRepositoryImpl(appSettings = get()) }
     single<AllSettingsRepository> { AllSettingsRepositoryImpl(appSettings = get()) }
     single<SystemSettingsRepository> { SystemSettingsRepositoryImpl(appSettings = get()) }
-    // Один интерфейс — две реализации: обязательны квалификаторы,
-    // иначе Koin не резолвит LocationRepository (краш на старте,
-    // пойманный бета-тестом на планшете)
+    // Один интерфейс — две реализации: обязательны именованные
+    // квалификаторы, иначе LocationRepository не резолвится
     single<LocationRepository>(named(ACCUWEATHER)) {
         AccuweatherLocationRepoImpl(ktorService = get())
     }

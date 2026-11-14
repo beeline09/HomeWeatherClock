@@ -22,9 +22,9 @@
   androidx ViewModel (KMP) в скоупе NavBackStackEntry; koin-viewmodel-
   модули недоступны (koin 4.2+ = minSdk 23) — VM как factory + koin.get()
 - Release собирается с R8 (minify+shrink, ~4.7 МБ): правила для
-  kotlinx-serialization/xmlutil в proguard-rules.pro; любые изменения
-  DI-графа проверяются jvmTest KoinGraphTest (резолвит зависимости
-  реально), а не живым крашем на устройстве
+  kotlinx-serialization/xmlutil в proguard-rules.pro; после любых
+  изменений DI-графа запускать jvmTest KoinGraphTest — он реально
+  резолвит зависимости и ловит дыры конфигурации модулей
 - Таргеты: jvm, iosX64, iosArm64, iosSimulatorArm64
 - minSdk 21, compileSdk 36, targetSdk 36
 - Константы приложения (имя/пакет/версия) и все версии — в
