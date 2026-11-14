@@ -118,7 +118,8 @@ fun HomeScreen(
         (!isHourInRangeForHide || !uiConfig.isGridCalendarHidden) && calendarConfig.gridCalendarEnabled
 
 
-    // Ежечасный бип — по событию
+    // Бип (стартовый и ежечасный) — по событию. Эффект обязан стоять
+    // ВЫШЕ onLaunch: подписка должна успеть до стартового эмита
     LaunchedEffect(Unit) {
         screenModel.hourlyBeep.collect {
             AudioPlayer.play(ResourceWrapper("files/casiohour.mp3"))

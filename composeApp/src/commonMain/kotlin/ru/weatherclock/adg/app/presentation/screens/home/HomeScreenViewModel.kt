@@ -110,6 +110,10 @@ class HomeScreenViewModel(
     }
 
     fun onLaunch() {
+        // Бип при старте — подтверждение работоспособности звука.
+        // Безусловно: окно часов (start/end) проверяется только для
+        // ежечасных бипов
+        _hourlyBeep.tryEmit(Unit)
         refreshCalendarData()
         allSettingsJob?.cancel()
         allSettingsJob = settingsUseCase.getAllSettingsFlow().onEach {
