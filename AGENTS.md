@@ -8,12 +8,23 @@
 
 - **Стек зафиксирован ради minSdk 21** (планшет на Android 5.1):
   Gradle 8.14, Kotlin 2.2.21, AGP 8.13.0, Compose 1.9.2, coil 3.3.0,
-  koin 4.1.1, ktor 3.3.1, firebase-bom 33.1.0, SQLDelight 2.1.0
+  koin 4.1.1, ktor 3.3.1, firebase-bom 33.1.0, SQLDelight 2.2.1
+  (последняя с minSdk 21; 2.4.1 требует 23), навигация — JB-порт
+  androidx navigation-compose 2.9.2 (последняя линия для Compose 1.9.x;
+  2.10 требует CMP 1.10; Nav3 — только minSdk 23+), lifecycle-viewmodel
+  2.9.0
 - Почему зафиксирован: compose ≥1.10 требует minSdk 23, а его же
   плагин ≤1.9 несовместим с AGP 9 (пустое окно совместимости);
   coil ≥3.6 и appcompat ≥1.8 / activity ≥1.12 / koin ≥4.2 — тоже minSdk 23.
   Откат тулчейна — осознанное решение (2026-11-07), НЕ «обновлять обратно»
   без пересмотра поддержки 5.1
+- Voyager удалён (2026-11-14): навигация — NavHost/composable, VM —
+  androidx ViewModel (KMP) в скоупе NavBackStackEntry; koin-viewmodel-
+  модули недоступны (koin 4.2+ = minSdk 23) — VM как factory + koin.get()
+- Release собирается с R8 (minify+shrink, ~4.7 МБ): правила для
+  kotlinx-serialization/xmlutil в proguard-rules.pro; любые изменения
+  DI-графа проверяются jvmTest KoinGraphTest (резолвит зависимости
+  реально), а не живым крашем на устройстве
 - Таргеты: jvm, iosX64, iosArm64, iosSimulatorArm64
 - minSdk 21, compileSdk 36, targetSdk 36
 - Константы приложения (имя/пакет/версия) и все версии — в
