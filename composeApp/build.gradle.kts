@@ -91,6 +91,11 @@ kotlin {
             }
         }
 
+        // Пустой source set: AGP 9 задача Compose Preview (IDE-синк)
+        // требует unit-test компонент у КАЖДОГО варианта, включая release;
+        // без androidUnitTest KGP его не создаёт
+        val androidUnitTest = getByName("androidUnitTest")
+
         val androidMain = getByName("androidMain") {
             dependsOn(commonMain)
             dependencies {
@@ -199,6 +204,13 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
         compose = true
     }
 
+    // AGP 9: задача Compose Preview (generateComposePreviewRunfiles) для
+    // IDE-синка требует android-ресурсы в unit tests — без флага sync
+    // в Android Studio падает на warm-up task model
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
     }
@@ -269,6 +281,14 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
 
     // Именование APK: современный API (applicationVariants устарел в AGP 9)
     androidComponents {
+        // AGP 9: generateComposePreviewRunfiles (Compose Preview, IDE-синк)
+        // создаётся для КАЖДОГО варианта и требует unit-test компонент —
+        // KGP гасит его (enableUnitTest=false), возвращаем. Каст к
+        // интерфейсу — generic-типизация KMP-accessor'а не даёт свойств
+        beforeVariants { builder ->
+            (builder as? com.android.build.api.variant.HasUnitTestBuilder)
+                ?.enableUnitTest = true
+        }
         onVariants { variant ->
             variant.outputs.forEach { output ->
                 output.outputFileName.set(
