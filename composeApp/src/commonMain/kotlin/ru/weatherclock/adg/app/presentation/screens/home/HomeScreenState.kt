@@ -4,7 +4,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import ru.weatherclock.adg.app.data.dto.AppSettings
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
+import ru.weatherclock.adg.app.domain.util.now
 import ru.weatherclock.adg.app.presentation.components.viewModel.State
 
 /**
@@ -13,7 +13,7 @@ import ru.weatherclock.adg.app.presentation.components.viewModel.State
  * (часы:минуты, мигание точек, прогноз) — отдельные StateFlow вьюмодели.
  */
 data class HomeScreenState(
-    val date: LocalDate = LocalDateTime.now().date, // LocalDateTime.now — project extension (dateTypes.now)
+    val date: LocalDate = LocalDateTime.now().date, // now — domain.util
     val currentProdDay: ProdCalendarDay? = null,
     val prodCalendarDaysForCurrentMonth: List<ProdCalendarDay> = emptyList(),
     val settingsButtonShowed: Boolean = false,

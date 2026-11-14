@@ -70,7 +70,7 @@ import ru.weatherclock.adg.app.presentation.components.calendar.CalendarCallback
 import ru.weatherclock.adg.app.presentation.components.calendar.color
 import ru.weatherclock.adg.app.presentation.components.calendar.localizedDescription
 import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.DateInput
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
+import ru.weatherclock.adg.app.domain.util.now
 import ru.weatherclock.adg.app.presentation.components.calendar.stringForToast
 import ru.weatherclock.adg.app.presentation.components.calendar.toMessageDateString
 import ru.weatherclock.adg.app.presentation.components.player.AudioPlayer

@@ -8,8 +8,6 @@ import ru.weatherclock.adg.app.data.dto.AppSettings
 import ru.weatherclock.adg.app.data.dto.CityConfig
 import ru.weatherclock.adg.app.data.dto.WeatherServer
 import ru.weatherclock.adg.app.data.repository.location.LocationRepository
-import ru.weatherclock.adg.app.data.repository.location.implementation.AccuweatherLocationRepoImpl
-import ru.weatherclock.adg.app.data.repository.location.implementation.OpenWeatherMapLocationRepoImpl
 import ru.weatherclock.adg.app.data.repository.settings.*
 import ru.weatherclock.adg.app.data.util.isInHours
 import ru.weatherclock.adg.app.domain.model.settings.*
@@ -24,8 +22,8 @@ class SettingsUseCase(
     private val weatherRepo: WeatherSettingsRepository,
     private val uiSettingsRepository: UiSettingsRepository,
     private val systemSettingsRepository: SystemSettingsRepository,
-    private val accuweatherLocationRepoImpl: AccuweatherLocationRepoImpl,
-    private val openWeatherMapLocationRepoImpl: OpenWeatherMapLocationRepoImpl,
+    private val accuweatherLocationRepoImpl: LocationRepository,
+    private val openWeatherMapLocationRepoImpl: LocationRepository,
 ) {
 
     private val _searchState = MutableStateFlow<CitySearchState>(CitySearchState.Idle)

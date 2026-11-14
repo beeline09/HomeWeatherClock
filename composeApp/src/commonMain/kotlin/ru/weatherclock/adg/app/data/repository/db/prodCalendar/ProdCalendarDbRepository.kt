@@ -1,21 +1,14 @@
 package ru.weatherclock.adg.app.data.repository.db.prodCalendar
 
-import kotlinx.coroutines.flow.Flow
-import ru.weatherclock.adg.db.ProdCalendar.ProdCalendar
+import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 
+/** Интерфейс на ДОМЕННЫХ типах: слой domain не знает про схему БД */
 interface ProdCalendarDbRepository {
 
-    suspend fun getAllProductionDays(): List<ProdCalendar>
-    fun getAllProductionDaysFlow(): Flow<List<ProdCalendar>>
-    suspend fun insert(day: ProdCalendar)
-    suspend fun insert(days: List<ProdCalendar>)
+    suspend fun insert(days: List<ProdCalendarDay>, region: Int)
+
     suspend fun getByRegionAndYear(
         region: Int,
         year: Int
-    ): List<ProdCalendar>
-
-    fun getByRegionAndYearFlow(
-        region: Int,
-        year: Int
-    ): Flow<List<ProdCalendar>>
+    ): List<ProdCalendarDay>
 }

@@ -49,8 +49,8 @@ import ru.weatherclock.adg.app.data.dto.forecast.openweathermap.detail.toPartOfD
 import ru.weatherclock.adg.app.data.repository.db.forecast.AccuweatherDbRepository
 import ru.weatherclock.adg.app.data.repository.db.forecast.OpenWeatherMapDbRepository
 import ru.weatherclock.adg.app.data.repository.settings.WeatherSettingsRepository
-import ru.weatherclock.adg.app.data.repository.weather.implementation.AccuweatherForecastRepositoryImpl
-import ru.weatherclock.adg.app.data.repository.weather.implementation.OpenWeatherMapForecastRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.weather.AccuweatherForecastRepository
+import ru.weatherclock.adg.app.data.repository.weather.OpenWeatherMapForecastRepository
 import ru.weatherclock.adg.app.data.util.fromDbToLocalDateTime
 import ru.weatherclock.adg.app.data.util.isEqualsByHour
 import ru.weatherclock.adg.app.domain.model.forecast.DayDetail
@@ -59,14 +59,14 @@ import ru.weatherclock.adg.app.domain.model.forecast.Forecast
 import ru.weatherclock.adg.app.domain.model.forecast.ForecastDay
 import ru.weatherclock.adg.app.domain.model.forecast.Severity
 import ru.weatherclock.adg.app.domain.model.forecast.asDomainModel
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
+import ru.weatherclock.adg.app.domain.util.now
 import ru.weatherclock.adg.db.OpenWeatherMap.ForecastItem
 import ru.weatherclock.adg.db.OpenWeatherMap.MainInfo
 import ru.weatherclock.adg.db.OpenWeatherMap.WeatherIcon
 
 class ForecastUseCase(
-    private val accuweatherRepository: AccuweatherForecastRepositoryImpl,
-    private val openWeatherMapRepository: OpenWeatherMapForecastRepositoryImpl,
+    private val accuweatherRepository: AccuweatherForecastRepository,
+    private val openWeatherMapRepository: OpenWeatherMapForecastRepository,
     private val accuweatherDbRepository: AccuweatherDbRepository,
     private val openWeatherMapDbRepository: OpenWeatherMapDbRepository,
     private val weatherSettingsRepository: WeatherSettingsRepository,
@@ -159,12 +159,21 @@ class ForecastUseCase(
         }
     }
 
-    /** Кеш БД по текущему периоду (сегодня..+5 дней) */
+    /**
+     * Кеш БД по текущему периоду (сегодня..+5 дней). Ошибки БД не должны
+     * ронять приложение (uncaught в цикле stateIn = FATAL): тихий null —
+     * цикл продолжит работу, при успехе сети данные восстановятся.
+     */
     private suspend fun getForecastInternalCached(now: LocalDateTime = LocalDateTime.now()): Forecast? {
-        return getForecastInternal(
-            startDate = now.atStartOfDay(),
-            endDate = now.atEndOfDay().date.plus(DatePeriod(days = 5)).atTime(23, 59, 59)
-        )
+        return try {
+            getForecastInternal(
+                startDate = now.atStartOfDay(),
+                endDate = now.atEndOfDay().date.plus(DatePeriod(days = 5)).atTime(23, 59, 59)
+            )
+        } catch (e: Exception) {
+            println("Forecast cache read failed: ${e.message}")
+            null
+        }
     }
 
     private suspend fun getAccuweatherForecastRemote(): AccuweatherForecastDto {

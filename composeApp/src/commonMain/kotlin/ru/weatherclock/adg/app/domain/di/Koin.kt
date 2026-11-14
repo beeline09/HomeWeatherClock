@@ -16,6 +16,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 import org.koin.core.context.startKoin
+import org.koin.core.qualifier.named
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 import ru.weatherclock.adg.app.data.dto.AppSettings
@@ -32,10 +33,13 @@ import ru.weatherclock.adg.app.data.repository.db.forecast.implementation.Accuwe
 import ru.weatherclock.adg.app.data.repository.db.forecast.implementation.OpenWeatherMapDbRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.ProdCalendarDbRepository
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.implementation.ProdCalendarDbRepositoryImpl
+import ru.weatherclock.adg.app.data.repository.location.LocationRepository
 import ru.weatherclock.adg.app.data.repository.location.implementation.AccuweatherLocationRepoImpl
 import ru.weatherclock.adg.app.data.repository.location.implementation.OpenWeatherMapLocationRepoImpl
 import ru.weatherclock.adg.app.data.repository.settings.*
 import ru.weatherclock.adg.app.data.repository.settings.implementation.*
+import ru.weatherclock.adg.app.data.repository.weather.AccuweatherForecastRepository
+import ru.weatherclock.adg.app.data.repository.weather.OpenWeatherMapForecastRepository
 import ru.weatherclock.adg.app.data.repository.weather.implementation.AccuweatherForecastRepositoryImpl
 import ru.weatherclock.adg.app.data.repository.weather.implementation.OpenWeatherMapForecastRepositoryImpl
 import ru.weatherclock.adg.app.domain.usecase.CalendarUseCase
@@ -96,12 +100,12 @@ fun getScreenModelModule() = module {
 fun getDataModule(
     enableNetworkLogs: Boolean
 ) = module {
-    single<AccuweatherForecastRepositoryImpl> {
+    single<AccuweatherForecastRepository> {
         AccuweatherForecastRepositoryImpl(
             ktorService = get()
         )
     }
-    single<OpenWeatherMapForecastRepositoryImpl> {
+    single<OpenWeatherMapForecastRepository> {
         OpenWeatherMapForecastRepositoryImpl(
             ktorService = get()
         )
@@ -148,9 +152,19 @@ fun settingsRepoModule() = module {
     single<WeatherSettingsRepository> { WeatherSettingsRepositoryImpl(appSettings = get()) }
     single<AllSettingsRepository> { AllSettingsRepositoryImpl(appSettings = get()) }
     single<SystemSettingsRepository> { SystemSettingsRepositoryImpl(appSettings = get()) }
-    single { AccuweatherLocationRepoImpl(ktorService = get()) }
-    single { OpenWeatherMapLocationRepoImpl(ktorService = get()) }
+    // Один интерфейс — две реализации: обязательны квалификаторы,
+    // иначе Koin не резолвит LocationRepository (краш на старте,
+    // пойманный бета-тестом на планшете)
+    single<LocationRepository>(named(ACCUWEATHER)) {
+        AccuweatherLocationRepoImpl(ktorService = get())
+    }
+    single<LocationRepository>(named(OPEN_WEATHER_MAP)) {
+        OpenWeatherMapLocationRepoImpl(ktorService = get())
+    }
 }
+
+private const val ACCUWEATHER = "accuweather"
+private const val OPEN_WEATHER_MAP = "openWeatherMap"
 
 fun getUseCaseModule() = module {
     // Скоуп приложения: живёт дольше любого экрана — держатели
@@ -183,8 +197,8 @@ fun getUseCaseModule() = module {
             weatherRepo = get(),
             uiSettingsRepository = get(),
             systemSettingsRepository = get(),
-            accuweatherLocationRepoImpl = get(),
-            openWeatherMapLocationRepoImpl = get()
+            accuweatherLocationRepoImpl = get(named(ACCUWEATHER)),
+            openWeatherMapLocationRepoImpl = get(named(OPEN_WEATHER_MAP))
         )
     }
 }

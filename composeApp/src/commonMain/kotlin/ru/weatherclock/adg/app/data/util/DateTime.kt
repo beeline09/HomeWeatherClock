@@ -6,7 +6,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
+import ru.weatherclock.adg.app.domain.util.now
 import ru.weatherclock.adg.app.presentation.components.util.padStart
 import kotlin.math.abs
 import kotlin.time.ExperimentalTime

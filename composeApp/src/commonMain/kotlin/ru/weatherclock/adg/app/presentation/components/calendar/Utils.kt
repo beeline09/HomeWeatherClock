@@ -21,7 +21,7 @@ import org.jetbrains.compose.resources.stringResource
 import ru.weatherclock.adg.app.domain.model.calendar.DayType
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
 import ru.weatherclock.adg.app.domain.model.calendar.typeText
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
+import ru.weatherclock.adg.app.domain.util.now
 import ru.weatherclock.adg.app.presentation.components.text.toMonthName
 import ru.weatherclock.adg.theme.LocalCustomColorsPalette
 

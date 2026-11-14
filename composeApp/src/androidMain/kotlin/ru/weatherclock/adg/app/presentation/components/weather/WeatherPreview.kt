@@ -9,7 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import ru.weatherclock.adg.app.data.dto.WeatherConfig
 import ru.weatherclock.adg.app.domain.model.forecast.DayDetail
 import ru.weatherclock.adg.app.domain.model.forecast.ForecastDay
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
+import ru.weatherclock.adg.app.domain.util.now
 import ru.weatherclock.adg.theme.AppTheme
 
 @Composable

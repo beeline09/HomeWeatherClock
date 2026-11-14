@@ -309,13 +309,6 @@ fun initializeInput(
     }
 }
 
-@OptIn(ExperimentalTime::class)
-fun LocalDateTime.Companion.now(): LocalDateTime =
-    kotlin.time.Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-
-fun LocalDate.Companion.now(): LocalDate =
-    kotlin.time.Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-
 fun LocalDateTime.withDayOfMonth(day: Int) = LocalDateTime(
     year,
     month,

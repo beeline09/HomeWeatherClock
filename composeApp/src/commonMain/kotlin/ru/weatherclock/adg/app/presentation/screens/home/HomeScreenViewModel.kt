@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import ru.weatherclock.adg.app.data.util.atStartOfSecond
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
+import ru.weatherclock.adg.app.domain.util.now
 import ru.weatherclock.adg.app.data.util.isEqualsByDayOfMonth
 import ru.weatherclock.adg.app.data.util.isEqualsByMonthNumber
 import ru.weatherclock.adg.app.domain.model.forecast.Forecast

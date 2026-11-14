@@ -6,9 +6,7 @@ import ru.weatherclock.adg.app.data.repository.calendar.CalendarRemoteRepository
 import ru.weatherclock.adg.app.data.repository.db.prodCalendar.ProdCalendarDbRepository
 import ru.weatherclock.adg.app.data.repository.settings.ProdCalendarSettingsRepository
 import ru.weatherclock.adg.app.domain.model.calendar.ProdCalendarDay
-import ru.weatherclock.adg.app.domain.model.calendar.asDbModel
-import ru.weatherclock.adg.app.domain.model.calendar.asDomainModel
-import ru.weatherclock.adg.app.presentation.components.calendar.dateTypes.now
+import ru.weatherclock.adg.app.domain.util.now
 
 class CalendarUseCase(
     private val calendarRemoteRepository: CalendarRemoteRepository,
@@ -24,11 +22,11 @@ class CalendarUseCase(
         return prodCalendarDbRepository.getByRegionAndYear(
             region = CALENDAR_DB_REGION,
             year = year
-        ).map { it.asDomainModel() }
+        )
     }
 
     suspend fun insert(days: List<ProdCalendarDay>) {
-        prodCalendarDbRepository.insert(days = days.map { it.asDbModel(region = CALENDAR_DB_REGION) })
+        prodCalendarDbRepository.insert(days = days, region = CALENDAR_DB_REGION)
     }
 
     private suspend fun getProductionCalendarRemote(year: Int): List<ProdCalendarDay> {
@@ -42,7 +40,14 @@ class CalendarUseCase(
      */
     suspend fun getProdCalendar(): List<ProdCalendarDay> {
         val year = LocalDate.now().year
-        val daysFromDb = getProdCalendarForCurrentYearDb(year = year)
+        // Ошибка БД не должна ронять ежеминутный тик: тихо считаем кеш
+        // пустым и идём в сеть
+        val daysFromDb = try {
+            getProdCalendarForCurrentYearDb(year = year)
+        } catch (e: Exception) {
+            println("Calendar cache read failed: ${e.message}")
+            emptyList()
+        }
         return daysFromDb.ifEmpty {
             println("DatabaseProdCalendar is empty or old. Request from network...")
             //Ошибки сети/разбора календаря не критичны — тихий фолбэк на кеш
